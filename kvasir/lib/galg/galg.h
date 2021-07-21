@@ -437,6 +437,11 @@ namespace galg
 				(x() * v2.y()) - (y() * v2.x()));
 		}
 
+		FORCE_INLINE vec4<T> xyz1()
+		{
+			return vec4<T>(x, y, z, (T)1);
+		}
+
 		ALGEBRAIC_VEC(vec3, 3)
 		VEC_STD_OPS(vec3, 3)
 	};
@@ -558,16 +563,25 @@ namespace galg
 				{0, 0, -(T)2.0 / (far - near), 0},
 				{-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), (T)1}};
 		}
-		static mat4 look_at(const vec4<T> &pos, const vec4<T> &target, const vec4<T> &up)
+		template <typename E>
+		static mat4 look_at_vec_x(const E &pos, const E &target, const E &up)
 		{
-			auto new_forward = (target - pos).normalize();
-			auto new_up = (up - (new_forward * up.dot(new_forward))).normalize();
-			auto new_right = new_up.cross(new_forward);
+			E new_forward = (target - pos).normalize();
+			E new_up = (up - (new_forward * up.dot(new_forward))).normalize();
+			E new_right = new_up.cross(new_forward);
 			return mat4{
 				{new_right.x(), new_right.y(), new_right.z(), 0},
 				{new_up.x(), new_up.y(), new_up.z(), 0},
 				{new_forward.x(), new_forward.y(), new_forward.z(), 0},
 				{pos.x(), pos.y(), pos.z(), (T)1}};
+		}
+		FORCE_INLINE static mat4 look_at(const vec3<T> &pos, const vec3<T> &target, const vec3<T> &up)
+		{
+			return look_at_vec_x<vec3<T>>(pos, target, up);
+		}
+		FORCE_INLINE static mat4 look_at(const vec4<T> &pos, const vec4<T> &target, const vec4<T> &up)
+		{
+			return look_at_vec_x<vec4<T>>(pos, target, up);
 		}
 		FORCE_INLINE static mat4 scale(T x, T y, T z)
 		{
@@ -576,6 +590,10 @@ namespace galg
 				{0, y, 0, 0},
 				{0, 0, z, 0},
 				{0, 0, 0, (T)1}};
+		}
+		FORCE_INLINE static mat4 scale(vec3<T> s)
+		{
+			return scale(s.x(), s.y(), s.z());
 		}
 		FORCE_INLINE static mat4 scale(vec4<T> s)
 		{
@@ -590,6 +608,10 @@ namespace galg
 				{x, y, z, (T)1}};
 		}
 		FORCE_INLINE static mat4 translation(vec4<T> t)
+		{
+			return translation(t.x(), t.y(), t.z());
+		}
+		FORCE_INLINE static mat4 translation(vec3<T> t)
 		{
 			return translation(t.x(), t.y(), t.z());
 		}
@@ -622,6 +644,10 @@ namespace galg
 			return x_rotation(x) * y_rotation(y) * z_rotation(z);
 		}
 		FORCE_INLINE static mat4 rotation(vec4<T> r)
+		{
+			return rotation(r.x(), r.y(), r.z());
+		}
+		FORCE_INLINE static mat4 rotation(vec3<T> r)
 		{
 			return rotation(r.x(), r.y(), r.z());
 		}

@@ -3,6 +3,7 @@
 
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"
+#include "./src/utils/memory-aid.h"
 
 using namespace galg;
 

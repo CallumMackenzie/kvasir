@@ -29,5 +29,4 @@ namespace kvasir
     {
         return mat4f::identity();
     }
-
 }
