@@ -19,3 +19,5 @@ Debug
 *.tmp
 *.sln
 *.class
+Testing
+build/glfw
