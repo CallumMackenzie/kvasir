@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(kvasir-engine VERSION 0.1.0)
 
+if (CMAKE_VERSION VERSION_LESS "3.1")
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17")
+	endif ()
+	else ()
+		set (CMAKE_CXX_STANDARD 17)
+endif ()
+
 include(CTest)
 enable_testing()
 
@@ -24,6 +32,7 @@ include_directories(
 	./lib/glfw/include/GLFW
 	./lib/glad/include/KHR
 	./lib/galg
+	./src/render-base
 	${FREETYPE_INCLUDE_DIRS}
 )
 add_library(kvasir-engine ./src/kvasir-engine.cpp ./lib/glad/glad.c)

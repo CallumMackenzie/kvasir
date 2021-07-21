@@ -20,13 +20,18 @@ struct frame_manager
 		desired_delta = 1.0 / fps;
 	}
 
-	static inline double clock_to_sec(clock_t clock)
+	inline double delta() const
+	{
+		return delta_time;
+	}
+
+	static inline double clock_to_sec(const clock_t clock)
 	{
 		return (double)clock / (double)CLOCKS_PER_SEC;
 	}
 
 private:
-	clock_t last_frame;
+	clock_t last_frame = clock();
 	double delta_time;
 	double desired_delta = 1.0 / 60;
 };

@@ -3,8 +3,7 @@
 
 #include "khrplatform.h"
 #include "glad.h"
-#include "glfw3.h"
-#include "glfw3native.h"
+#include "glfw-window.h"
 #include <iostream>
 
 #ifdef _WIN32
@@ -18,7 +17,7 @@ void gl_print_errors()
 		std::cerr << "OpenGL error code: " << err << std::endl;
 }
 
-struct gl_window
+struct gl_window : glfw_window
 {
 	enum init_result
 	{
@@ -26,19 +25,6 @@ struct gl_window
 		null_window_ptr,
 		no_gl_funcs_found
 	};
-
-	GLFWwindow *window = nullptr;
-
-	gl_window() {}
-	~gl_window()
-	{
-		glfwTerminate();
-	}
-
-	bool should_close()
-	{
-		return glfwWindowShouldClose(window);
-	}
 
 	void set_clear_colour(long colour)
 	{
@@ -53,55 +39,23 @@ struct gl_window
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void swap_buffers()
-	{
-		glfwSwapBuffers(window);
-	}
-
-	void poll_events()
-	{
-		glfwPollEvents();
-	}
-
-	void set_position(int screen_x, int screen_y)
-	{
-		glfwSetWindowPos(window, screen_x, screen_y);
-	}
-
-	init_result init(const char *title = "", unsigned int s_width = 720, unsigned int s_height = 480,
+	init_result init(const char *title = "", int s_width = 720, int s_height = 480,
 					 GLFWframebuffersizefun on_win_resize = framebuffer_size_callback)
 	{
-		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_DOUBLEBUFFER, 1);
-		window = glfwCreateWindow((int)s_width, (int)s_height, title, NULL, NULL);
-		if (!window)
-		{
-			glfwTerminate();
+		int hints[8]{
+			GLFW_CONTEXT_VERSION_MAJOR, 3,
+			GLFW_CONTEXT_VERSION_MINOR, 3,
+			GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE,
+			GLFW_DOUBLEBUFFER, 1};
+		set_hints(hints, 4);
+		if (!create_window(title, s_width, s_height))
 			return null_window_ptr;
-		}
-		glfwMakeContextCurrent(window);
+		set_gl_current_context();
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return no_gl_funcs_found;
-		glViewport(0, 0, (int)s_width, (int)s_height);
-		glfwSetFramebufferSizeCallback(window, on_win_resize);
+		glViewport(0, 0, s_width, s_height);
+		set_resize_callback(on_win_resize);
 		return init_success;
-	}
-
-	uint get_width()
-	{
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		return width;
-	}
-
-	uint get_height()
-	{
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		return height;
 	}
 
 	static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -206,6 +160,16 @@ struct shader_vf
 	void mat4f(const char *name, float mat[4][4])
 	{
 		glUniformMatrix4fv(gsl(name), 1, false, &mat[0][0]);
+	}
+
+	void mat3f(const char *name, float mat[3][3])
+	{
+		glUniformMatrix3fv(gsl(name), 1, false, &mat[0][0]);
+	}
+
+	void mat2f(const char *name, float mat[2][2])
+	{
+		glUniformMatrix2fv(gsl(name), 1, false, &mat[0][0]);
 	}
 
 	static uint compile_shader(const char *src, uint shader_type)
