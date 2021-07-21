@@ -108,6 +108,11 @@ struct gl_window
 	{
 		glViewport(0, 0, width, height);
 	}
+
+	static inline bool init_ok(init_result res)
+	{
+		return res == init_success;
+	}
 };
 
 struct shader_vf

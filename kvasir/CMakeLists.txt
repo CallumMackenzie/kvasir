@@ -17,7 +17,15 @@ add_subdirectory(./lib/glfw glfw)
 find_package(Freetype REQUIRED)
 link_directories(./lib/glfw ./lib/freetype)
 
-include_directories(./src ./src/utils ./lib/glad/include ./lib/glfw/include ${FREETYPE_INCLUDE_DIRS})
+include_directories(
+	./src 
+	./src/utils 
+	./lib/glad/include/glad
+	./lib/glfw/include/GLFW
+	./lib/glad/include/KHR
+	./lib/galg
+	${FREETYPE_INCLUDE_DIRS}
+)
 add_library(kvasir-engine ./src/kvasir-engine.cpp ./lib/glad/glad.c)
 target_link_libraries(kvasir-engine glfw ${FREETYPE_LIBRARIES} ) 
 
