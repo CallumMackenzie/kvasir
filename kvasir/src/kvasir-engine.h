@@ -39,9 +39,16 @@ namespace kvasir
 		{
 			if (!base)
 				return NULL_BASE;
-			if (!base->init("Win", 720, 480))
+			if (!base->init("Kvasir", 720, 480))
 				return BASE_INIT_FAIL;
 			base->set_clear_colour(0xff00ff);
+			base->set_fullscreen();
+			base->set_windowed();
+			base->set_size(720, 480);
+			base->set_resizable(false);
+			base->set_visible(false);
+			base->set_resizable(true);
+			base->set_visible(true);
 			for (;;)
 			{
 				if (f_manager.next_frame_ready())

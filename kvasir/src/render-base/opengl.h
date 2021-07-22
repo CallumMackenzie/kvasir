@@ -19,43 +19,79 @@ void gl_print_errors()
 
 struct gl_window : glfw_window
 {
+	int gl_hints[8]{
+		GLFW_CONTEXT_VERSION_MAJOR, 3,
+		GLFW_CONTEXT_VERSION_MINOR, 3,
+		GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE,
+		GLFW_DOUBLEBUFFER, 1};
+
 	enum init_result
 	{
 		init_success,
 		null_window_ptr,
 		no_gl_funcs_found
-	}; 
-	
+	};
+
+	long clear_colour = 0x0f0f0f;
+
 	void set_clear_colour(long colour)
 	{
 		int r = (colour & 0xFF0000) >> 16;
 		int g = (colour & 0x00FF00) >> 8;
 		int b = (colour & 0x0000FF);
+		clear_colour = colour;
 		glClearColor((float)r / 255.f, (float)g / 255.f, (float)b / 255.f, 1.0);
 	}
-
-	void clear()
+	inline void reset_clear_colour() { set_clear_colour(clear_colour); }
+	void clear() { glClear(GL_COLOR_BUFFER_BIT); }
+	inline void size_viewport() { glViewport(0, 0, get_width(), get_height()); }
+	inline bool gl_load()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
-	init_result init(const char *title = "", int s_width = 720, int s_height = 480, 
-					 GLFWframebuffersizefun on_win_resize = framebuffer_size_callback)
-	{
-		int hints[8]{
-			GLFW_CONTEXT_VERSION_MAJOR, 3,
-			GLFW_CONTEXT_VERSION_MINOR, 3,
-			GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE,
-			GLFW_DOUBLEBUFFER, 1};
-		set_hints(hints, 4);
-		if (!create_fullscreen_window(title))//, s_width, s_height))
-			return null_window_ptr;
 		set_gl_current_context();
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-			return no_gl_funcs_found;
-		glViewport(0, 0, s_width, s_height);
+			return false;
+		size_viewport();
+		reset_clear_colour();
+		return true;
+	}
+	init_result init(const char *title = "", int s_width = 720, int s_height = 480,
+					 GLFWframebuffersizefun on_win_resize = framebuffer_size_callback)
+	{
+		set_hints(gl_hints, 4);
+		if (!create_window(title, s_width, s_height)) //, s_width, s_height))
+			return null_window_ptr;
 		set_resize_callback(on_win_resize);
+		if (!gl_load())
+			return no_gl_funcs_found;
 		return init_success;
+	}
+	bool set_fullscreen()
+	{
+		set_hints(gl_hints, 4);
+		if (!recreate_fullscreen())
+			return false;
+		return gl_load();
+	}
+	bool set_windowed()
+	{
+		set_hints(gl_hints, 4);
+		if (!recreate_windowed())
+			return false;
+		return gl_load();
+	}
+	bool set_resizable(bool r)
+	{
+		set_hints(gl_hints, 4);
+		if (!recreate_resizable(r))
+			return false;
+		return gl_load();
+	}
+	bool set_visible(bool b)
+	{
+		set_hints(gl_hints, 4);
+		if (!recreate_visible(b))
+			return false;
+		return gl_load();
 	}
 
 	static void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
