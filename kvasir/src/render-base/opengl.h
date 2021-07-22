@@ -24,8 +24,8 @@ struct gl_window : glfw_window
 		init_success,
 		null_window_ptr,
 		no_gl_funcs_found
-	};
-
+	}; 
+	
 	void set_clear_colour(long colour)
 	{
 		int r = (colour & 0xFF0000) >> 16;
@@ -39,7 +39,7 @@ struct gl_window : glfw_window
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	init_result init(const char *title = "", int s_width = 720, int s_height = 480,
+	init_result init(const char *title = "", int s_width = 720, int s_height = 480, 
 					 GLFWframebuffersizefun on_win_resize = framebuffer_size_callback)
 	{
 		int hints[8]{
@@ -48,7 +48,7 @@ struct gl_window : glfw_window
 			GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE,
 			GLFW_DOUBLEBUFFER, 1};
 		set_hints(hints, 4);
-		if (!create_window(title, s_width, s_height))
+		if (!create_fullscreen_window(title))//, s_width, s_height))
 			return null_window_ptr;
 		set_gl_current_context();
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -58,15 +58,8 @@ struct gl_window : glfw_window
 		return init_success;
 	}
 
-	static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
-
-	static inline bool init_ok(init_result res)
-	{
-		return res == init_success;
-	}
+	static void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+	static inline bool init_ok(init_result res) { return res == init_success; }
 };
 
 struct shader_vf
@@ -89,19 +82,19 @@ struct shader_vf
 		glDeleteShader(fs);
 		return true;
 	}
-	void use()
+	inline void use()
 	{
 		glUseProgram(shader_id);
 	}
-	void active_texture(uint gl_tex_unit)
+	inline void active_texture(uint gl_tex_unit)
 	{
 		glActiveTexture(gl_tex_unit);
 	}
-	void bind_texture(uint tex_id)
+	inline void bind_texture(uint tex_id)
 	{
 		glBindTexture(GL_TEXTURE_2D, tex_id);
 	}
-	uint gsl(const char *name)
+	inline uint gsl(const char *name)
 	{
 		return glGetUniformLocation(shader_id, name);
 	}
