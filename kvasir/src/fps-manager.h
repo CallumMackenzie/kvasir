@@ -7,8 +7,10 @@ struct frame_manager
 {
 	bool next_frame_ready()
 	{
-		if (clock_to_sec(clock() - last_frame) >= desired_delta)
+		double frame_delta = clock_to_sec(clock() - last_frame);
+		if (frame_delta >= desired_delta)
 		{
+			delta_time = frame_delta;
 			last_frame = clock();
 			return true;
 		}

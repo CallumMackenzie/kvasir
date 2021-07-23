@@ -2,6 +2,7 @@
 #define KVASIR_ENGINE_H_ 1
 
 #include "renderer.h"
+#include "gl-renderer.h"
 #include "galg.h"
 #include "fps-manager.h"
 
@@ -9,7 +10,7 @@ namespace kvasir
 {
 	struct kvasir_engine
 	{
-		frame_manager f_manager;
+		frame_manager time;
 		renderer_base *base;
 		enum result
 		{
@@ -23,7 +24,7 @@ namespace kvasir
 			switch (base_type)
 			{
 			case renderer_base_type::OPENGL:
-				base = new gl_base();
+				base = new gl_render_base();
 				break;
 			default:
 				base = nullptr;
@@ -35,33 +36,30 @@ namespace kvasir
 				delete base;
 		}
 
-		result start()
+		result start(int wid = 480, int hei = 480)
 		{
 			if (!base)
 				return NULL_BASE;
-			if (!base->init("Kvasir", 720, 480))
+			if (!base->init("Kvasir", wid, hei))
 				return BASE_INIT_FAIL;
-			base->set_clear_colour(0xff00ff);
-			base->set_fullscreen();
-			base->set_windowed();
-			base->set_size(720, 480);
-			base->set_resizable(false);
-			base->set_visible(false);
-			base->set_resizable(true);
-			base->set_visible(true);
+				on_start();
 			for (;;)
 			{
-				if (f_manager.next_frame_ready())
+				if (time.next_frame_ready())
 				{
 					if (base->should_close())
 						break;
 					base->poll_events();
-					base->clear();
-					base->swap_buffers();
+					on_update();
 				}
 			}
+			on_close();
 			return NO_ERROR;
 		}
+
+		virtual void on_start() = 0;
+		virtual void on_update() = 0;
+		virtual void on_close() = 0;
 	};
 }
 #endif

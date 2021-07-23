@@ -79,7 +79,7 @@ struct glfw_window
 	{
 		destroy();
 		int h[2]{
-			GLFW_DECORATED, NULL};
+			GLFW_DECORATED, 0};
 		set_hints(h, 1);
 		if (!create_fullscreen_window(win_name))
 			return false;

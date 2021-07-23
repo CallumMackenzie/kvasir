@@ -33,6 +33,7 @@ include_directories(
 	./lib/glad/include/KHR
 	./lib/galg
 	./src/render-base
+	./src/world
 	${FREETYPE_INCLUDE_DIRS}
 )
 
