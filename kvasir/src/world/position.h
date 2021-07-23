@@ -1,7 +1,9 @@
 #ifndef KVASIR_POSITION_H_
 #define KVASIR_POSITION_H_ 1
 
+#ifndef NO_USE_INCLUDES
 #include "galg.h"
+#endif
 
 using namespace galg;
 

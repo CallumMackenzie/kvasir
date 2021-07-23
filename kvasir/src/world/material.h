@@ -5,8 +5,10 @@
 typedef unsigned int uint;
 #endif
 
+#ifndef NO_USE_INCLUDES
 #include "texture.h"
 #include <vector>
+#endif
 
 namespace kvasir
 {

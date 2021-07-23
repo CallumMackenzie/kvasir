@@ -1,7 +1,9 @@
 #ifndef KVASIR_CAMERA_H_
 #define KVASIR_CAMERA_H_ 1
 
+#ifndef NO_USE_INCLUDES
 #include "position.h"
+#endif
 
 namespace kvasir
 {

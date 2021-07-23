@@ -5,11 +5,13 @@
 typedef unsigned int uint;
 #endif
 
+#ifndef NO_USE_INCLUDES
 #include "opengl.h"
 #include "shader.h"
 #include "buffer.h"
 #include "mesh.h"
 #include "camera.h"
+#endif
 
 namespace kvasir
 {

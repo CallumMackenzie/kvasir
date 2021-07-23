@@ -1,12 +1,14 @@
 #ifndef MESH_H__
 #define MESH_H__ 1
 
+#ifndef NO_USE_INCLUDES
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include "position.h"
 #include "buffer.h"
 #include "material.h"
+#endif
 
 using namespace galg;
 namespace kvasir

@@ -30,15 +30,15 @@ kvasir_engine::~kvasir_engine()
 }
 bool kvasir_engine::set_base(renderer_base_type base_type)
 {
-	if (this->base)
-		delete this->base;
+	if (base)
+		delete base;
 	switch (base_type)
 	{
 	case renderer_base_type::OPENGL:
-		this->base = new gl_render_base();
+		base = new gl_render_base();
 		return true;
 	default:
-		this->base = nullptr;
+		base = nullptr;
 		return false;
 	}
 }

@@ -1,10 +1,12 @@
 #ifndef KVASIR_ENGINE_H_
 #define KVASIR_ENGINE_H_ 1
 
+#ifndef NO_USE_INCLUDES
 #include "renderer.h"
 #include "gl-renderer.h"
 #include "galg.h"
 #include "fps-manager.h"
+#endif
 
 namespace kvasir
 {
@@ -17,7 +19,7 @@ namespace kvasir
 	struct kvasir_engine
 	{
 		frame_manager time;
-		renderer_base *base;
+		renderer_base *base = nullptr;
 		enum result
 		{
 			NO_ERROR = 0x001,

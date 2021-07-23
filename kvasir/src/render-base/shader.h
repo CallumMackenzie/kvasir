@@ -1,7 +1,9 @@
 #ifndef KVASIR_SHADER__H_
 #define KVASIR_SHADER__H_ 1
 
+#ifndef NO_USE_INCLUDES
 #include "material.h"
+#endif
 
 namespace kvasir
 {

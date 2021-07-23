@@ -1,6 +1,8 @@
 #ifndef KVASIR_BUFFER_H_
 #define KVASIR_BUFFER_H_ 1
 
+#include <stddef.h>
+
 namespace kvasir
 {
 

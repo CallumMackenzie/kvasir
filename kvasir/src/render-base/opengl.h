@@ -2,9 +2,11 @@
 #define OPENGL_H_CUSTOM 1
 
 #include <iostream>
+#ifndef NO_USE_INCLUDES
 #include "khrplatform.h"
 #include "glad.h"
 #include "glfw-window.h"
+#endif
 
 #ifdef _WIN32
 typedef unsigned int uint;

@@ -1,8 +1,10 @@
 #ifndef GLFW_WIN_H_
 #define GLFW_WIN_H_ 1
 
+#ifndef NO_USE_INCLUDES
 #include "glfw3.h"
 #include "glfw3native.h"
+#endif
 
 struct glfw_window
 {

@@ -1,7 +1,9 @@
 #ifndef KVASIR_GL_RENDERER_H
 #define KVASIR_GL_RENDERER_H 1
 
+#ifndef NO_USE_INCLUDES
 #include "renderer.h"
+#endif
 
 namespace kvasir
 {
