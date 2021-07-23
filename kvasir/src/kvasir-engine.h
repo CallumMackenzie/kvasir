@@ -8,56 +8,37 @@
 
 namespace kvasir
 {
+
+	struct linkverify
+	{
+		void verify_link();
+	};
+
 	struct kvasir_engine
 	{
 		frame_manager time;
 		renderer_base *base;
 		enum result
 		{
-			NO_ERROR = 0,
-			NULL_BASE = 1,
-			BASE_INIT_FAIL = 2
+			NO_ERROR = 0x001,
+			NULL_BASE = 0x002,
+			BASE_INIT_FAIL = 0x003,
+			ON_START_RET_FALSE = 0x004
 		};
 
-		kvasir_engine(renderer_base_type base_type)
+		struct user_result
 		{
-			switch (base_type)
-			{
-			case renderer_base_type::OPENGL:
-				base = new gl_render_base();
-				break;
-			default:
-				base = nullptr;
-			}
-		}
-		~kvasir_engine()
-		{
-			if (base)
-				delete base;
-		}
+			user_result(const char *m, bool f = true);
+			const char *msg = nullptr;
+			bool fatal = true;
+			static user_result ok();
+		};
 
-		result start(int wid = 480, int hei = 480)
-		{
-			if (!base)
-				return NULL_BASE;
-			if (!base->init("Kvasir", wid, hei))
-				return BASE_INIT_FAIL;
-				on_start();
-			for (;;)
-			{
-				if (time.next_frame_ready())
-				{
-					if (base->should_close())
-						break;
-					base->poll_events();
-					on_update();
-				}
-			}
-			on_close();
-			return NO_ERROR;
-		}
-
-		virtual void on_start() = 0;
+		kvasir_engine(renderer_base_type base_type);
+		~kvasir_engine();
+		result start(const char *name = "Kvasir", int wid = 480, int hei = 480);
+		bool set_base(renderer_base_type base_type);
+		virtual user_result on_start() = 0;
 		virtual void on_update() = 0;
 		virtual void on_close() = 0;
 	};

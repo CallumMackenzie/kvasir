@@ -26,18 +26,34 @@ find_package(Freetype REQUIRED)
 
 link_directories(./lib/glfw ./lib/freetype)
 include_directories(
-	./src 
-	./src/utils 
 	./lib/glad/include/glad
-	./lib/glfw/include/GLFW
 	./lib/glad/include/KHR
+	./lib/glfw/include/GLFW
 	./lib/galg
 	./src/render-base
 	./src/world
+	./src 
+	./src/utils 
 	${FREETYPE_INCLUDE_DIRS}
 )
 
-add_library(kvasir-engine ./src/kvasir-engine.cpp ./lib/glad/glad.c)
+add_library(
+	kvasir-engine 
+	./lib/glad/glad.c 
+	./src/world/position.cpp
+	./src/utils/fps-manager.cpp
+	./src/render-base/buffer.cpp
+	./src/render-base/glfw-window.cpp
+	./src/render-base/opengl.cpp
+	./src/render-base/texture.cpp
+	./src/world/material.cpp
+	./src/world/mesh.cpp
+	./src/world/camera.cpp
+	./src/render-base/shader.cpp
+	./src/render-base/renderer.cpp
+	./src/render-base/gl-renderer.cpp
+	./src/kvasir-engine.cpp 
+)
 target_link_libraries(kvasir-engine glfw)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -24,3 +24,4 @@ build/glfw
 global-testing
 libkvasir-engine.a
 *.pc
+global-testing.*

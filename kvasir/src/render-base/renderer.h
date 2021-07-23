@@ -15,7 +15,9 @@ namespace kvasir
 {
 	enum class renderer_base_type
 	{
-		OPENGL = 0
+		OPENGL = 0b0001,
+		VULKAN = 0b0010,
+		TERMINAL = 0b0100
 	};
 	struct renderer_base
 	{
@@ -41,45 +43,15 @@ namespace kvasir
 		virtual buffer_base *make_buffer() = 0;
 		virtual shader_base *make_shader() = 0;
 		virtual void render_mesh3d(camera3d &, mesh3d &, shader_base *) = 0;
+		virtual void depth_buffer_active(bool) = 0;
 
-		int get_position_x()
-		{
-			int x, y;
-			get_position(&x, &y);
-			return x;
-		}
-		int get_position_y()
-		{
-			int x, y;
-			get_position(&x, &y);
-			return y;
-		}
-		int get_width()
-		{
-			int x, y;
-			get_size(&x, &y);
-			return x;
-		};
-		int get_height()
-		{
-			int x, y;
-			get_size(&x, &y);
-			return y;
-		};
-		void set_width(int w)
-		{
-			set_size(w, get_height());
-		}
-		void set_height(int h)
-		{
-			set_size(get_width(), h);
-		}
-		double get_aspect()
-		{
-			int w, h;
-			get_size(&w, &h);
-			return (double)h / (double)w;
-		}
+		int get_position_x();
+		int get_position_y();
+		int get_width();
+		int get_height();
+		void set_width(int w);
+		void set_height(int h);
+		double get_aspect();
 	};
 
 };

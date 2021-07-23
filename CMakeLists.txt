@@ -10,6 +10,7 @@ add_subdirectory(./kvasir kvasir-engine)
 include_directories(
 	./kvasir
 )
+
 add_executable(global-testing ./tests/global-tests.cpp)
 target_link_libraries(global-testing kvasir-engine)
 

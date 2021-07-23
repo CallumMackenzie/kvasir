@@ -28,9 +28,9 @@ namespace kvasir
 		virtual void u_mat4f(const char *name, float m[4][4]) = 0;
 		virtual void render(int) = 0;
 
-		void bind_material(material_base *base) { base->bind(); }
+		void bind_material(material_base *base);
 	};
 
-};
+}
 
 #endif

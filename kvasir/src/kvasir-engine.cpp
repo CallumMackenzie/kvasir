@@ -1,60 +1,69 @@
+
 #include <iostream>
 #include "kvasir-engine.h"
 
-const char *vshader = "#version 330 core\nlayout (location = 0) in vec3 v_pos;uniform mat4 transform;uniform mat4 view;uniform mat4 projection;void main(){gl_Position=projection*view*transform*vec4(v_pos, 1.0);}\n";
-const char *fshader = "#version 330 core\nlayout (location = 0) out vec4 col;void main(){col=vec4(0.0, 1.0, 0.3, 1.0);}\n";
+using namespace kvasir;
 
-namespace kvasir
+void linkverify::verify_link()
 {
-    struct test_prog : kvasir_engine
-    {
-        test_prog() : kvasir_engine(renderer_base_type::OPENGL) {}
+	std::cout << "LINK VERIFIED FOR KVASIR" << std::endl;
+}
 
-        camera3d cam;
-        mesh3d mesh;
-        shader_base *shader = nullptr;
+kvasir_engine::user_result::user_result(const char *m, bool f)
+{
+	msg = m;
+	fatal = f;
+}
+kvasir_engine::user_result kvasir_engine::user_result::ok()
+{
+	return kvasir_engine::user_result(nullptr, false);
+}
 
-        void on_start()
-        {
-            cam.aspect = (float)base->get_aspect();
-            base->set_clear_colour(0xff80ff);
-
-            mesh.load_from_obj("../res/models/cube.obj");
-            mesh.load_to_buffer(base->make_buffer());
-            mesh.pos.z() = 4;
-
-            shader = base->make_shader();
-            const char *s[2]{vshader, fshader};
-            shader->compile(s, 2);
-        }
-        void on_update()
-        {
-            mesh.rot += vec3f{1.f, 1.f, 1.f} * (float)time.delta();
-
-            base->clear();
-            base->render_mesh3d(cam, mesh, shader);
-            base->swap_buffers();
-        }
-        void on_close()
-        {
-        }
-    };
-
-    void say_hello()
-    {
-        std::cout << "Hello, from kvasir-engine!\n";
-    }
-
-    void test_window_prog()
-    {
-        test_prog kvs;
-        kvasir_engine::result res = kvs.start();
-        if (res != kvasir_engine::NO_ERROR)
-            std::cerr << "Kvasir engine crashed with code " << res << std::endl;
-    }
-
-    mat4f get_mat()
-    {
-        return mat4f::identity();
-    }
+kvasir_engine::kvasir_engine(renderer_base_type base_type)
+{
+	set_base(base_type);
+}
+kvasir_engine::~kvasir_engine()
+{
+	if (base)
+		delete base;
+}
+bool kvasir_engine::set_base(renderer_base_type base_type)
+{
+	if (this->base)
+		delete this->base;
+	switch (base_type)
+	{
+	case renderer_base_type::OPENGL:
+		this->base = new gl_render_base();
+		return true;
+	default:
+		this->base = nullptr;
+		return false;
+	}
+}
+kvasir_engine::result kvasir_engine::start(const char *name, int wid, int hei)
+{
+	if (!base)
+		return NULL_BASE;
+	if (!base->init(name, wid, hei))
+		return BASE_INIT_FAIL;
+	user_result res = on_start();
+	if (res.fatal)
+	{
+		std::cerr << res.msg << std::endl;
+		return ON_START_RET_FALSE;
+	}
+	for (;;)
+	{
+		if (time.next_frame_ready())
+		{
+			if (base->should_close())
+				break;
+			base->poll_events();
+			on_update();
+		}
+	}
+	on_close();
+	return NO_ERROR;
 }
