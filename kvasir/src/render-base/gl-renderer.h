@@ -49,6 +49,18 @@ namespace kvasir
 		uint vao;
 	};
 
+	struct gl_texture_base : texture_base
+	{
+		void bind();
+		void gen_texture();
+		void set_texture(const texture_image &img);
+		void set_slot(size_t slot);
+
+	private:
+		uint texture = GL_NONE;
+		uint slot  = GL_TEXTURE0;
+	};
+
 	struct gl_render_base : renderer_base
 	{
 		bool should_close();
@@ -71,6 +83,8 @@ namespace kvasir
 		bool init(const char *name, int w, int h);
 		buffer_base *make_buffer();
 		shader_base *make_shader();
+		texture_base *make_texture();
+		material_base *make_material();
 		void destroy();
 		void depth_buffer_active(bool a);
 		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh);

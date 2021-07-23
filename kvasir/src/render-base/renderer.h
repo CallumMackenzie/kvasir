@@ -9,6 +9,7 @@ typedef unsigned int uint;
 #include "opengl.h"
 #include "shader.h"
 #include "buffer.h"
+#include "texture.h"
 #include "mesh.h"
 #include "camera.h"
 #endif
@@ -44,6 +45,8 @@ namespace kvasir
 		virtual void destroy() = 0;
 		virtual buffer_base *make_buffer() = 0;
 		virtual shader_base *make_shader() = 0;
+		virtual texture_base *make_texture() = 0;
+		virtual material_base *make_material() = 0;
 		virtual void render_mesh3d(camera3d &, mesh3d &, shader_base *) = 0;
 		virtual void depth_buffer_active(bool) = 0;
 

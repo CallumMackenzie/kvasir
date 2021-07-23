@@ -30,6 +30,7 @@ include_directories(
 	./lib/glad/include/KHR
 	./lib/glfw/include/GLFW
 	./lib/galg
+	./lib/lodepng
 	./src/render-base
 	./src/world
 	./src 
@@ -40,6 +41,7 @@ include_directories(
 add_library(
 	kvasir-engine 
 	./lib/glad/glad.c 
+	./lib/lodepng/lodepng.cpp
 	./src/world/position.cpp
 	./src/utils/fps-manager.cpp
 	./src/render-base/buffer.cpp

@@ -113,6 +113,40 @@ void gl_buffer_base::bind_vao()
 	glBindVertexArray(vao);
 }
 
+void gl_texture_base::bind()
+{
+	glActiveTexture(slot);
+	glBindTexture(GL_TEXTURE_2D, texture);
+}
+void gl_texture_base::gen_texture()
+{
+	glGenTextures(1, &texture);
+}
+void gl_texture_base::set_texture(const texture_image &img)
+{
+	glActiveTexture(slot);
+	bind();
+	bool pow_2 = (img.w & (img.w - 1)) && (img.h & (img.h - 1));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pow_2 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	float px[] = {1.f, 0.5f, 1.f, 1.f};
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+	if (img.pixels.size() <= 0)
+	{
+		std::cerr << "texture_image has no pixels." << std::endl;
+		return;
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)img.w, (int)img.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &img.pixels[0]);
+	if (pow_2)
+		glGenerateMipmap(GL_TEXTURE_2D);
+}
+void gl_texture_base::set_slot(size_t slot)
+{
+	slot = (uint)(GL_TEXTURE0 + slot);
+}
+
 bool gl_render_base::should_close()
 {
 	return win.should_close();
@@ -193,6 +227,14 @@ shader_base *gl_render_base::make_shader()
 {
 	return new gl_shader_base();
 }
+texture_base *gl_render_base::make_texture()
+{
+	return new gl_texture_base();
+}
+material_base *gl_render_base::make_material()
+{
+	return new material_base();
+}
 void gl_render_base::destroy()
 {
 	win.destroy();
@@ -223,7 +265,10 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh)
 		  m_view = cam.view().inverse();
 
 	sh->use();
+	sh->u_int1("diff", 0);
 	mesh.buffer->bind_vao();
+	if (mesh.material)
+		mesh.material->bind();
 	sh->u_mat4f("transform", (m_scale * m_rotation * m_translation).m);
 	sh->u_mat4f("view", m_view.m);
 	sh->u_mat4f("projection", m_projection.m);
