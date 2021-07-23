@@ -23,7 +23,7 @@ struct kvasir_demo : kvasir_engine
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
 
-		if (!mesh.load_from_obj("../res/models/cube.obj"))
+		if (!mesh.load_from_obj("../../res/models/cube.obj"))
 			return user_result("Mesh failed loading.");
 		mesh.load_to_buffer(base->make_buffer());
 		mesh.pos.z() = 4;
