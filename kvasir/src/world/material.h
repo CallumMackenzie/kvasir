@@ -14,11 +14,13 @@ namespace kvasir
 {
 	struct material_base
 	{
+		~material_base();
 		std::vector<texture_base *> texs{nullptr, nullptr, nullptr, nullptr};
-		texture_base *get_diffuse();
-		texture_base *get_specular();
-		texture_base *get_normal();
-		texture_base *get_parallax();
+		texture_base *&diffuse();
+		texture_base *&specular();
+		texture_base *&normal();
+		texture_base *&parallax();
+		texture_base *&operator[](size_t index);
 		void bind();
 	};
 }

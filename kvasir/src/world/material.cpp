@@ -1,28 +1,27 @@
 #include "material.h"
 
 using namespace kvasir;
-texture_base *material_base::get_diffuse()
+material_base::~material_base()
 {
-	if (texs.size() == 0)
-		return nullptr;
+	for (size_t i = 0; i < texs.size(); ++i)
+		if (texs[i])
+			delete texs[i];
+	texs.clear();
+}
+texture_base *&material_base::diffuse()
+{
 	return texs[0];
 }
-texture_base *material_base::get_specular()
+texture_base *&material_base::specular()
 {
-	if (texs.size() <= 1)
-		return nullptr;
 	return texs[1];
 }
-texture_base *material_base::get_normal()
+texture_base *&material_base::normal()
 {
-	if (texs.size() <= 2)
-		return nullptr;
 	return texs[2];
 }
-texture_base *material_base::get_parallax()
+texture_base *&material_base::parallax()
 {
-	if (texs.size() <= 3)
-		return nullptr;
 	return texs[3];
 }
 void material_base::bind()
@@ -30,4 +29,9 @@ void material_base::bind()
 	for (size_t i = 0; i < texs.size(); ++i)
 		if (texs[i])
 			texs[i]->bind();
+}
+
+texture_base *&material_base::operator[](size_t index)
+{
+	return texs[index];
 }

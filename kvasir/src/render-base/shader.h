@@ -10,7 +10,7 @@ namespace kvasir
 
 	struct shader_base
 	{
-
+		virtual ~shader_base() = 0;
 		virtual void use() = 0;
 		virtual bool compile(const char **srcs, size_t n_srcs) = 0;
 		virtual void u_bool1(const char *name, bool a) = 0;
@@ -29,6 +29,7 @@ namespace kvasir
 		virtual void u_mat3f(const char *name, float m[3][3]) = 0;
 		virtual void u_mat4f(const char *name, float m[4][4]) = 0;
 		virtual void render(int) = 0;
+		virtual void free_shader() = 0;
 
 		void bind_material(material_base *base);
 	};

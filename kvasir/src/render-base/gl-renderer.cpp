@@ -2,6 +2,10 @@
 
 using namespace kvasir;
 
+gl_shader_base::~gl_shader_base()
+{
+	free_shader();
+}
 bool gl_shader_base::compile(const char **srcs, size_t n_srcs)
 {
 	if (n_srcs != 2)
@@ -76,7 +80,15 @@ void gl_shader_base::render(int n_tris)
 {
 	glDrawArrays(GL_TRIANGLES, 0, n_tris * 3);
 };
+void gl_shader_base::free_shader()
+{
+	glDeleteProgram(s.shader_id);
+}
 
+gl_buffer_base::~gl_buffer_base()
+{
+	free_buffer();
+}
 void gl_buffer_base::gen_buffer()
 {
 	glGenBuffers(1, &vbo);
@@ -112,7 +124,16 @@ void gl_buffer_base::bind_vao()
 {
 	glBindVertexArray(vao);
 }
+void gl_buffer_base::free_buffer()
+{
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
+}
 
+gl_texture_base::~gl_texture_base()
+{
+	free_texture();
+}
 void gl_texture_base::bind()
 {
 	glActiveTexture(slot);
@@ -145,6 +166,10 @@ void gl_texture_base::set_texture(const texture_image &img)
 void gl_texture_base::set_slot(size_t slot)
 {
 	slot = (uint)(GL_TEXTURE0 + slot);
+}
+void gl_texture_base::free_texture()
+{
+	glDeleteTextures(1, &texture);
 }
 
 bool gl_render_base::should_close()

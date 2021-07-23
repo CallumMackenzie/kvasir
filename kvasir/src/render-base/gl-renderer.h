@@ -10,7 +10,7 @@ namespace kvasir
 
 	struct gl_shader_base : shader_base
 	{
-
+		~gl_shader_base();
 		bool compile(const char **srcs, size_t n_srcs);
 		void use();
 		void u_bool1(const char *n, bool a);
@@ -29,6 +29,7 @@ namespace kvasir
 		void u_mat3f(const char *n, float m[3][3]);
 		void u_mat4f(const char *n, float m[4][4]);
 		void render(int n_tris);
+		void free_shader();
 
 	private:
 		shader_vf s;
@@ -36,6 +37,7 @@ namespace kvasir
 
 	struct gl_buffer_base : buffer_base
 	{
+		~gl_buffer_base();
 		void gen_buffer();
 		void set_data(void *data, size_t len, bool change_often);
 		void sub_data(void *data, size_t offset, size_t len);
@@ -43,6 +45,7 @@ namespace kvasir
 		void attrib_ptr(size_t ptr_num, size_t size, size_t step, size_t offset);
 		void bind_buffer();
 		void bind_vao();
+		void free_buffer();
 
 	private:
 		uint vbo;
@@ -51,14 +54,16 @@ namespace kvasir
 
 	struct gl_texture_base : texture_base
 	{
+		~gl_texture_base();
 		void bind();
 		void gen_texture();
 		void set_texture(const texture_image &img);
 		void set_slot(size_t slot);
+		void free_texture();
 
 	private:
 		uint texture = GL_NONE;
-		uint slot  = GL_TEXTURE0;
+		uint slot = GL_TEXTURE0;
 	};
 
 	struct gl_render_base : renderer_base

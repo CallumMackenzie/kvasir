@@ -2,7 +2,7 @@
 #include <iostream>
 #include "kvasir-eng-include.h"
 
-// COUNT_MEMORY
+COUNT_MEMORY
 
 using namespace kvasir;
 
@@ -28,9 +28,8 @@ struct kvasir_demo : kvasir_engine
 		mesh.load_to_buffer(base->make_buffer());
 		mesh.pos.z() = 4;
 		mesh.material = base->make_material();
-		mesh.material->texs[0] = base->make_texture();
-		mesh.material->texs[0]->gen_texture();
-		mesh.material->texs[0]->set_texture(texture_base::load_image("../res/img/h.png"));
+		mesh.material->diffuse() = base->make_texture();
+		mesh.material->diffuse()->make_png("../res/img/h.png");
 
 		shader = base->make_shader();
 		const char *s[2]{vshader, fshader};
@@ -40,6 +39,7 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
+
 		mesh.rot += vec3f{1.f, 1.f, 1.f} * (float)time.delta();
 		base->clear();
 		base->render_mesh3d(cam, mesh, shader);
@@ -61,5 +61,5 @@ int main(int, char **)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}
 
-	// PRINT_MEMORY_SUMMARY
+	PRINT_MEMORY_SUMMARY
 }
