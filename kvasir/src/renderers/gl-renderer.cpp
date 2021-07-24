@@ -10,71 +10,88 @@ bool gl_shader_base::compile(const char **srcs, size_t n_srcs)
 {
 	if (n_srcs != 2)
 		return false;
-	return s.init(srcs[0], srcs[1]);
+	shader_id = glCreateProgram();
+	uint vs = compile_shader(srcs[0], GL_VERTEX_SHADER);
+	if (vs == GL_NONE)
+		return false;
+	uint fs = compile_shader(srcs[1], GL_FRAGMENT_SHADER);
+	if (fs == GL_NONE)
+		return false;
+	glAttachShader(shader_id, vs);
+	glAttachShader(shader_id, fs);
+	glLinkProgram(shader_id);
+	glValidateProgram(shader_id);
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+	return true;
 }
 void gl_shader_base::use()
 {
-	s.use();
+	glUseProgram(shader_id);
+}
+uint gl_shader_base::gsl(const char *name)
+{
+	return glGetUniformLocation(shader_id, name);
 }
 void gl_shader_base::u_bool1(const char *n, bool a)
 {
-	s.bool1(n, a);
+	glUniform1i(gsl(n), a);
 }
 void gl_shader_base::u_bool2(const char *n, bool a, bool b)
 {
-	s.bool2(n, a, b);
+	glUniform2i(gsl(n), a, b);
 }
 void gl_shader_base::u_bool3(const char *n, bool a, bool b, bool c)
 {
-	s.bool3(n, a, b, c);
+	glUniform3i(gsl(n), a, b, c);
 }
 void gl_shader_base::u_bool4(const char *n, bool a, bool b, bool c, bool d)
 {
-	s.bool4(n, a, b, c, d);
+	glUniform4i(gsl(n), a, b, c, d);
 }
 void gl_shader_base::u_int1(const char *n, int a)
 {
-	s.int1(n, a);
+	glUniform1i(gsl(n), a);
 }
 void gl_shader_base::u_int2(const char *n, int a, int b)
 {
-	s.int2(n, a, b);
+	glUniform2i(gsl(n), a, b);
 }
 void gl_shader_base::u_int3(const char *n, int a, int b, int c)
 {
-	s.int3(n, a, b, c);
+	glUniform3i(gsl(n), a, b, c);
 }
 void gl_shader_base::u_int4(const char *n, int a, int b, int c, int d)
 {
-	s.int4(n, a, b, c, d);
+	glUniform4i(gsl(n), a, b, c, d);
 }
 void gl_shader_base::u_float1(const char *n, float a)
 {
-	s.float1(n, a);
+	glUniform1f(gsl(n), a);
 }
 void gl_shader_base::u_float2(const char *n, float a, float b)
 {
-	s.float2(n, a, b);
+	glUniform2f(gsl(n), a, b);
 }
 void gl_shader_base::u_float3(const char *n, float a, float b, float c)
 {
-	s.float3(n, a, b, c);
+	glUniform3f(gsl(n), a, b, c);
 }
 void gl_shader_base::u_float4(const char *n, float a, float b, float c, float d)
 {
-	s.float4(n, a, b, c, d);
+	glUniform4f(gsl(n), a, b, c, d);
 }
 void gl_shader_base::u_mat2f(const char *n, float m[2][2])
 {
-	s.mat2f(n, m);
+	glUniformMatrix2fv(gsl(n), 1, false, &m[0][0]);
 }
 void gl_shader_base::u_mat3f(const char *n, float m[3][3])
 {
-	s.mat3f(n, m);
+	glUniformMatrix3fv(gsl(n), 1, false, &m[0][0]);
 }
 void gl_shader_base::u_mat4f(const char *n, float m[4][4])
 {
-	s.mat4f(n, m);
+	glUniformMatrix4fv(gsl(n), 1, false, &m[0][0]);
 }
 void gl_shader_base::render(int n_tris)
 {
@@ -82,7 +99,26 @@ void gl_shader_base::render(int n_tris)
 };
 void gl_shader_base::free_shader()
 {
-	glDeleteProgram(s.shader_id);
+	glDeleteProgram(shader_id);
+}
+uint gl_shader_base::compile_shader(const char *src, uint shader_type)
+{
+	uint id = glCreateShader(shader_type);
+	glShaderSource(id, 1, &src, nullptr);
+	glCompileShader(id);
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE)
+	{
+		int el;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &el);
+		char *message = (char *)alloca(el * sizeof(char));
+		glGetShaderInfoLog(id, el, &el, message);
+		std::cerr << "Failed to compile " << (shader_type == GL_VERTEX_SHADER ? "vertex" : (shader_type == GL_FRAGMENT_SHADER ? "fragment" : "unknown")) << " shader: " << message << std::endl;
+		glDeleteShader(id);
+		return GL_NONE;
+	}
+	return id;
 }
 
 gl_buffer_base::~gl_buffer_base()
@@ -178,11 +214,15 @@ bool gl_render_base::should_close()
 }
 void gl_render_base::set_clear_colour(long colour)
 {
-	win.set_clear_colour(colour);
+	int r = (colour & 0xFF0000) >> 16;
+	int g = (colour & 0x00FF00) >> 8;
+	int b = (colour & 0x0000FF);
+	clear_colour = colour;
+	glClearColor((float)r / 255.f, (float)g / 255.f, (float)b / 255.f, 1.0);
 }
 void gl_render_base::clear()
 {
-	win.clear();
+	glClear(clear_bits);
 }
 void gl_render_base::swap_buffers()
 {
@@ -216,9 +256,12 @@ bool gl_render_base::is_fullscreen()
 {
 	return win.is_fullscreen();
 }
-void gl_render_base::set_resizable(bool res)
+bool gl_render_base::set_resizable(bool res)
 {
-	win.set_resizable(res);
+	win.set_hints(gl_hints, 4);
+	if (!win.recreate_resizable(res))
+		return false;
+	return gl_load();
 }
 bool gl_render_base::is_resizable()
 {
@@ -226,23 +269,51 @@ bool gl_render_base::is_resizable()
 }
 bool gl_render_base::set_fullscreen()
 {
-	return win.set_fullscreen();
+	win.set_hints(gl_hints, 4);
+	if (!win.recreate_fullscreen())
+		return false;
+	return gl_load();
 }
 bool gl_render_base::set_windowed()
 {
-	return win.set_windowed();
+	win.set_hints(gl_hints, 4);
+	if (!win.recreate_windowed())
+		return false;
+	return gl_load();
 }
 bool gl_render_base::set_visible(bool b)
 {
-	return win.set_visible(b);
+	win.set_hints(gl_hints, 4);
+	if (!win.recreate_visible(b))
+		return false;
+	return gl_load();
 };
 bool gl_render_base::is_visible()
 {
 	return win.is_visible();
 }
+bool gl_render_base::gl_load()
+{
+	win.set_gl_current_context();
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		return false;
+	glViewport(0, 0, win.get_width(), win.get_height());
+	set_clear_colour(clear_colour);
+	return true;
+}
+void gl_render_base::framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
 bool gl_render_base::init(const char *name, int w, int h)
 {
-	return gl_window::init_ok(win.init(name, w, h));
+	win.set_hints(gl_hints, 4);
+	if (!win.create_window(name, w, h))
+		return false;
+	win.set_resize_callback(framebuffer_size_callback);
+	if (!gl_load())
+		return false;
+	return true;
 }
 buffer_base *gl_render_base::make_buffer()
 {
@@ -271,12 +342,12 @@ void gl_render_base::depth_buffer_active(bool a)
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glClearDepth(1.0f);
-		win.clear_bits |= GL_DEPTH_BUFFER_BIT;
+		clear_bits |= GL_DEPTH_BUFFER_BIT;
 	}
 	else
 	{
 		glDisable(GL_DEPTH_TEST);
-		win.clear_bits ^= GL_DEPTH_BUFFER_BIT;
+		clear_bits ^= GL_DEPTH_BUFFER_BIT;
 	}
 }
 void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh)

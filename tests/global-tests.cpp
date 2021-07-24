@@ -39,7 +39,6 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
-
 		mesh.rot += vec3f{1.f, 1.f, 1.f} * (float)time.delta();
 		base->clear();
 		base->render_mesh3d(cam, mesh, shader);

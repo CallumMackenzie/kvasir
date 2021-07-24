@@ -37,6 +37,9 @@ bool kvasir_engine::set_base(renderer_base_type base_type)
 	case renderer_base_type::OPENGL:
 		base = new gl_render_base();
 		return true;
+	case renderer_base_type::VULKAN:
+		base = new vulkan_render_base();
+		return true;
 	default:
 		base = nullptr;
 		return false;

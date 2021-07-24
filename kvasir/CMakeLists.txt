@@ -23,6 +23,7 @@ endif()
 
 add_subdirectory(./lib/glfw glfw)
 find_package(Freetype REQUIRED)
+find_package(Vulkan REQUIRED FATAL_ERROR)
 
 link_directories(./lib/glfw ./lib/freetype)
 include_directories(
@@ -32,10 +33,13 @@ include_directories(
 	./lib/galg
 	./lib/lodepng
 	./src/render-base
+	./src/renderers
 	./src/world
 	./src 
 	./src/utils 
-	${FREETYPE_INCLUDE_DIRS}
+	${FREETYPE_INCLUDE_DIRS},
+	${VULKAN_INCLUDE_DIRS},
+	$ENV{VULKAN_SDK}/include
 )
 
 add_library(
@@ -46,17 +50,17 @@ add_library(
 	./src/utils/fps-manager.cpp
 	./src/render-base/buffer.cpp
 	./src/render-base/glfw-window.cpp
-	./src/render-base/opengl.cpp
 	./src/render-base/texture.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp
 	./src/world/camera.cpp
 	./src/render-base/shader.cpp
-	./src/render-base/renderer.cpp
-	./src/render-base/gl-renderer.cpp
+	./src/renderers/renderer.cpp
+	./src/renderers/gl-renderer.cpp
+	./src/renderers/vulkan-renderer.cpp
 	./src/kvasir-engine.cpp 
 )
-target_link_libraries(kvasir-engine glfw)
+target_link_libraries(kvasir-engine glfw ${VULKAN_LIB_LIST})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

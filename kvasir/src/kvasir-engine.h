@@ -4,6 +4,7 @@
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
 #include "gl-renderer.h"
+#include "vulkan-renderer.h"
 #include "galg.h"
 #include "fps-manager.h"
 #endif

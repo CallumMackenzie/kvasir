@@ -3,6 +3,9 @@
 
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
+#include "khrplatform.h"
+#include "glad.h"
+#include "glfw-window.h"
 #endif
 
 namespace kvasir
@@ -32,7 +35,11 @@ namespace kvasir
 		void free_shader();
 
 	private:
-		shader_vf s;
+		uint shader_id = GL_NONE;
+		uint gsl(const char *name);
+		bool gl_load();
+		static uint compile_shader(const char *src, uint shader_type);
+		void framebuffer_size_callback(GLFWwindow *, int, int);
 	};
 
 	struct gl_buffer_base : buffer_base
@@ -79,7 +86,7 @@ namespace kvasir
 		void set_size(int w, int h);
 		void set_title(const char *name);
 		bool is_fullscreen();
-		void set_resizable(bool res);
+		bool set_resizable(bool res);
 		bool is_resizable();
 		bool set_fullscreen();
 		bool set_windowed();
@@ -95,7 +102,16 @@ namespace kvasir
 		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh);
 
 	private:
-		gl_window win;
+		int gl_hints[8]{
+			GLFW_CONTEXT_VERSION_MAJOR, 3,
+			GLFW_CONTEXT_VERSION_MINOR, 3,
+			GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE,
+			GLFW_DOUBLEBUFFER, 1};
+		glfw_window win;
+		long clear_colour = 0x0f0f0f;
+		int clear_bits = GL_COLOR_BUFFER_BIT;
+		static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+		bool gl_load();
 	};
 };
 
