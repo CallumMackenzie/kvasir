@@ -64,6 +64,8 @@ const char *glfw_window::get_name() { return win_name; }
 void glfw_window::close() { glfwSetWindowShouldClose(window, true); }
 void glfw_window::destroy()
 {
+	if (!window)
+		return;
 	glfwDestroyWindow(window);
 	window = nullptr;
 }

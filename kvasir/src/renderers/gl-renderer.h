@@ -75,6 +75,8 @@ namespace kvasir
 
 	struct gl_render_base : renderer_base
 	{
+		~gl_render_base();
+
 		bool should_close();
 		void set_clear_colour(long colour);
 		void clear();

@@ -208,6 +208,10 @@ void gl_texture_base::free_texture()
 	glDeleteTextures(1, &texture);
 }
 
+gl_render_base::~gl_render_base()
+{
+	win.set_default_hints();
+}
 bool gl_render_base::should_close()
 {
 	return win.should_close();
@@ -307,12 +311,19 @@ void gl_render_base::framebuffer_size_callback(GLFWwindow *window, int width, in
 }
 bool gl_render_base::init(const char *name, int w, int h)
 {
+	win.set_default_hints();
 	win.set_hints(gl_hints, 4);
 	if (!win.create_window(name, w, h))
+	{
+		std::cerr << "OpenGL GLFW window could not be created." << std::endl;
 		return false;
+	}
 	win.set_resize_callback(framebuffer_size_callback);
 	if (!gl_load())
+	{
+		std::cerr << "OpenGL could not be loeaded." << std::endl;
 		return false;
+	}
 	return true;
 }
 buffer_base *gl_render_base::make_buffer()

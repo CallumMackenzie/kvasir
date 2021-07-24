@@ -15,12 +15,6 @@ typedef unsigned int uint;
 
 namespace kvasir
 {
-	enum class renderer_base_type
-	{
-		OPENGL = 0b0001,
-		VULKAN = 0b0010,
-		TERMINAL = 0b0100
-	};
 	struct renderer_base
 	{
 		virtual bool should_close() = 0;
@@ -56,6 +50,15 @@ namespace kvasir
 		void set_width(int w);
 		void set_height(int h);
 		double get_aspect();
+
+		enum type
+		{
+			NONE = 0,
+			OPENGL = 1,
+			VULKAN = 2,
+			TERMINAL = 4,
+			DIRECTX = 8,
+		};
 	};
 
 };

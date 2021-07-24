@@ -18,39 +18,26 @@ kvasir_engine::user_result kvasir_engine::user_result::ok()
 {
 	return kvasir_engine::user_result(nullptr, false);
 }
-
-kvasir_engine::kvasir_engine(renderer_base_type base_type)
-{
-	set_base(base_type);
-}
 kvasir_engine::~kvasir_engine()
 {
 	if (base)
 		delete base;
+	base = nullptr;
 }
-bool kvasir_engine::set_base(renderer_base_type base_type)
+renderer_base *kvasir_engine::get_base(renderer_base::type b)
 {
-	if (base)
-		delete base;
-	switch (base_type)
+	switch (b)
 	{
-	case renderer_base_type::OPENGL:
-		base = new gl_render_base();
-		return true;
-	case renderer_base_type::VULKAN:
-		base = new vulkan_render_base();
-		return true;
+	case renderer_base::OPENGL:
+		return new gl_render_base();
+	case renderer_base::VULKAN:
+		return new vulkan_render_base();
 	default:
-		base = nullptr;
-		return false;
+		return nullptr;
 	}
 }
-kvasir_engine::result kvasir_engine::start(const char *name, int wid, int hei)
+kvasir_engine::result kvasir_engine::start_with_base()
 {
-	if (!base)
-		return NULL_BASE;
-	if (!base->init(name, wid, hei))
-		return BASE_INIT_FAIL;
 	user_result res = on_start();
 	if (res.fatal)
 	{
@@ -69,4 +56,45 @@ kvasir_engine::result kvasir_engine::start(const char *name, int wid, int hei)
 	}
 	on_close();
 	return NO_ERROR;
+}
+kvasir_engine::result kvasir_engine::start(renderer_base::type t_base, const char *name, int wid, int hei)
+{
+	if (base)
+	{
+		delete base;
+		base = nullptr;
+	}
+	base = get_base(t_base);
+	if (!base)
+		return NULL_BASE;
+	if (!base->init(name, wid, hei))
+		return BASE_INIT_FAIL;
+	return start_with_base();
+}
+
+kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_bases, const char *name, int wid, int hei)
+{
+	if (base)
+	{
+		delete base;
+		base = nullptr;
+	}
+	for (size_t i = 0; i < t_bases.size(); ++i)
+	{
+		base = get_base(t_bases[i]);
+		if (!base)
+			continue;
+		if (!base->init(name, wid, hei))
+		{
+			std::cout << "Base failed initialization: base code " << t_bases[i] << std::endl;
+			delete base;
+			base = nullptr;
+			continue;
+		}
+		else
+			break;
+	}
+	if (!base)
+		return NULL_BASE;
+	return start_with_base();
 }

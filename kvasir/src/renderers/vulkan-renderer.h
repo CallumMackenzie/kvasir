@@ -4,6 +4,8 @@
 #define GLFW_INCLUDE_VULKAN 1
 
 #ifndef NO_USE_INCLUDES
+#include <vulkan/vulkan.h>
+#include <vector>
 #include "renderer.h"
 #include "glfw-window.h"
 #include "exception.h"
@@ -22,6 +24,7 @@ namespace kvasir
 	};
 	struct vulkan_render_base : renderer_base
 	{
+		~vulkan_render_base();
 		bool should_close();
 		void set_clear_colour(long);
 		void clear();
@@ -50,6 +53,11 @@ namespace kvasir
 
 	private:
 		glfw_window win;
+		int hints[2]{
+			GLFW_CLIENT_API, GLFW_NO_API};
+		VkInstance instance = nullptr;
+		VkApplicationInfo vk_app_info(const char *);
+		VkInstanceCreateInfo vk_inst_create_info(VkApplicationInfo &app_info);
 		static void resize_callback(GLFWwindow *win, int w, int h);
 	};
 }

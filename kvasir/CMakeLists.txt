@@ -19,13 +19,20 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 if(WIN32)
 	set(FREETYPE_INCLUDE_DIRS ./lib/freetype/include)
 	set(FREETYPE_LIBRARY freetype)
+	set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK/}Lib)
+	set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
 endif()
 
 add_subdirectory(./lib/glfw glfw)
 find_package(Freetype REQUIRED)
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
-link_directories(./lib/glfw ./lib/freetype)
+link_directories(
+	./lib/glfw
+	./lib/freetype
+	$ENV{LD_LIBRARY_PATH}
+	${VULKAN_LINK_DIRS}
+)
 include_directories(
 	./lib/glad/include/glad
 	./lib/glad/include/KHR
@@ -38,8 +45,7 @@ include_directories(
 	./src 
 	./src/utils 
 	${FREETYPE_INCLUDE_DIRS},
-	${VULKAN_INCLUDE_DIRS},
-	$ENV{VULKAN_SDK}/include
+	${VULKAN_INCLUDE_DIRS}
 )
 
 add_library(
@@ -60,7 +66,7 @@ add_library(
 	./src/renderers/vulkan-renderer.cpp
 	./src/kvasir-engine.cpp 
 )
-target_link_libraries(kvasir-engine glfw ${VULKAN_LIB_LIST})
+target_link_libraries(kvasir-engine glfw vulkan)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

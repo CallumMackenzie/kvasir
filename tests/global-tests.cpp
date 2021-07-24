@@ -11,8 +11,6 @@ const char *fshader = "#version 330 core\nlayout (location = 0) out vec4 col;in 
 
 struct kvasir_demo : kvasir_engine
 {
-	kvasir_demo() : kvasir_engine(renderer_base_type::OPENGL) {}
-
 	camera3d cam;
 	mesh3d mesh;
 	shader_base *shader = nullptr;
@@ -23,13 +21,13 @@ struct kvasir_demo : kvasir_engine
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
 
-		if (!mesh.load_from_obj("../../res/models/cube.obj"))
+		if (!mesh.load_from_obj("../res/models/cube.obj"))
 			return user_result("Mesh failed loading.");
 		mesh.load_to_buffer(base->make_buffer());
 		mesh.pos.z() = 4;
 		mesh.material = base->make_material();
 		mesh.material->diffuse() = base->make_texture();
-		mesh.material->diffuse()->make_png("../../res/img/h.png");
+		mesh.material->diffuse()->make_png("../res/img/h.png");
 
 		shader = base->make_shader();
 		const char *s[2]{vshader, fshader};
@@ -55,7 +53,9 @@ int main(int, char **)
 	{
 		linkverify().verify_link();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start();
+		kvasir_engine::result res = kvs.start(std::vector<renderer_base::type>{
+			renderer_base::VULKAN,
+			renderer_base::OPENGL});
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}
