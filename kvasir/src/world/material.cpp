@@ -5,7 +5,7 @@ material_base::~material_base()
 {
 	for (size_t i = 0; i < texs.size(); ++i)
 		if (texs[i])
-			delete texs[i];
+			DEL_PTR(texs[i]);
 	texs.clear();
 }
 texture_base *&material_base::diffuse()

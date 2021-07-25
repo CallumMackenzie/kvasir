@@ -2,6 +2,12 @@
 #include <iostream>
 #include "kvasir-engine.h"
 
+bool kvasir::kvasir_init()
+{
+	mesh3d::use_geo_val_cache = true;
+	return true;
+}
+
 using namespace kvasir;
 
 void linkverify::verify_link()
@@ -20,9 +26,7 @@ kvasir_engine::user_result kvasir_engine::user_result::ok()
 }
 kvasir_engine::~kvasir_engine()
 {
-	if (base)
-		delete base;
-	base = nullptr;
+	DEL_PTR(base);
 }
 renderer_base *kvasir_engine::get_base(renderer_base::type b)
 {
@@ -38,6 +42,7 @@ renderer_base *kvasir_engine::get_base(renderer_base::type b)
 }
 kvasir_engine::result kvasir_engine::start_with_base()
 {
+	fixed_time.set_fps(30);
 	user_result res = on_start();
 	if (res.fatal)
 	{
@@ -53,17 +58,15 @@ kvasir_engine::result kvasir_engine::start_with_base()
 			base->poll_events();
 			on_update();
 		}
+		if (fixed_time.next_frame_ready())
+			on_fixed_update();
 	}
 	on_close();
 	return NO_ERROR;
 }
 kvasir_engine::result kvasir_engine::start(renderer_base::type t_base, const char *name, int wid, int hei)
 {
-	if (base)
-	{
-		delete base;
-		base = nullptr;
-	}
+	DEL_PTR(base);
 	base = get_base(t_base);
 	if (!base)
 		return NULL_BASE;
@@ -74,11 +77,7 @@ kvasir_engine::result kvasir_engine::start(renderer_base::type t_base, const cha
 
 kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_bases, const char *name, int wid, int hei)
 {
-	if (base)
-	{
-		delete base;
-		base = nullptr;
-	}
+	DEL_PTR(base);
 	for (size_t i = 0; i < t_bases.size(); ++i)
 	{
 		base = get_base(t_bases[i]);
@@ -86,9 +85,8 @@ kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_ba
 			continue;
 		if (!base->init(name, wid, hei))
 		{
-			std::cout << "Base failed initialization: base code " << t_bases[i] << std::endl;
-			delete base;
-			base = nullptr;
+			std::cout << "Base " << t_bases[i] << " failed initialization." << std::endl;
+			DEL_PTR(base);
 			continue;
 		}
 		else

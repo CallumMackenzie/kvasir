@@ -3,8 +3,6 @@
 
 #define NO_USE_INCLUDES 1
 
-#include <vector>
-#include <time.h>
 #include <stddef.h>
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"

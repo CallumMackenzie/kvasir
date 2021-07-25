@@ -1,9 +1,8 @@
 #include "mesh.h"
 
 using namespace kvasir;
-
 mesh3d::triangle::triangle() {}
-mesh3d::triangle::triangle(vec3f p1, vec3f p2, vec3f p3)
+mesh3d::triangle::triangle(vec3f &p1, vec3f &p2, vec3f &p3)
 {
 	v[0].p = p1;
 	v[1].p = p2;
@@ -12,28 +11,29 @@ mesh3d::triangle::triangle(vec3f p1, vec3f p2, vec3f p3)
 
 mesh3d::~mesh3d()
 {
-	if (buffer)
-		delete buffer;
-	if (material)
-		delete material;
+	DEL_PTR(buffer);
+	DEL_PTR(material);
 }
-void mesh3d::load_to_buffer(buffer_base *buf)
+std::vector<mesh3d::triangle> mesh3d::check_val_cache(const char *file)
 {
-	if (!buf)
-		return;
-	buffer = buf;
-	buf->gen_buffer();
-	buf->set_data(&tris[0], tris.size() * sizeof(triangle));
-	buf->attrib_ptr(0, 3, sizeof(triangle::component));
-	buf->attrib_ptr(1, 2, sizeof(triangle::component), sizeof(vec3f));
-	buf->attrib_ptr(2, 3, sizeof(triangle::component), sizeof(vec3f) + sizeof(vec2f));
+	if (use_geo_val_cache)
+		if (geo_val_cache.find(file) != geo_val_cache.end())
+			return geo_val_cache[file];
+	return std::vector<triangle>{};
 }
-bool mesh3d::load_from_obj(const char *file_name)
+std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 {
 	using namespace std;
-	ifstream f(file_name);
+	std::vector<triangle> tris;
+	if (use_geo_val_cache)
+	{
+		tris = check_val_cache(file);
+		if (tris.size() > 0)
+			return tris;
+	}
+	ifstream f(file);
 	if (!f.is_open())
-		return false;
+		return tris;
 	vector<vec3f> verts;
 	vector<vec2f> texs;
 	vector<vec3f> norms;
@@ -98,5 +98,88 @@ bool mesh3d::load_from_obj(const char *file_name)
 			tris.push_back(fTri);
 		}
 	}
-	return tris.size() > 0;
+	if (tris.size() > 0 && use_geo_val_cache)
+		geo_val_cache[file] = tris;
+	return tris;
+}
+bool mesh3d::load_from_obj(const char *file_name, buffer_base *buf)
+{
+	DEL_PTR(buffer);
+	std::vector<triangle> tris = obj_to_tri_array(file_name);
+	n_tris = tris.size();
+	if (n_tris <= 0 || !buf)
+		return false;
+	buffer = buf;
+	buffer->gen_buffer();
+	buffer->set_data(&tris[0], tris.size() * sizeof(triangle));
+	buffer->attrib_ptr(0, 3, sizeof(triangle::vert));
+	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec3f));
+	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), sizeof(vec3f) + sizeof(vec2f));
+	return true;
+}
+bool group_mesh3d::load_from_objs(std::vector<const char *> files, buffer_base *buf)
+{
+	DEL_PTR(buffer);
+	n_tris = 0;
+	t_n_tris.clear();
+	std::vector<triangle> all_tris;
+	for (size_t i = 0; i < files.size(); ++i)
+	{
+		std::vector<mesh3d::triangle> tris = mesh3d::obj_to_tri_array(files[i]);
+		if (tris.size() <= 0)
+			return false;
+		t_n_tris.push_back(tris.size());
+		for (size_t j = 0; j < tris.size(); ++j)
+			all_tris.push_back(tris[j]);
+		tris.clear();
+	}
+	n_tris = all_tris.size();
+	size_t prev_offset = 0;
+	buffer = buf;
+	buffer->gen_buffer();
+	buffer->set_data(&all_tris[0], all_tris.size() * sizeof(triangle));
+	buffer->attrib_ptr(0, 3, sizeof(triangle::vert));
+	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), prev_offset += sizeof(vec3f));
+	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), prev_offset += sizeof(vec2f));
+	return true;
+}
+void group_mesh3d::add_mesh_pos(size_t index, const vec3f &pos)
+{
+	triangle *buf_data = new triangle[t_n_tris[index]];
+	size_t n_tris_before = 0;
+	for (size_t i = 0; i < index; ++i)
+		n_tris_before += t_n_tris[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p += pos;
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
+}
+void group_mesh3d::add_mesh_scale(size_t index, const vec3f &scale)
+{
+	triangle *buf_data = new triangle[t_n_tris[index]];
+	size_t n_tris_before = 0;
+	for (size_t i = 0; i < index; ++i)
+		n_tris_before += t_n_tris[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p *= scale;
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
+}
+void group_mesh3d::add_mesh_rot(size_t index, const vec3f &rot)
+{
+	mat4f m_rot = mat4f::rotation(rot);
+	triangle *buf_data = new triangle[t_n_tris[index]];
+	size_t n_tris_before = 0;
+	for (size_t i = 0; i < index; ++i)
+		n_tris_before += t_n_tris[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p = (m_rot * buf_data[i].v[j].p.xyz1()).xyz();
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
 }

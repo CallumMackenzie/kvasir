@@ -380,5 +380,5 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh)
 	sh->u_mat4f("view", m_view.m);
 	sh->u_mat4f("projection", m_projection.m);
 	sh->u_mat4f("rot", m_rotation.m);
-	sh->render((int)mesh.tris.size());
+	sh->render((int)mesh.n_tris);
 }

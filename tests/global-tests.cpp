@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cstdlib>
 #include "kvasir-eng-include.h"
 
 COUNT_MEMORY
@@ -17,17 +18,16 @@ struct kvasir_demo : kvasir_engine
 
 	user_result on_start()
 	{
-		cam.aspect = (float)base->get_aspect();
+		fixed_time.set_fps(10);
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
 
-		if (!mesh.load_from_obj("../res/models/cube.obj"))
-			return user_result("Mesh failed loading.");
-		mesh.load_to_buffer(base->make_buffer());
+		if (!mesh.load_from_obj("../res/models/cube.obj", base->make_buffer()))
+			return user_result("Meshes failed loading.");
 		mesh.pos.z() = 4;
 		mesh.material = base->make_material();
-		mesh.material->diffuse() = base->make_texture();
-		mesh.material->diffuse()->make_png("../res/img/h.png");
+		mesh.material->texs[0] = base->make_texture();
+		mesh.material->texs[0]->make_png("../res/img/h.png");
 
 		shader = base->make_shader();
 		const char *s[2]{vshader, fshader};
@@ -42,15 +42,20 @@ struct kvasir_demo : kvasir_engine
 		base->render_mesh3d(cam, mesh, shader);
 		base->swap_buffers();
 	}
+	void on_fixed_update()
+	{
+		cam.aspect = (float)base->get_aspect();
+	}
 	void on_close()
 	{
-		delete shader;
+		DEL_PTR(shader);
 	}
 };
 
 int main(int, char **)
 {
 	{
+		kvasir_init();
 		linkverify().verify_link();
 		kvasir_demo kvs;
 		kvasir_engine::result res = kvs.start(std::vector<renderer_base::type>{

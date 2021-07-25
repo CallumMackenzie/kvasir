@@ -39,4 +39,19 @@
 	std::cout                                \
 		<< "Allocs: " << allocs << std::endl \
 		<< "Deletes: " << deletes << std::endl;
+
+#define DEL_PTR(ptr)   \
+	if (ptr)           \
+	{                  \
+		delete ptr;    \
+		ptr = nullptr; \
+	}
+
+#define DEL_ARR_PTR(ptr) \
+	if (ptr)             \
+	{                    \
+		delete[] ptr;    \
+		ptr = nullptr;   \
+	}
+
 #endif
