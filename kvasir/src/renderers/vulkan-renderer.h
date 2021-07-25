@@ -56,9 +56,19 @@ namespace kvasir
 		int hints[2]{
 			GLFW_CLIENT_API, GLFW_NO_API};
 		VkInstance instance = nullptr;
+#ifdef NDEBUG
+		const bool use_validation_layers = false;
+#else
+		const bool use_validation_layers = true;
+#endif
+		const std::vector<const char *> validation_layers = {
+			"VK_LAYER_KHRONOS_validation"};
+
+		VkResult vk_create_instance(const char *);
+		bool check_validation_layer_support();
 		VkApplicationInfo vk_app_info(const char *);
 		VkInstanceCreateInfo vk_inst_create_info(VkApplicationInfo &app_info);
-		static void resize_callback(GLFWwindow *win, int w, int h);
+		static void resize_callback(GLFWwindow *, int, int);
 	};
 }
 

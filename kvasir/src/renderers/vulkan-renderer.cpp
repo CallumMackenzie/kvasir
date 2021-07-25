@@ -69,14 +69,48 @@ VkInstanceCreateInfo vulkan_render_base::vk_inst_create_info(VkApplicationInfo &
 	uint32_t glfw_ext_count = 0;
 	const char **glfw_exts = nullptr;
 	glfw_exts = glfwGetRequiredInstanceExtensions(&glfw_ext_count);
-
 	VkInstanceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	create_info.pApplicationInfo = &app_info;
 	create_info.enabledExtensionCount = glfw_ext_count;
 	create_info.ppEnabledExtensionNames = glfw_exts;
-	create_info.enabledLayerCount = 0;
+	if (use_validation_layers)
+	{
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
+		createInfo.ppEnabledLayerNames = validation_layers.data();
+	}
+	else
+		createInfo.enabledLayerCount = 0;
 	return create_info;
+}
+VkResult vulkan_render_base::vk_create_instance(const char *n)
+{
+	if (use_validation_layers && !check_validation_layer_support())
+	{
+		std::cerr << "Vulkan validation layers requested but not availible." << std::endl;
+		return VK_ERROR_LAYER_NOT_PRESENT;
+	}
+	return vkCreateInstance(&vk_inst_create_info(vk_app_info(n));, nullptr, &instance);
+}
+bool vulkan_render_base::check_validation_layer_support()
+{
+	uint32_t layer_count;
+	vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+	std::vector<VkLayerProperties> a_layers(layer_count);
+	vkEnumerateInstanceLayerProperties(&layer_count, a_layers.data());
+	for (const char *layer_name : validation_layers)
+	{
+		bool layer_found = false;
+		for (const auto &layer_properties : a_layers)
+			if (strcmp(layer_name, layer_properties.layerName) == 0)
+			{
+				layer_found = true;
+				break;
+			}
+		if (!layer_found)
+			return false;
+	}
+	return true;
 }
 bool vulkan_render_base::init(const char *n, int w, int h)
 {
@@ -87,9 +121,7 @@ bool vulkan_render_base::init(const char *n, int w, int h)
 	win.set_hints(other_hints, 1);
 	win.create_window(n, w, h);
 
-	auto app_info = vk_app_info(n);
-	auto create_info = vk_inst_create_info(app_info);
-	if (vkCreateInstance(&create_info, nullptr, &instance) != VK_SUCCESS)
+	if (vk_create_instance(n) != VK_SUCCESS)
 	{
 		std::cerr << "Vulkan failed to create an instance." << std::endl;
 		return false;
