@@ -31,7 +31,7 @@ link_directories(
 	./lib/glfw
 	./lib/freetype
 	$ENV{LD_LIBRARY_PATH}
-	${VULKAN_LINK_DIRS}
+	${Vulkan_LIBRARY}
 )
 include_directories(
 	./lib/glad/include/glad
@@ -45,7 +45,7 @@ include_directories(
 	./src 
 	./src/utils 
 	${FREETYPE_INCLUDE_DIRS},
-	${VULKAN_INCLUDE_DIRS}
+	${Vulkan_INCLUDE_DIRS}
 )
 
 add_library(
@@ -67,7 +67,7 @@ add_library(
 	./src/renderers/terminal-renderer.cpp
 	./src/kvasir-engine.cpp 
 )
-target_link_libraries(kvasir-engine glfw vulkan)
+target_link_libraries(kvasir-engine glfw ${Vulkan_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
