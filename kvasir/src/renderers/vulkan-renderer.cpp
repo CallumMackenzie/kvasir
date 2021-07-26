@@ -9,9 +9,9 @@ vulkan_render_base::~vulkan_render_base()
 	win.set_default_hints();
 }
 bool vulkan_render_base::should_close() { return win.should_close(); }
-void vulkan_render_base::set_clear_colour(long) { throw UNIMPLEMENTED_EXCEPTION; }
-void vulkan_render_base::clear() { throw UNIMPLEMENTED_EXCEPTION; }
-void vulkan_render_base::swap_buffers() { throw UNIMPLEMENTED_EXCEPTION; }
+void vulkan_render_base::set_clear_colour(long) { throw EX_UNIMPLEMENTED; }
+void vulkan_render_base::clear() { throw EX_UNIMPLEMENTED; }
+void vulkan_render_base::swap_buffers() { throw EX_UNIMPLEMENTED; }
 void vulkan_render_base::poll_events() { win.poll_events(); }
 void vulkan_render_base::set_position(int x, int y) { win.set_pos(x, y); }
 void vulkan_render_base::get_position(int *x, int *y) { win.get_pos(x, y); }
@@ -108,29 +108,33 @@ bool vulkan_render_base::init(const char *n, int w, int h)
 void vulkan_render_base::destroy() { win.destroy(); }
 buffer_base *vulkan_render_base::make_buffer()
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
 	return nullptr;
 }
 shader_base *vulkan_render_base::make_shader()
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
 	return nullptr;
 }
 texture_base *vulkan_render_base::make_texture()
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
 	return nullptr;
 }
 material_base *vulkan_render_base::make_material()
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
 	return nullptr;
 }
 void vulkan_render_base::render_mesh3d(camera3d &, mesh3d &, shader_base *)
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
 }
 void vulkan_render_base::depth_buffer_active(bool)
 {
-	throw UNIMPLEMENTED_EXCEPTION;
+	throw EX_UNIMPLEMENTED;
+}
+render_base::type vulkan_render_base::get_type()
+{
+	return VULKAN;
 }

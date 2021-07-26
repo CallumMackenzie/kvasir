@@ -308,6 +308,8 @@ namespace galg
 	typedef vec4<int> vec4i;
 	typedef vec4<uint> vec4ui;
 	typedef vec4<size_t> vec4st;
+	typedef vec4<unsigned short> vec4us;
+	typedef vec4<short> vec4s;
 
 	typedef vec3<fp_num> vec3fp;
 	typedef vec3<float> vec3f;
@@ -315,6 +317,8 @@ namespace galg
 	typedef vec3<int> vec3i;
 	typedef vec3<uint> vec3ui;
 	typedef vec3<size_t> vec3st;
+	typedef vec3<unsigned short> vec3us;
+	typedef vec3<short> vec3s;
 
 	typedef vec2<fp_num> vec2fp;
 	typedef vec2<float> vec2f;
@@ -322,6 +326,8 @@ namespace galg
 	typedef vec2<int> vec2i;
 	typedef vec2<uint> vec2ui;
 	typedef vec2<size_t> vec2st;
+	typedef vec2<unsigned short> vec2us;
+	typedef vec2<short> vec2s;
 
 	typedef mat4<fp_num> mat4fp;
 	typedef mat4<float> mat4f;
@@ -329,6 +335,8 @@ namespace galg
 	typedef mat4<int> mat4i;
 	typedef mat4<uint> mat4ui;
 	typedef mat4<size_t> mat4st;
+	typedef mat4<unsigned short> mat4us;
+	typedef mat4<short> mat4s;
 
 	typedef mat3<fp_num> mat3fp;
 	typedef mat3<float> mat3f;
@@ -336,6 +344,8 @@ namespace galg
 	typedef mat3<int> mat3i;
 	typedef mat3<uint> mat3ui;
 	typedef mat3<size_t> mat3st;
+	typedef mat3<unsigned short> mat3us;
+	typedef mat3<short> mat3s;
 
 	typedef mat2<fp_num> mat2fp;
 	typedef mat2<float> mat2f;
@@ -343,6 +353,8 @@ namespace galg
 	typedef mat2<int> mat2i;
 	typedef mat2<uint> mat2ui;
 	typedef mat2<size_t> mat2st;
+	typedef mat2<unsigned short> mat2us;
+	typedef mat2<short> mat2s;
 
 	template <typename T = fp_num>
 	struct vec4

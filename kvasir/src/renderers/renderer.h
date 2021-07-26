@@ -15,8 +15,16 @@ typedef unsigned int uint;
 
 namespace kvasir
 {
-	struct renderer_base
+	struct render_base
 	{
+		enum type
+		{
+			OPENGL = 0x01,
+			VULKAN = 0x02,
+			TERMINAL = 0x04,
+			DIRECTX = 0x08,
+		};
+
 		virtual bool should_close() = 0;
 		virtual void set_clear_colour(long c) = 0;
 		virtual void clear() = 0;
@@ -42,6 +50,7 @@ namespace kvasir
 		virtual material_base *make_material() = 0;
 		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s) = 0;
 		virtual void depth_buffer_active(bool b) = 0;
+		virtual type get_type() = 0;
 
 		int get_position_x();
 		int get_position_y();
@@ -51,14 +60,7 @@ namespace kvasir
 		void set_height(int h);
 		double get_aspect();
 
-		enum type
-		{
-			NONE = 0,
-			OPENGL = 1,
-			VULKAN = 2,
-			TERMINAL = 4,
-			DIRECTX = 8,
-		};
+		static const char *type_to_string(type t);
 	};
 
 };

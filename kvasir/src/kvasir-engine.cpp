@@ -1,5 +1,4 @@
 
-#include <iostream>
 #include "kvasir-engine.h"
 
 bool kvasir::kvasir_init()
@@ -14,7 +13,6 @@ void linkverify::verify_link()
 {
 	std::cout << "LINK VERIFIED FOR KVASIR" << std::endl;
 }
-
 kvasir_engine::user_result::user_result(const char *m, bool f)
 {
 	msg = m;
@@ -28,14 +26,16 @@ kvasir_engine::~kvasir_engine()
 {
 	DEL_PTR(base);
 }
-renderer_base *kvasir_engine::get_base(renderer_base::type b)
+render_base *kvasir_engine::get_base(render_base::type b)
 {
 	switch (b)
 	{
-	case renderer_base::OPENGL:
+	case render_base::OPENGL:
 		return new gl_render_base();
-	case renderer_base::VULKAN:
+	case render_base::VULKAN:
 		return new vulkan_render_base();
+	case render_base::TERMINAL:
+		return new terminal_render_base();
 	default:
 		return nullptr;
 	}
@@ -64,7 +64,7 @@ kvasir_engine::result kvasir_engine::start_with_base()
 	on_close();
 	return NO_ERROR;
 }
-kvasir_engine::result kvasir_engine::start(renderer_base::type t_base, const char *name, int wid, int hei)
+kvasir_engine::result kvasir_engine::start(render_base::type t_base, const char *name, int wid, int hei)
 {
 	DEL_PTR(base);
 	base = get_base(t_base);
@@ -74,8 +74,7 @@ kvasir_engine::result kvasir_engine::start(renderer_base::type t_base, const cha
 		return BASE_INIT_FAIL;
 	return start_with_base();
 }
-
-kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_bases, const char *name, int wid, int hei)
+kvasir_engine::result kvasir_engine::start(std::vector<render_base::type> t_bases, const char *name, int wid, int hei)
 {
 	DEL_PTR(base);
 	for (size_t i = 0; i < t_bases.size(); ++i)
@@ -85,7 +84,7 @@ kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_ba
 			continue;
 		if (!base->init(name, wid, hei))
 		{
-			std::cout << "Base " << t_bases[i] << " failed initialization." << std::endl;
+			std::cout << render_base::type_to_string(t_bases[i]) << " initialization FALIURE." << std::endl;
 			DEL_PTR(base);
 			continue;
 		}
@@ -94,5 +93,6 @@ kvasir_engine::result kvasir_engine::start(std::vector<renderer_base::type> t_ba
 	}
 	if (!base)
 		return NULL_BASE;
+	std::cout << render_base::type_to_string(base->get_type()) << " initialization SUCCESS." << std::endl;
 	return start_with_base();
 }

@@ -14,9 +14,9 @@ namespace kvasir
 
 	struct texture_image
 	{
-		std::vector<unsigned char> pixels;
-		unsigned w;
-		unsigned h;
+		std::vector<unsigned char> pixels; // RGBA
+		unsigned w; // width
+		unsigned h; // height
 	};
 
 	struct texture_base

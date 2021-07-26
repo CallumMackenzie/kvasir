@@ -7,8 +7,8 @@ COUNT_MEMORY
 
 using namespace kvasir;
 
-const char *vshader = "#version 330 core\nlayout (location = 0) in vec3 v_pos;layout (location = 1) in vec2 v_uv;layout (location = 2) in vec3 v_normal;out vec3 normal;out vec2 uv;uniform mat4 transform;uniform mat4 rot;uniform mat4 view;uniform mat4 projection;void main(){gl_Position=projection*view*transform*vec4(v_pos, 1.0);normal=(rot*vec4(v_normal, 1.0)).xyz;uv=v_uv;}\n";
-const char *fshader = "#version 330 core\nlayout (location = 0) out vec4 col;in vec3 normal;in vec2 uv;uniform sampler2D diff;void main(){float d=(dot(normal, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;col=vec4(texture(diff, uv).rgb * d, 1.0);}\n";
+const char *vshader = "#version 330 core\nlayout(location=0) in vec3 v_pos;layout (location = 1) in vec2 v_uv;layout (location = 2) in vec3 v_normal;out vec3 normal;out vec2 uv;uniform mat4 transform;uniform mat4 rot;uniform mat4 view;uniform mat4 projection;void main(){gl_Position=projection*view*transform*vec4(v_pos, 1.0);normal=(rot*vec4(v_normal, 1.0)).xyz;uv=v_uv;}\n";
+const char *fshader = "#version 330 core\nlayout(location=0) out vec4 col;in vec3 normal;in vec2 uv;uniform sampler2D diff;void main(){float d=(dot(normal, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;col=vec4(texture(diff, uv).rgb * d, 1.0);}\n";
 
 struct kvasir_demo : kvasir_engine
 {
@@ -58,9 +58,10 @@ int main(int, char **)
 		kvasir_init();
 		linkverify().verify_link();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(std::vector<renderer_base::type>{
-			renderer_base::VULKAN,
-			renderer_base::OPENGL});
+		kvasir_engine::result res = kvs.start(std::vector<render_base::type>{
+			render_base::VULKAN,
+			render_base::TERMINAL,
+			render_base::OPENGL});
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}

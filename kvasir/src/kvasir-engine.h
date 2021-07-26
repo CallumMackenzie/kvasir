@@ -2,10 +2,12 @@
 #define KVASIR_ENGINE_H_ 1
 
 #include <vector>
+#include <iostream>
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
 #include "gl-renderer.h"
 #include "vulkan-renderer.h"
+#include "terminal-renderer.h"
 #include "galg.h"
 #include "fps-manager.h"
 #include "memory-aid.h"
@@ -25,7 +27,7 @@ namespace kvasir
 	{
 		frame_manager time;
 		frame_manager fixed_time;
-		renderer_base *base = nullptr;
+		render_base *base = nullptr;
 		enum result
 		{
 			NO_ERROR = 0,
@@ -43,14 +45,15 @@ namespace kvasir
 		};
 
 		~kvasir_engine();
-		result start(std::vector<renderer_base::type> t_bases, const char *name = "Kvasir", int wid = 480, int hei = 480);
-		result start(renderer_base::type t_base, const char *name = "Kvasir", int wid = 480, int hei = 480);
+		result start(std::vector<render_base::type> t_bases, const char *name = "Kvasir", int wid = 480, int hei = 480);
+		result start(render_base::type t_base, const char *name = "Kvasir", int wid = 480, int hei = 480);
 		virtual user_result on_start() = 0;
 		virtual void on_update() = 0;
 		virtual void on_fixed_update() = 0;
 		virtual void on_close() = 0;
-		static renderer_base *get_base(renderer_base::type b);
-		private:
+		static render_base *get_base(render_base::type b);
+
+	private:
 		result start_with_base();
 	};
 }

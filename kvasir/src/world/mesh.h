@@ -2,10 +2,10 @@
 #define MESH_H__ 1
 
 #include <unordered_map>
-#ifndef NO_USE_INCLUDES
 #include <vector>
 #include <fstream>
 #include <sstream>
+#ifndef NO_USE_INCLUDES
 #include "position.h"
 #include "buffer.h"
 #include "material.h"

@@ -73,7 +73,7 @@ namespace kvasir
 		uint slot = GL_TEXTURE0;
 	};
 
-	struct gl_render_base : renderer_base
+	struct gl_render_base : render_base
 	{
 		~gl_render_base();
 
@@ -102,6 +102,7 @@ namespace kvasir
 		void destroy();
 		void depth_buffer_active(bool a);
 		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh);
+		type get_type();
 
 	private:
 		int gl_hints[8]{

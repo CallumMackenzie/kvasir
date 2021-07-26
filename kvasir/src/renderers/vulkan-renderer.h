@@ -22,7 +22,7 @@ namespace kvasir
 	struct vulkan_texture_base : texture_base
 	{
 	};
-	struct vulkan_render_base : renderer_base
+	struct vulkan_render_base : render_base
 	{
 		~vulkan_render_base();
 		bool should_close();
@@ -50,6 +50,7 @@ namespace kvasir
 		material_base *make_material();
 		void render_mesh3d(camera3d &, mesh3d &, shader_base *);
 		void depth_buffer_active(bool);
+		type get_type();
 
 	private:
 		glfw_window win;

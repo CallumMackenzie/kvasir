@@ -6,7 +6,7 @@ namespace kvasir
 
 	enum generic_exception
 	{
-		UNIMPLEMENTED_EXCEPTION
+		EX_UNIMPLEMENTED
 	};
 
 };
