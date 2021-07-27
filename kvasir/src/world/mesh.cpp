@@ -9,6 +9,7 @@ mesh3d::triangle::triangle(vec3f &p1, vec3f &p2, vec3f &p3)
 	v[2].p = p3;
 }
 
+mesh3d::mesh3d() : tag(++current_tag) {}
 mesh3d::~mesh3d()
 {
 	DEL_PTR(buffer);

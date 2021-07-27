@@ -36,12 +36,15 @@ namespace kvasir
 		material_base *material = nullptr;
 		buffer_base *buffer = nullptr;
 		size_t n_tris = 0;
+		const size_t tag;
 
+		mesh3d();
 		~mesh3d();
 		bool load_from_obj(const char *file_name, buffer_base *buf);
 
 		inline static bool use_geo_val_cache = true;
 		inline static std::unordered_map<const char *, std::vector<triangle>> geo_val_cache;
+		inline static size_t current_tag = 0;
 		static std::vector<triangle> obj_to_tri_array(const char *file);
 		static std::vector<triangle> check_val_cache(const char *file);
 	};

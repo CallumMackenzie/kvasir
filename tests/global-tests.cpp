@@ -14,6 +14,7 @@ struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
 	mesh3d mesh;
+	float rot = 0;
 	shader_base *shader = nullptr;
 
 	user_result on_start()
@@ -37,7 +38,8 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
-		mesh.rot += vec3f{1.f, 1.f, 1.f} * (float)time.delta();
+		rot += 1.f * time.delta();
+		mesh.rot = vec4f::quaternion(rot, vec3f(0, 1, 0));
 		base->clear();
 		base->render_mesh3d(cam, mesh, shader);
 		base->swap_buffers();

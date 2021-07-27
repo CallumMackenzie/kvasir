@@ -24,6 +24,7 @@ if(WIN32)
 endif()
 
 add_subdirectory(./lib/glfw glfw)
+find_package(Bullet REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
@@ -32,6 +33,7 @@ link_directories(
 	./lib/freetype
 	$ENV{LD_LIBRARY_PATH}
 	${Vulkan_LIBRARY}
+	$(Bullet_LIBRARY)
 )
 include_directories(
 	./lib/glad/include/glad
@@ -44,8 +46,9 @@ include_directories(
 	./src/world
 	./src 
 	./src/utils 
-	${FREETYPE_INCLUDE_DIRS},
+	${FREETYPE_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
+	${BULLET_INCLUDE_DIR}
 )
 
 add_library(
@@ -59,6 +62,7 @@ add_library(
 	./src/render-base/texture.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp
+	./src/world/physics3d.cpp
 	./src/world/camera.cpp
 	./src/render-base/shader.cpp
 	./src/renderers/renderer.cpp
@@ -67,7 +71,7 @@ add_library(
 	./src/renderers/terminal-renderer.cpp
 	./src/kvasir-engine.cpp 
 )
-target_link_libraries(kvasir-engine glfw ${Vulkan_LIBRARIES})
+target_link_libraries(kvasir-engine glfw ${Vulkan_LIBRARIES} ${BULLET_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

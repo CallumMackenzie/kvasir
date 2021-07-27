@@ -76,11 +76,11 @@ VkInstanceCreateInfo vulkan_render_base::vk_inst_create_info(VkApplicationInfo &
 	create_info.ppEnabledExtensionNames = glfw_exts;
 	if (use_validation_layers)
 	{
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
-		createInfo.ppEnabledLayerNames = validation_layers.data();
+		create_info.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
+		create_info.ppEnabledLayerNames = validation_layers.data();
 	}
 	else
-		createInfo.enabledLayerCount = 0;
+		create_info.enabledLayerCount = 0;
 	return create_info;
 }
 VkResult vulkan_render_base::vk_create_instance(const char *n)
@@ -90,7 +90,9 @@ VkResult vulkan_render_base::vk_create_instance(const char *n)
 		std::cerr << "Vulkan validation layers requested but not availible." << std::endl;
 		return VK_ERROR_LAYER_NOT_PRESENT;
 	}
-	return vkCreateInstance(&vk_inst_create_info(vk_app_info(n));, nullptr, &instance);
+	auto app_info = vk_app_info(n);
+	auto create_info = vk_inst_create_info(app_info);
+	return vkCreateInstance(&create_info, nullptr, &instance);
 }
 bool vulkan_render_base::check_validation_layer_support()
 {

@@ -366,7 +366,10 @@ namespace galg
 			v[3] = 1;
 			short ctr = -1;
 			for (auto i : lst)
-				v[++ctr] = i;
+				if (ctr <= 2)
+					v[++ctr] = i;
+				else
+					break;
 		}
 
 		vec4(T x = 0, T y = 0, T z = 0, T w = (T)1)
@@ -376,6 +379,8 @@ namespace galg
 			v[2] = z;
 			v[3] = w;
 		}
+
+		vec4(vec3<T> v, T w = 1) : vec4(v.x(), v.y(), v.z(), w) {}
 
 		FORCE_INLINE T &x() { return v[0]; }
 		FORCE_INLINE T &y() { return v[1]; }
@@ -397,7 +402,7 @@ namespace galg
 			return v[index];
 		}
 
-		vec4 cross(vec4 &v2) const
+		FORCE_INLINE vec4 cross(vec4 &v2) const
 		{
 			return vec4(
 				(y() * v2.z()) - (z() * v2.y()),
@@ -405,8 +410,19 @@ namespace galg
 				(x() * v2.y()) - (y() * v2.x()));
 		}
 
+		FORCE_INLINE static vec4 quaternion(T angle, const vec3<T> &unit_axis)
+		{
+			return vec4(unit_axis.normalized() * (T)sinf((float)angle / 2.f),
+						(T)cosf((float)angle / 2.f));
+		}
+		FORCE_INLINE vec4 &quaternion_normalize()
+		{
+			
+			return *this;
+		}
+
 		ALGEBRAIC_VEC(vec4, 4)
-		VEC_STD_OPS(vec4, 3)
+		VEC_STD_OPS(vec4, 4)
 	};
 
 	template <typename T = fp_num>
@@ -592,7 +608,7 @@ namespace galg
 		}
 		FORCE_INLINE static mat4 look_at(const vec4<T> &pos, const vec4<T> &target, const vec4<T> &up)
 		{
-			return look_at_vec_x<vec4<T>>(pos, target, up);
+			return look_at_vec_x<vec3<T>>(pos.xyz(), target.xyz(), up.xyz());
 		}
 		FORCE_INLINE static mat4 scale(T x, T y, T z)
 		{
@@ -661,6 +677,21 @@ namespace galg
 		FORCE_INLINE static mat4 rotation(vec3<T> r)
 		{
 			return rotation(r.x(), r.y(), r.z());
+		}
+		FORCE_INLINE static mat4 quaternion_rotation(vec4<T> q)
+		{
+			q.quaternion_normalize();
+			return mat4{
+				{(T)2 * (q.x() * q.x() + q.y() * q.y()) - (T)1,
+				 (T)2 * (q.y() * q.z() - q.x() * q.w()),
+				 (T)2 * (q.y() * q.w() + q.x() * q.z()), 0},
+				{(T)2 * (q.y() * q.z() + q.x() * q.w()),
+				 (T)2 * (q.x() * q.x() + q.z() * q.z()) - (T)1,
+				 (T)2 * (q.z() * q.w() - q.x() * q.y()), 0},
+				{(T)2 * (q.y() * q.w() - q.x() * q.z()),
+				 (T)2 * (q.z() * q.w() + q.x() * q.y()),
+				 (T)2 * (q.x() * q.x() + q.w() * q.w()) - (T)1,0},
+				{0, 0, 0, 1}};
 		}
 	};
 

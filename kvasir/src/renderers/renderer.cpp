@@ -48,8 +48,6 @@ const char *render_base::type_to_string(type t)
 		return "OpenGL";
 	case VULKAN:
 		return "Vulkan";
-	case NONE:
-		return "None";
 	case DIRECTX:
 		return "DirectX";
 	case TERMINAL:

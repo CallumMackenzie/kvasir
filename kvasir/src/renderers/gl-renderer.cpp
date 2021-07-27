@@ -366,7 +366,7 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh)
 	if (!sh || !mesh.buffer)
 		return;
 	mat4f m_projection = cam.perspective(),
-		  m_rotation = mat4f::rotation(mesh.rot),
+		  m_rotation = mat4f::quaternion_rotation(mesh.rot),
 		  m_scale = mat4f::scale(mesh.scale),
 		  m_translation = mat4f::translation(mesh.pos),
 		  m_view = cam.view().inverse();

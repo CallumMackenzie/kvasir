@@ -12,7 +12,7 @@ namespace kvasir
 	struct position3d
 	{
 		vec3f pos;
-		vec3f rot;
+		vec4f rot;
 		vec3f scale = vec3f(1, 1, 1);
 		vec3f rot_pt;
 	};
