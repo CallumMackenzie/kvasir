@@ -160,8 +160,8 @@ void terminal_render_base::set_position(int x, int y) { return; }
 void terminal_render_base::get_position(int *x, int *y) { return; }
 void terminal_render_base::get_size(int *w, int *h)
 {
-	*w = width;
-	*h = height;
+	*w = (int)width;
+	*h = (int)height;
 }
 void terminal_render_base::set_size(int w, int h)
 {

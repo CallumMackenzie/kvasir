@@ -17,7 +17,11 @@ void frame_manager::set_fps(double fps)
 {
 	desired_delta = 1.0 / fps;
 }
-double frame_manager::delta() const
+float frame_manager::delta() const
+{
+	return (float)delta_time;
+}
+double frame_manager::delta_d() const
 {
 	return delta_time;
 }

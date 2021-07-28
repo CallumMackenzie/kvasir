@@ -59,7 +59,9 @@
 		"xtr1common": "cpp",
 		"xutility": "cpp",
 		"chrono": "cpp",
-		"thread": "cpp"
+		"thread": "cpp",
+		"internal.h": "c",
+		"null_platform.h": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

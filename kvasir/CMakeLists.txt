@@ -1,3 +1,7 @@
+
+# Vulkan needs to be installed
+# The BULLET_HOME variable needs to be set
+
 cmake_minimum_required(VERSION 3.0.0)
 project(kvasir-engine VERSION 0.1.0)
 
@@ -8,8 +12,8 @@ if(CMAKE_VERSION VERSION_LESS "3.1")
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17")
 	endif()
-	else()
-		set(CMAKE_CXX_STANDARD 17)
+else()
+	set(CMAKE_CXX_STANDARD 17)
 endif()
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -23,17 +27,22 @@ if(WIN32)
 	set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
 endif()
 
+if(WIN32)
+	set(BULLET_ROOT E:/bullet3)
+endif()
+
 add_subdirectory(./lib/glfw glfw)
-find_package(Bullet REQUIRED)
+add_subdirectory(./lib/bullet3 bullet3)
 find_package(Freetype REQUIRED)
+# find_package(Bullet REQUIRED FATAL_ERROR)
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
 link_directories(
 	./lib/glfw
+	./lib/bullet3
 	./lib/freetype
 	$ENV{LD_LIBRARY_PATH}
 	${Vulkan_LIBRARY}
-	$(Bullet_LIBRARY)
 )
 include_directories(
 	./lib/glad/include/glad
@@ -49,7 +58,7 @@ include_directories(
 	./src/physics
 	${FREETYPE_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
-	${BULLET_INCLUDE_DIR}
+	./lib/bullet3/src
 )
 
 add_library(
@@ -73,7 +82,20 @@ add_library(
 	./src/renderers/terminal-renderer.cpp
 	./src/kvasir-engine.cpp 
 )
-target_link_libraries(kvasir-engine glfw ${Vulkan_LIBRARIES} ${BULLET_LIBRARIES})
+target_link_libraries(
+	kvasir-engine 
+	glfw  
+	${Vulkan_LIBRARIES} 
+	BulletCollision
+	Bullet3Common
+	Bullet3Dynamics
+	Bullet3Geometry
+	BulletCollision
+	BulletDynamics
+	BulletInverseDynamics
+	BulletSoftBody
+	LinearMath
+)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -9,7 +9,8 @@ namespace kvasir
 	{
 		bool next_frame_ready();
 		void set_fps(double fps);
-		double delta() const;
+		float delta() const;
+		double delta_d() const;
 		static inline double clock_to_sec(const clock_t clock);
 
 	private:
