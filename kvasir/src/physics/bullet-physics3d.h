@@ -33,7 +33,6 @@ namespace kvasir
 		{
 			btCollisionShape *shape = nullptr;
 			btRigidBody *body = nullptr;
-			obj_info &operator=(const obj_info &o);
 		};
 
 		btDefaultCollisionConfiguration *configuration = nullptr;

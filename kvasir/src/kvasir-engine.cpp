@@ -72,6 +72,7 @@ kvasir_engine::result kvasir_engine::start(render_base::type t_base, const char 
 		return NULL_BASE;
 	if (!base->init(name, wid, hei))
 		return BASE_INIT_FAIL;
+	std::cout << render_base::type_to_string(base->get_type()) << " initialization SUCCESS." << std::endl;
 	return start_with_base();
 }
 kvasir_engine::result kvasir_engine::start(std::vector<render_base::type> t_bases, const char *name, int wid, int hei)

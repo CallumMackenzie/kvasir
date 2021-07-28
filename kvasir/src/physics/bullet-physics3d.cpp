@@ -114,12 +114,6 @@ vec4f bullet_physics3d::get_rotation(const mesh3d &mesh)
 		return vec4f();
 	return btq_to_gq(coll_shapes[mesh.tag].body->getWorldTransform().getRotation());
 }
-bullet_physics3d::obj_info &bullet_physics3d::obj_info::operator=(const obj_info &o)
-{
-	body = o.body;
-	shape = o.shape;
-	return *this;
-}
 void bullet_physics3d::set_position(const mesh3d &mesh, const vec3f &v)
 {
 	if (!mesh_is_valid(mesh))

@@ -31,10 +31,10 @@ if(WIN32)
 	set(BULLET_ROOT E:/bullet3)
 endif()
 
+# set(BUILD_BULLET3 1)
 add_subdirectory(./lib/glfw glfw)
 add_subdirectory(./lib/bullet3 bullet3)
 find_package(Freetype REQUIRED)
-# find_package(Bullet REQUIRED FATAL_ERROR)
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
 link_directories(
@@ -44,6 +44,7 @@ link_directories(
 	$ENV{LD_LIBRARY_PATH}
 	${Vulkan_LIBRARY}
 )
+
 include_directories(
 	./lib/glad/include/glad
 	./lib/glad/include/KHR
@@ -87,15 +88,12 @@ target_link_libraries(
 	kvasir-engine 
 	glfw  
 	${Vulkan_LIBRARIES} 
-	BulletCollision
-	Bullet3Common
-	Bullet3Dynamics
-	Bullet3Geometry
-	BulletCollision
-	BulletDynamics
 	BulletInverseDynamics
 	BulletSoftBody
+	BulletDynamics
+	BulletCollision
 	LinearMath
+	Bullet3Common
 )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

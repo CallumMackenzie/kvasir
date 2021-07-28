@@ -139,7 +139,7 @@ namespace kvasir
 	};
 	struct key_event
 	{
-		key key = Unknown;
+		key k = Unknown;
 		keystate action = NoPress;
 	};
 	struct input

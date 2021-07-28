@@ -16,13 +16,15 @@ struct kvasir_demo : kvasir_engine
 	mesh3d mesh;
 	mesh3d ground;
 	shader_base *shader = nullptr;
-	physics3d *p3d = default_physics3d();
+	physics3d *p3d = nullptr;
 
 	user_result on_start()
 	{
 		fixed_time.set_fps(10);
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
+		std::cout << allocs << ", " << deletes << std::endl;
+		p3d = default_physics3d();
 
 		if (!mesh.load_from_obj(R_PATH("../res/models/sphere.obj").c_str(), base->make_buffer()))
 			return user_result("Meshes failed loading.");
@@ -113,13 +115,10 @@ struct kvasir_demo : kvasir_engine
 int main(int, char **)
 {
 	{
-		kvasir_init();
-		linkverify().verify_link();
+		// linkverify().verify_link();
+		// kvasir_init();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(std::vector<render_base::type>{
-			render_base::VULKAN,
-			render_base::TERMINAL,
-			render_base::OPENGL});
+		kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}
