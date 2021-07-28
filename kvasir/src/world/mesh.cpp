@@ -144,6 +144,38 @@ bool group_mesh3d::load_from_objs(std::vector<const char *> files, buffer_base *
 	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), prev_offset += sizeof(vec2f));
 	return true;
 }
+void mesh3d::vertex_pos(const vec3f &pos)
+{
+
+	triangle *buf_data = new triangle[n_tris];
+	buffer->get_data(buf_data, 0, n_tris * sizeof(triangle));
+	for (size_t i = 0; i < n_tris; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p += pos;
+	buffer->sub_data(buf_data, 0, n_tris * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
+}
+void mesh3d::vertex_rot(const vec4f &rot)
+{
+	mat4f m_rot = mat4f::quaternion_rotation(rot);
+	triangle *buf_data = new triangle[n_tris];
+	buffer->get_data(buf_data, 0, n_tris * sizeof(triangle));
+	for (size_t i = 0; i < n_tris; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p = (m_rot * buf_data[i].v[j].p.xyz1()).xyz();
+	buffer->sub_data(buf_data, 0, n_tris * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
+}
+void mesh3d::vertex_scale(const vec3f &scale)
+{
+	triangle *buf_data = new triangle[n_tris];
+	buffer->get_data(buf_data, 0, n_tris * sizeof(triangle));
+	for (size_t i = 0; i < n_tris; ++i)
+		for (size_t j = 0; j < 3; ++j)
+			buf_data[i].v[j].p *= scale;
+	buffer->sub_data(buf_data, 0, n_tris * sizeof(triangle));
+	DEL_ARR_PTR(buf_data);
+}
 void group_mesh3d::add_mesh_pos(size_t index, const vec3f &pos)
 {
 	triangle *buf_data = new triangle[t_n_tris[index]];
@@ -170,9 +202,9 @@ void group_mesh3d::add_mesh_scale(size_t index, const vec3f &scale)
 	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
-void group_mesh3d::add_mesh_rot(size_t index, const vec3f &rot)
+void group_mesh3d::add_mesh_rot(size_t index, const vec4f &rot)
 {
-	mat4f m_rot = mat4f::rotation(rot);
+	mat4f m_rot = mat4f::quaternion_rotation(rot);
 	triangle *buf_data = new triangle[t_n_tris[index]];
 	size_t n_tris_before = 0;
 	for (size_t i = 0; i < index; ++i)

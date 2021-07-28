@@ -69,7 +69,7 @@ bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, float mass)
 	DEL_ARR_PTR(tris);
 
 	btDefaultMotionState *motion_state = new btDefaultMotionState(btTransform(
-		btQuaternion(mesh.rot.x(), mesh.rot.y(), mesh.rot.z(), mesh.rot.w()), btV3(mesh.pos)));
+		btQuaternion(mesh.rot.w(), mesh.rot.x(), mesh.rot.y(), mesh.rot.z()), btV3(mesh.pos)));
 
 	btVector3 b_inertia;
 	mesh_info.shape->calculateLocalInertia((btScalar)mass, b_inertia);
@@ -116,7 +116,7 @@ vec4f bullet_physics3d::get_rotation(const mesh3d &mesh)
 		return vec4f();
 	btTransform trns = coll_shapes[mesh.tag].body->getWorldTransform();
 	btQuaternion q = trns.getRotation();
-	return vec4f(q.x(), q.y(), q.z(), q.w());
+	return vec4f(q.y(), q.z(), q.w(), q.x());
 }
 bullet_physics3d::obj_info &bullet_physics3d::obj_info::operator=(const obj_info &o)
 {

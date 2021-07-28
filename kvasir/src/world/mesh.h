@@ -41,12 +41,17 @@ namespace kvasir
 		mesh3d();
 		~mesh3d();
 		bool load_from_obj(const char *file_name, buffer_base *buf);
+		void vertex_pos(const vec3f &pos);
+		void vertex_rot(const vec4f &rot);
+		void vertex_scale(const vec3f &scale);
 
 		inline static bool use_geo_val_cache = true;
 		inline static std::unordered_map<const char *, std::vector<triangle>> geo_val_cache;
-		inline static size_t current_tag = 0;
 		static std::vector<triangle> obj_to_tri_array(const char *file);
 		static std::vector<triangle> check_val_cache(const char *file);
+
+	private:
+		inline static size_t current_tag = 0;
 	};
 
 	struct group_mesh3d : mesh3d
@@ -55,7 +60,7 @@ namespace kvasir
 		bool load_from_objs(std::vector<const char *> files, buffer_base *buf);
 		void add_mesh_pos(size_t index, const vec3f &pos);
 		void add_mesh_scale(size_t index, const vec3f &scale);
-		void add_mesh_rot(size_t index, const vec3f &rot);
+		void add_mesh_rot(size_t index, const vec4f &rot);
 	};
 
 	struct mesh2d : position2d

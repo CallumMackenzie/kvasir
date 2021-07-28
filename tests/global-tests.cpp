@@ -37,10 +37,11 @@ struct kvasir_demo : kvasir_engine
 			return user_result("Ground failed loading.");
 		ground.pos.z() = 4;
 		ground.pos.y() = -2;
-		ground.rot = vec4f::quaternion(3.14 / 6, vec3f(0.2, 1, 0.2));
+		ground.rot = vec4f::quaternion(0.2, vec3f(0.4, 1, 0.4));
 		ground.material = base->make_material();
 		ground.material->texs[0] = base->make_texture();
-		ground.material->texs[0]->make_colour(0xabcdef);
+		ground.material->texs[0]->make_png("../res/img/h.png");
+		ground.vertex_scale(vec3f(2, 0.1, 2));
 		p3d->add_mesh(ground, true, 0);
 
 		shader = base->make_shader();
