@@ -5,6 +5,8 @@
 #include <iostream>
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
+#include "physics.h"
+#include "bullet-physics3d.h"
 #include "gl-renderer.h"
 #include "vulkan-renderer.h"
 #include "terminal-renderer.h"
@@ -52,6 +54,8 @@ namespace kvasir
 		virtual void on_fixed_update() = 0;
 		virtual void on_close() = 0;
 		static render_base *get_base(render_base::type b);
+
+		static physics3d *default_physics3d();
 
 	private:
 		result start_with_base();

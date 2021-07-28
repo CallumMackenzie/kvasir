@@ -16,7 +16,7 @@ using namespace galg;
 #include "./src/render-base/texture.h"
 #include "./src/world/material.h"
 #include "./src/world/mesh.h"
-// #include "./src/world/physics3d.h"
+#include "./src/physics/physics.h"
 #include "./src/world/camera.h"
 #include "./src/render-base/shader.h"
 #include "./src/renderers/renderer.h"

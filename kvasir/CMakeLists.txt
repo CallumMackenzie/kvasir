@@ -46,6 +46,7 @@ include_directories(
 	./src/world
 	./src 
 	./src/utils 
+	./src/physics
 	${FREETYPE_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIR}
@@ -62,7 +63,8 @@ add_library(
 	./src/render-base/texture.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp
-	./src/world/physics3d.cpp
+	./src/physics/physics.cpp
+	./src/physics/bullet-physics3d.cpp
 	./src/world/camera.cpp
 	./src/render-base/shader.cpp
 	./src/renderers/renderer.cpp

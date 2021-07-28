@@ -14,8 +14,9 @@ struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
 	mesh3d mesh;
-	float rot = 0;
+	mesh3d ground;
 	shader_base *shader = nullptr;
+	physics3d *p3d = default_physics3d();
 
 	user_result on_start()
 	{
@@ -23,12 +24,24 @@ struct kvasir_demo : kvasir_engine
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
 
-		if (!mesh.load_from_obj("../res/models/cube.obj", base->make_buffer()))
+		if (!mesh.load_from_obj("../res/models/sphere.obj", base->make_buffer()))
 			return user_result("Meshes failed loading.");
 		mesh.pos.z() = 4;
+		mesh.pos.y() = 1;
 		mesh.material = base->make_material();
 		mesh.material->texs[0] = base->make_texture();
 		mesh.material->texs[0]->make_png("../res/img/h.png");
+		p3d->add_mesh(mesh, true, 1);
+
+		if (!ground.load_from_obj("../res/models/cube.obj", base->make_buffer()))
+			return user_result("Ground failed loading.");
+		ground.pos.z() = 4;
+		ground.pos.y() = -2;
+		ground.rot = vec4f::quaternion(3.14 / 6, vec3f(0.2, 1, 0.2));
+		ground.material = base->make_material();
+		ground.material->texs[0] = base->make_texture();
+		ground.material->texs[0]->make_colour(0xabcdef);
+		p3d->add_mesh(ground, true, 0);
 
 		shader = base->make_shader();
 		const char *s[2]{vshader, fshader};
@@ -38,10 +51,14 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
-		rot += 1.f * time.delta();
-		mesh.rot = vec4f::quaternion(rot, vec3f(0, 1, 0));
+		p3d->step(time.delta());
+		mesh.pos = p3d->get_position(mesh);
+		mesh.rot = p3d->get_rotation(mesh);
+		ground.pos = p3d->get_position(ground);
+		ground.rot = p3d->get_rotation(ground);
 		base->clear();
 		base->render_mesh3d(cam, mesh, shader);
+		base->render_mesh3d(cam, ground, shader);
 		base->swap_buffers();
 	}
 	void on_fixed_update()
@@ -51,6 +68,7 @@ struct kvasir_demo : kvasir_engine
 	void on_close()
 	{
 		DEL_PTR(shader);
+		DEL_PTR(p3d);
 	}
 };
 

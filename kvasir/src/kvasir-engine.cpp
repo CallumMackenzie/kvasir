@@ -96,3 +96,8 @@ kvasir_engine::result kvasir_engine::start(std::vector<render_base::type> t_base
 	std::cout << render_base::type_to_string(base->get_type()) << " initialization SUCCESS." << std::endl;
 	return start_with_base();
 }
+
+physics3d *kvasir_engine::default_physics3d()
+{
+	return new bullet_physics3d();
+}
