@@ -103,6 +103,7 @@ namespace kvasir
 		void depth_buffer_active(bool a);
 		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh);
 		type get_type();
+		keystate get_keystate(key key);
 
 	private:
 		int gl_hints[8]{
@@ -115,7 +116,6 @@ namespace kvasir
 		int clear_bits = GL_COLOR_BUFFER_BIT;
 		static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 		bool gl_load();
-		static voi
 	};
 };
 

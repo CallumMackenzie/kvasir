@@ -134,9 +134,9 @@ void bullet_physics3d::set_rotation(const mesh3d &mesh, const vec4f &v)
 }
 position3d bullet_physics3d::get_transform(const mesh3d &mesh)
 {
-	if (!mesh_is_valid(mesh))
-		return;
 	position3d ret;
+	if (!mesh_is_valid(mesh))
+		return ret;
 	auto wt = coll_shapes[mesh.tag].body->getWorldTransform();
 	ret.pos = btV3(wt.getOrigin());
 	ret.rot = btq_to_gq(wt.getRotation());
@@ -146,15 +146,15 @@ void bullet_physics3d::set_transform(const mesh3d &mesh, const position3d &trns)
 {
 	if (!mesh_is_valid(mesh))
 		return;
-	auto wt = coll_shapes[mesh.tag].body->getWorldTransform();
-	wt->setOrigin(btV3(trns.pos));
-	wt->setRotation(gq_to_btq(trns.rot));
+	btTransform &wt = coll_shapes[mesh.tag].body->getWorldTransform();
+	wt.setOrigin(btV3(trns.pos));
+	wt.setRotation(gq_to_btq(trns.rot));
 }
-vec4f btq_to_gq(const btQuaternion &q)
+vec4f bullet_physics3d::btq_to_gq(const btQuaternion &q)
 {
 	return vec4f(q.y(), q.z(), q.w(), q.x());
 }
-btQuaternion gq_to_btq(const vec4f &v)
+btQuaternion bullet_physics3d::gq_to_btq(const vec4f &v)
 {
-	return vec4f(v.w(), v.x(), v.y(), v.z());
+	return btQuaternion(v.w(), v.x(), v.y(), v.z());
 }

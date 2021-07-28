@@ -38,6 +38,7 @@ struct glfw_window
 	bool recreate_visible(bool vis);
 	bool is_visible();
 	void set_key_callback(GLFWkeyfun fn);
+	int get_keystate(int key);
 	static void get_primary_monitor_size(int *w, int *h);
 
 private:

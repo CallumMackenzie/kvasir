@@ -123,6 +123,7 @@ namespace kvasir
 		void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s);
 		void depth_buffer_active(bool b);
 		type get_type();
+		keystate get_keystate(key key);
 
 	private:
 		// static const char *get_ansi_from_col(vec3us col);

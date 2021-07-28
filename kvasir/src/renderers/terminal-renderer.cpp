@@ -224,3 +224,7 @@ render_base::type terminal_render_base::get_type()
 {
 	return TERMINAL;
 }
+keystate terminal_render_base::get_keystate(key key)
+{
+	return NoPress;
+}

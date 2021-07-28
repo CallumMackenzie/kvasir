@@ -19,6 +19,7 @@ using namespace galg;
 #include "./src/world/mesh.h"
 #include "./src/physics/physics.h"
 #include "./src/world/camera.h"
+#include "./src/utils/input.h"
 #include "./src/render-base/shader.h"
 #include "./src/renderers/renderer.h"
 #include "./src/kvasir-engine.h"

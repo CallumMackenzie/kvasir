@@ -52,6 +52,43 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
+
+		vec3f clv = cam.look_vector().xyz().normalized();
+		float speed = 3.f;
+		float cms = 1.3f;
+		vec3f forward;
+		vec3f up = vec3f(0.f, 1.f, 0.f);
+		vec3f rotate;
+		if (base->get_keystate(KeyW) == KeyDown) // w
+			forward += clv;
+		if (base->get_keystate(KeyS) == KeyDown) // s
+			forward -= clv;
+		if (base->get_keystate(KeyD) == KeyDown) // d
+			forward -= clv.cross(up);
+		if (base->get_keystate(KeyA) == KeyDown) // a
+			forward += clv.cross(up);
+		if (base->get_keystate(Space) == KeyDown)
+			forward.y() += 1.f;
+		if (base->get_keystate(KeyE) == KeyDown)
+			forward.y() -= 1.f;
+
+		if (base->get_keystate(Left) == KeyDown) // Arrow left
+			rotate.y() = cms;
+		if (base->get_keystate(Right) == KeyDown) // Arrow right
+			rotate.y() = -cms;
+		if (base->get_keystate(Up) == KeyDown) // Arrow up
+			rotate.x() = -cms;
+		if (base->get_keystate(Down) == KeyDown) // Arrow down
+			rotate.x() = cms;
+		if (base->get_keystate(LShift) == KeyDown)
+			speed *= 3.f;
+		if (base->get_keystate(LControl) == KeyDown)
+			speed *= 7.f;
+
+		cam.rot += rotate * time.delta();
+		cam.pos += forward.normalize() * speed * time.delta();
+
+		p3d->set_transform(mesh, mesh);
 		p3d->step(time.delta());
 		mesh.pos = p3d->get_position(mesh);
 		mesh.rot = p3d->get_rotation(mesh);

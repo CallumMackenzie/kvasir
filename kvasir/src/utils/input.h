@@ -3,40 +3,42 @@
 
 #include <unordered_map>
 #ifndef NO_USE_INCLUDES
-#include "glfw-window.h"
+#define GLFW_INCLUDE_NONE
+#include "glfw3.h"
+#undef GLFW_INCLUDE_NONE
 #endif
 
 namespace kvasir
 {
-	enum kv_key
+	enum key
 	{
 		Unknown = -1,
-		A,
-		B,
-		C,
-		D,
-		E,
-		F,
-		G,
-		H,
-		I,
-		J,
-		K,
-		L,
-		M,
-		N,
-		O,
-		P,
-		Q,
-		R,
-		S,
-		T,
-		U,
-		V,
-		W,
-		X,
-		Y,
-		Z,
+		KeyA,
+		KeyB,
+		KeyC,
+		KeyD,
+		KeyE,
+		KeyF,
+		KeyG,
+		KeyH,
+		KeyI,
+		KeyJ,
+		KeyK,
+		KeyL,
+		KeyM,
+		KeyN,
+		KeyO,
+		KeyP,
+		KeyQ,
+		KeyR,
+		KeyS,
+		KeyT,
+		KeyU,
+		KeyV,
+		KeyW,
+		KeyX,
+		KeyY,
+		KeyZ,
 		Num0,
 		Num1,
 		Num2,
@@ -112,6 +114,10 @@ namespace kvasir
 		F14,
 		F15,
 		Pause,
+		CapsLock,
+		ScrollLock,
+		NumLock,
+		PrintScreen,
 		KeyCount,
 		Dash = Hyphen,
 		BackSpace = Backspace,
@@ -119,25 +125,29 @@ namespace kvasir
 		SemiColon = Semicolon,
 		Return = Enter
 	};
-	enum kv_keystate
+	enum keystate
 	{
 		Release,
 		Press,
 		Repeat,
-		Unknown = -1,
 		KeyUp = Release,
 		KeyDown = Press,
-		KeyHeld = Repeat
+		KeyHeld = Repeat,
+		NoPress = -1,
+		Stateless = NoPress,
+		NoAction = NoPress
 	};
 	struct key_event
 	{
-		kv_key key = Unknown;
-		kv_keystate action = ;
+		key key = Unknown;
+		keystate action = NoPress;
 	};
 	struct input
 	{
-		static kv_key glfw_key_to_kv_key(int glk);
-		static kv_keystate glfw_kst_to_kv_kst(int kst);
+		static key get_glfw_key(int glk);
+		static keystate get_glfw_kst(int kst);
+		static int get_key(key k);
+		static int get_kst(keystate kst);
 	};
 
 }

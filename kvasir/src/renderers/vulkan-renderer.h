@@ -51,6 +51,7 @@ namespace kvasir
 		void render_mesh3d(camera3d &, mesh3d &, shader_base *);
 		void depth_buffer_active(bool);
 		type get_type();
+		keystate get_keystate(key key);
 
 	private:
 		glfw_window win;

@@ -1,27 +1,271 @@
 #include "input.h"
 
 using namespace kvasir;
-kv_key input::glfw_key_to_kv_key(int glk)
+
+#define CASE(A, B) \
+	case A:        \
+		return B;
+
+#define RCASE(A, B) \
+	case B:         \
+		return A;
+
+#define ALPH(k_) \
+	CASE(GLFW_KEY_##k_, Key##k_)
+
+#define FX(fx) \
+	CASE(GLFW_KEY_F##fx, F##fx)
+
+#define KPN(n) \
+	CASE(GLFW_KEY_KP_##n, Num##n)
+
+#define RALPH(k_) \
+	RCASE(GLFW_KEY_##k_, Key##k_)
+
+#define RFX(fx) \
+	RCASE(GLFW_KEY_F##fx, F##fx)
+
+#define RKPN(n) \
+	RCASE(GLFW_KEY_KP_##n, Num##n)
+
+key input::get_glfw_key(int glk)
 {
 	switch (glk)
 	{
+		CASE(GLFW_KEY_SPACE, Space)
+		CASE(GLFW_KEY_APOSTROPHE, Quote)
+		CASE(GLFW_KEY_COMMA, Comma)
+		CASE(GLFW_KEY_MINUS, Hyphen)
+		CASE(GLFW_KEY_PERIOD, Period)
+		CASE(GLFW_KEY_SLASH, Slash)
+		CASE(GLFW_KEY_0, Num0)
+		CASE(GLFW_KEY_1, Num1)
+		CASE(GLFW_KEY_2, Num2)
+		CASE(GLFW_KEY_3, Num3)
+		CASE(GLFW_KEY_4, Num4)
+		CASE(GLFW_KEY_5, Num5)
+		CASE(GLFW_KEY_6, Num6)
+		CASE(GLFW_KEY_7, Num7)
+		CASE(GLFW_KEY_8, Num8)
+		CASE(GLFW_KEY_9, Num9)
+		CASE(GLFW_KEY_SEMICOLON, Semicolon)
+		CASE(GLFW_KEY_EQUAL, Equal)
+		ALPH(A)
+		ALPH(B)
+		ALPH(C)
+		ALPH(D)
+		ALPH(E)
+		ALPH(F)
+		ALPH(G)
+		ALPH(I)
+		ALPH(J)
+		ALPH(K)
+		ALPH(L)
+		ALPH(M)
+		ALPH(N)
+		ALPH(O)
+		ALPH(P)
+		ALPH(Q)
+		ALPH(R)
+		ALPH(S)
+		ALPH(T)
+		ALPH(U)
+		ALPH(V)
+		ALPH(W)
+		ALPH(X)
+		ALPH(Y)
+		ALPH(Z)
+		CASE(GLFW_KEY_LEFT_BRACKET, LBracket)
+		CASE(GLFW_KEY_BACKSLASH, Backslash)
+		CASE(GLFW_KEY_RIGHT_BRACKET, RBracket)
+		CASE(GLFW_KEY_ESCAPE, Escape)
+		CASE(GLFW_KEY_ENTER, Enter)
+		CASE(GLFW_KEY_TAB, Tab)
+		CASE(GLFW_KEY_BACKSPACE, Backspace)
+		CASE(GLFW_KEY_INSERT, Insert)
+		CASE(GLFW_KEY_DELETE, Delete)
+		CASE(GLFW_KEY_RIGHT, Right)
+		CASE(GLFW_KEY_LEFT, Left)
+		CASE(GLFW_KEY_UP, Up)
+		CASE(GLFW_KEY_DOWN, Down)
+		CASE(GLFW_KEY_PAGE_UP, PageUp)
+		CASE(GLFW_KEY_PAGE_DOWN, PageDown)
+		CASE(GLFW_KEY_HOME, Home)
+		CASE(GLFW_KEY_END, End)
+		CASE(GLFW_KEY_CAPS_LOCK, CapsLock)
+		CASE(GLFW_KEY_SCROLL_LOCK, ScrollLock)
+		CASE(GLFW_KEY_NUM_LOCK, NumLock)
+		CASE(GLFW_KEY_PRINT_SCREEN, PrintScreen)
+		CASE(GLFW_KEY_PAUSE, Pause)
+		FX(1)
+		FX(2)
+		FX(3)
+		FX(4)
+		FX(5)
+		FX(6)
+		FX(7)
+		FX(8)
+		FX(9)
+		FX(10)
+		FX(11)
+		FX(12)
+		FX(13)
+		FX(14)
+		FX(15)
+		KPN(0)
+		KPN(1)
+		KPN(2)
+		KPN(3)
+		KPN(4)
+		KPN(5)
+		KPN(6)
+		KPN(7)
+		KPN(8)
+		KPN(9)
+		CASE(GLFW_KEY_KP_DECIMAL, Period)
+		CASE(GLFW_KEY_KP_DIVIDE, Divide)
+		CASE(GLFW_KEY_KP_MULTIPLY, Multiply)
+		CASE(GLFW_KEY_KP_ADD, Add)
+		CASE(GLFW_KEY_KP_ENTER, Enter)
+		CASE(GLFW_KEY_KP_EQUAL, Equal)
+		CASE(GLFW_KEY_LEFT_SHIFT, LShift)
+		CASE(GLFW_KEY_LEFT_CONTROL, LControl)
+		CASE(GLFW_KEY_LEFT_ALT, LAlt)
+		CASE(GLFW_KEY_LEFT_SUPER, LSystem)
+		CASE(GLFW_KEY_RIGHT_SHIFT, RShift)
+		CASE(GLFW_KEY_RIGHT_CONTROL, RControl)
+		CASE(GLFW_KEY_RIGHT_ALT, RAlt)
+		CASE(GLFW_KEY_RIGHT_SUPER, RSystem)
+		CASE(GLFW_KEY_MENU, Menu)
 	default:
 		break;
 	}
 	return Unknown;
 }
-kv_keystate input::glfw_kst_to_kv_kst(int kst);
+
+keystate input::get_glfw_kst(int kst)
 {
 	switch (kst)
 	{
-	case GLFW_PRESS:
-		return Press;
-	case GLFW_RELEASE:
-		return Release;
-	case GLFW_REPEAT:
-		return Repeat;
+		CASE(GLFW_PRESS, Press)
+		CASE(GLFW_RELEASE, Release)
+		CASE(GLFW_REPEAT, Repeat)
 	default:
 		break;
 	}
-	return Unknown;
+	return NoPress;
+}
+
+int input::get_key(key k)
+{
+	switch (k)
+	{
+		RCASE(GLFW_KEY_SPACE, Space)
+		RCASE(GLFW_KEY_APOSTROPHE, Quote)
+		RCASE(GLFW_KEY_COMMA, Comma)
+		RCASE(GLFW_KEY_MINUS, Hyphen)
+		RCASE(GLFW_KEY_PERIOD, Period)
+		RCASE(GLFW_KEY_SLASH, Slash)
+		RCASE(GLFW_KEY_0, Num0)
+		RCASE(GLFW_KEY_1, Num1)
+		RCASE(GLFW_KEY_2, Num2)
+		RCASE(GLFW_KEY_3, Num3)
+		RCASE(GLFW_KEY_4, Num4)
+		RCASE(GLFW_KEY_5, Num5)
+		RCASE(GLFW_KEY_6, Num6)
+		RCASE(GLFW_KEY_7, Num7)
+		RCASE(GLFW_KEY_8, Num8)
+		RCASE(GLFW_KEY_9, Num9)
+		RCASE(GLFW_KEY_SEMICOLON, Semicolon)
+		RCASE(GLFW_KEY_EQUAL, Equal)
+		RALPH(A)
+		RALPH(B)
+		RALPH(C)
+		RALPH(D)
+		RALPH(E)
+		RALPH(F)
+		RALPH(G)
+		RALPH(I)
+		RALPH(J)
+		RALPH(K)
+		RALPH(L)
+		RALPH(M)
+		RALPH(N)
+		RALPH(O)
+		RALPH(P)
+		RALPH(Q)
+		RALPH(R)
+		RALPH(S)
+		RALPH(T)
+		RALPH(U)
+		RALPH(V)
+		RALPH(W)
+		RALPH(X)
+		RALPH(Y)
+		RALPH(Z)
+		RCASE(GLFW_KEY_LEFT_BRACKET, LBracket)
+		RCASE(GLFW_KEY_BACKSLASH, Backslash)
+		RCASE(GLFW_KEY_RIGHT_BRACKET, RBracket)
+		RCASE(GLFW_KEY_ESCAPE, Escape)
+		RCASE(GLFW_KEY_ENTER, Enter)
+		RCASE(GLFW_KEY_TAB, Tab)
+		RCASE(GLFW_KEY_BACKSPACE, Backspace)
+		RCASE(GLFW_KEY_INSERT, Insert)
+		RCASE(GLFW_KEY_DELETE, Delete)
+		RCASE(GLFW_KEY_RIGHT, Right)
+		RCASE(GLFW_KEY_LEFT, Left)
+		RCASE(GLFW_KEY_UP, Up)
+		RCASE(GLFW_KEY_DOWN, Down)
+		RCASE(GLFW_KEY_PAGE_UP, PageUp)
+		RCASE(GLFW_KEY_PAGE_DOWN, PageDown)
+		RCASE(GLFW_KEY_HOME, Home)
+		RCASE(GLFW_KEY_END, End)
+		RCASE(GLFW_KEY_CAPS_LOCK, CapsLock)
+		RCASE(GLFW_KEY_SCROLL_LOCK, ScrollLock)
+		RCASE(GLFW_KEY_NUM_LOCK, NumLock)
+		RCASE(GLFW_KEY_PRINT_SCREEN, PrintScreen)
+		RCASE(GLFW_KEY_PAUSE, Pause)
+		RFX(1)
+		RFX(2)
+		RFX(3)
+		RFX(4)
+		RFX(5)
+		RFX(6)
+		RFX(7)
+		RFX(8)
+		RFX(9)
+		RFX(10)
+		RFX(11)
+		RFX(12)
+		RFX(13)
+		RFX(14)
+		RFX(15)
+		RCASE(GLFW_KEY_KP_DIVIDE, Divide)
+		RCASE(GLFW_KEY_KP_MULTIPLY, Multiply)
+		RCASE(GLFW_KEY_KP_ADD, Add)
+		RCASE(GLFW_KEY_LEFT_SHIFT, LShift)
+		RCASE(GLFW_KEY_LEFT_CONTROL, LControl)
+		RCASE(GLFW_KEY_LEFT_ALT, LAlt)
+		RCASE(GLFW_KEY_LEFT_SUPER, LSystem)
+		RCASE(GLFW_KEY_RIGHT_SHIFT, RShift)
+		RCASE(GLFW_KEY_RIGHT_CONTROL, RControl)
+		RCASE(GLFW_KEY_RIGHT_ALT, RAlt)
+		RCASE(GLFW_KEY_RIGHT_SUPER, RSystem)
+		RCASE(GLFW_KEY_MENU, Menu)
+	default:
+		break;
+	}
+	return GLFW_KEY_UNKNOWN;
+}
+int input::get_kst(keystate kst)
+{
+	switch (kst)
+	{
+		RCASE(GLFW_PRESS, Press)
+		RCASE(GLFW_RELEASE, Release)
+		RCASE(GLFW_REPEAT, Repeat)
+	default:
+		break;
+	}
+	return GLFW_KEY_UNKNOWN;
 }

@@ -387,3 +387,7 @@ render_base::type gl_render_base::get_type()
 {
 	return OPENGL;
 }
+keystate gl_render_base::get_keystate(key key)
+{
+	return input::get_glfw_kst(win.get_keystate(input::get_key(key)));
+}

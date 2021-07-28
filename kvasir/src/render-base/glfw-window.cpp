@@ -134,6 +134,10 @@ void glfw_window::get_primary_monitor_size(int *w, int *h)
 	*w = mode->width;
 	*h = mode->height;
 }
+int glfw_window::get_keystate(int key)
+{
+	return glfwGetKey(window, key);
+}
 void glfw_window::set_key_callback(GLFWkeyfun fn)
 {
 	glfwSetKeyCallback(window, fn);
