@@ -9,6 +9,8 @@
 #include "mesh.h"
 #endif
 
+using namespace galg;
+
 namespace kvasir
 {
 	struct bullet_physics3d : physics3d
@@ -16,11 +18,15 @@ namespace kvasir
 		bullet_physics3d();
 		~bullet_physics3d();
 
-		void set_gravity(const galg::vec3f &g);
+		void set_gravity(const vec3f &g);
 		bool add_mesh(mesh3d &mesh, bool convex, float mass);
 		void step(float delta);
-		galg::vec3f get_position(const mesh3d &mesh);
-		galg::vec4f get_rotation(const mesh3d &mesh);
+		vec3f get_position(const mesh3d &mesh);
+		vec4f get_rotation(const mesh3d &mesh);
+		void set_position(const mesh3d &mesh, const vec3f &v);
+		void set_rotation(const mesh3d &mesh, const vec4f &v);
+		position3d get_transform(const mesh3d &mesh);
+		void set_transform(const mesh3d &mesh, const position3d &trns);
 
 	private:
 		struct obj_info
@@ -39,8 +45,10 @@ namespace kvasir
 
 		bool mesh_is_valid(const mesh3d &mesh);
 
-		static btVector3 btV3(const galg::vec3f &v);
-		static galg::vec3f btV3(const btVector3 &v);
+		static btVector3 btV3(const vec3f &v);
+		static vec3f btV3(const btVector3 &v);
+		static vec4f btq_to_gq(const btQuaternion &q);
+		static btQuaternion gq_to_btq(const vec4f &v);
 	};
 }
 

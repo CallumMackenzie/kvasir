@@ -7,6 +7,7 @@ vulkan_render_base::~vulkan_render_base()
 	if (instance)
 		vkDestroyInstance(instance, nullptr);
 	win.set_default_hints();
+	win.destroy();
 }
 bool vulkan_render_base::should_close() { return win.should_close(); }
 void vulkan_render_base::set_clear_colour(long) { throw EX_UNIMPLEMENTED; }

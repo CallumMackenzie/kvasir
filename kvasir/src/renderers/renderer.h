@@ -25,6 +25,8 @@ namespace kvasir
 			DIRECTX = 0x08,
 		};
 
+		virtual ~render_base() = 0;
+
 		virtual bool should_close() = 0;
 		virtual void set_clear_colour(long c) = 0;
 		virtual void clear() = 0;

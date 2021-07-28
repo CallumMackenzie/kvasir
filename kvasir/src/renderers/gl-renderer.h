@@ -115,6 +115,7 @@ namespace kvasir
 		int clear_bits = GL_COLOR_BUFFER_BIT;
 		static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 		bool gl_load();
+		static voi
 	};
 };
 

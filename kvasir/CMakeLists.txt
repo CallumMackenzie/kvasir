@@ -69,6 +69,7 @@ add_library(
 	./src/utils/fps-manager.cpp
 	./src/render-base/buffer.cpp
 	./src/render-base/glfw-window.cpp
+	./src/utils/input.cpp
 	./src/render-base/texture.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp

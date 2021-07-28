@@ -68,8 +68,7 @@ bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, float mass)
 	}
 	DEL_ARR_PTR(tris);
 
-	btDefaultMotionState *motion_state = new btDefaultMotionState(btTransform(
-		btQuaternion(mesh.rot.w(), mesh.rot.x(), mesh.rot.y(), mesh.rot.z()), btV3(mesh.pos)));
+	btDefaultMotionState *motion_state = new btDefaultMotionState(btTransform(gq_to_btq(mesh.rot), btV3(mesh.pos)));
 
 	btVector3 b_inertia;
 	mesh_info.shape->calculateLocalInertia((btScalar)mass, b_inertia);
@@ -107,20 +106,55 @@ vec3f bullet_physics3d::get_position(const mesh3d &mesh)
 {
 	if (!mesh_is_valid(mesh))
 		return vec3f();
-	btTransform trns = coll_shapes[mesh.tag].body->getWorldTransform();
-	return btV3(trns.getOrigin());
+	return btV3(coll_shapes[mesh.tag].body->getWorldTransform().getOrigin());
 }
 vec4f bullet_physics3d::get_rotation(const mesh3d &mesh)
 {
 	if (!mesh_is_valid(mesh))
 		return vec4f();
-	btTransform trns = coll_shapes[mesh.tag].body->getWorldTransform();
-	btQuaternion q = trns.getRotation();
-	return vec4f(q.y(), q.z(), q.w(), q.x());
+	return btq_to_gq(coll_shapes[mesh.tag].body->getWorldTransform().getRotation());
 }
 bullet_physics3d::obj_info &bullet_physics3d::obj_info::operator=(const obj_info &o)
 {
 	body = o.body;
 	shape = o.shape;
 	return *this;
+}
+void bullet_physics3d::set_position(const mesh3d &mesh, const vec3f &v)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	coll_shapes[mesh.tag].body->getWorldTransform().setOrigin(btV3(v));
+}
+void bullet_physics3d::set_rotation(const mesh3d &mesh, const vec4f &v)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	coll_shapes[mesh.tag].body->getWorldTransform().setRotation(gq_to_btq(v));
+}
+position3d bullet_physics3d::get_transform(const mesh3d &mesh)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	position3d ret;
+	auto wt = coll_shapes[mesh.tag].body->getWorldTransform();
+	ret.pos = btV3(wt.getOrigin());
+	ret.rot = btq_to_gq(wt.getRotation());
+	return ret;
+}
+void bullet_physics3d::set_transform(const mesh3d &mesh, const position3d &trns)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	auto wt = coll_shapes[mesh.tag].body->getWorldTransform();
+	wt->setOrigin(btV3(trns.pos));
+	wt->setRotation(gq_to_btq(trns.rot));
+}
+vec4f btq_to_gq(const btQuaternion &q)
+{
+	return vec4f(q.y(), q.z(), q.w(), q.x());
+}
+btQuaternion gq_to_btq(const vec4f &v)
+{
+	return vec4f(v.w(), v.x(), v.y(), v.z());
 }

@@ -7,6 +7,7 @@
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"
 #include "./src/utils/memory-aid.h"
+#include "./src/utils/rel-paths.h"
 
 using namespace galg;
 

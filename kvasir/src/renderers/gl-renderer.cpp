@@ -210,6 +210,7 @@ void gl_texture_base::free_texture()
 
 gl_render_base::~gl_render_base()
 {
+	win.destroy();
 	win.set_default_hints();
 }
 bool gl_render_base::should_close()

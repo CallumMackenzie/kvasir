@@ -24,23 +24,23 @@ struct kvasir_demo : kvasir_engine
 		base->set_clear_colour(0xff80ff);
 		base->depth_buffer_active(true);
 
-		if (!mesh.load_from_obj("../res/models/sphere.obj", base->make_buffer()))
+		if (!mesh.load_from_obj(R_PATH("../res/models/sphere.obj").c_str(), base->make_buffer()))
 			return user_result("Meshes failed loading.");
 		mesh.pos.z() = 4;
 		mesh.pos.y() = 1;
 		mesh.material = base->make_material();
 		mesh.material->texs[0] = base->make_texture();
-		mesh.material->texs[0]->make_png("../res/img/h.png");
+		mesh.material->texs[0]->make_png(R_PATH("../res/img/h.png").c_str());
 		p3d->add_mesh(mesh, true, 1);
 
-		if (!ground.load_from_obj("../res/models/cube.obj", base->make_buffer()))
+		if (!ground.load_from_obj(R_PATH("../res/models/cube.obj").c_str(), base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.z() = 4;
 		ground.pos.y() = -2;
 		ground.rot = vec4f::quaternion(0.2f, vec3f(0.4f, 1.f, 0.4f));
 		ground.material = base->make_material();
 		ground.material->texs[0] = base->make_texture();
-		ground.material->texs[0]->make_png("../res/img/h.png");
+		ground.material->texs[0]->make_png(R_PATH("../res/img/h.png").c_str());
 		ground.vertex_scale(vec3f(2.f, 0.1f, 2.f));
 		p3d->add_mesh(ground, true, 0);
 

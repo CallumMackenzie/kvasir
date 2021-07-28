@@ -2,6 +2,7 @@
 
 using namespace kvasir;
 
+render_base::~render_base() {}
 int render_base::get_position_x()
 {
 	int x, y;
