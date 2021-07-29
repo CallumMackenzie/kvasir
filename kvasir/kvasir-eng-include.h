@@ -22,6 +22,7 @@ using namespace galg;
 #include "./src/utils/input.h"
 #include "./src/render-base/shader.h"
 #include "./src/renderers/renderer.h"
+#include "./src/utils/common-ops.h"
 #include "./src/kvasir-engine.h"
 
 

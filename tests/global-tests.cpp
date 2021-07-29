@@ -47,7 +47,7 @@ struct kvasir_demo : kvasir_engine
 			ms->material = base->make_material();
 			ms->material->texs[0] = base->make_texture();
 			ms->material->texs[0]->make_colour((0xff & (int)(((float)i / (float)10) * 255.f)) | (0xff00 & (((10 * i) % 200) >> 8)) | 0x800000);
-			p3d->add_mesh(*ms, true, 2);
+			p3d->add_mesh(*ms, true, 1);
 			mshs.push_back(ms);
 		}
 
@@ -60,39 +60,7 @@ struct kvasir_demo : kvasir_engine
 	void on_update()
 	{
 
-		vec3f clv = cam.look_vector().xyz().normalized();
-		float speed = 3.f;
-		float cms = 1.3f;
-		vec3f forward;
-		vec3f up = vec3f(0.f, 1.f, 0.f);
-		vec3f rotate;
-		if (base->key_pressed(KeyW))
-			forward += clv;
-		if (base->key_pressed(KeyS))
-			forward -= clv;
-		if (base->key_pressed(KeyD))
-			forward -= clv.cross(up);
-		if (base->key_pressed(KeyA))
-			forward += clv.cross(up);
-		if (base->key_pressed(KeyQ))
-			forward.y() += 1.f;
-		if (base->key_pressed(KeyE))
-			forward.y() -= 1.f;
-		if (base->key_pressed(Left))
-			rotate.y() = cms;
-		if (base->key_pressed(Right))
-			rotate.y() = -cms;
-		if (base->key_pressed(Up))
-			rotate.x() = -cms;
-		if (base->key_pressed(Down))
-			rotate.x() = cms;
-		if (base->key_pressed(LShift))
-			speed *= 3.f;
-		if (base->key_pressed(LControl))
-			speed *= 7.f;
-
-		cam.rot += rotate * time.delta();
-		cam.pos += forward.normalize() * speed * time.delta();
+		cam_debug_controls(base, cam, time.delta());
 
 		p3d->step(time.delta());
 		ground.pos = p3d->get_position(ground);

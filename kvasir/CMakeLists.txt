@@ -82,6 +82,7 @@ add_library(
 	./src/renderers/gl-renderer.cpp
 	./src/renderers/vulkan-renderer.cpp
 	./src/renderers/terminal-renderer.cpp
+	./src/utils/common-ops.cpp
 	./src/kvasir-engine.cpp 
 )
 target_link_libraries(
