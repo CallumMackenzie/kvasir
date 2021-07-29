@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <stddef.h>
+#include <unordered_map>
 #ifndef NO_USE_INCLUDES
 #include "lodepng.h"
 #endif
@@ -32,6 +33,9 @@ namespace kvasir
 		void make_colour(long colour, size_t slot = 0);
 		static texture_image load_image(const char *file_path);
 		static texture_image colour_image(long colour);
+
+		static inline std::unordered_map<std::string, texture_image> image_cache;
+		static inline bool use_image_cache = true;
 	};
 
 }

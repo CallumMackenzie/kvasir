@@ -15,7 +15,7 @@ mesh3d::~mesh3d()
 	DEL_PTR(buffer);
 	DEL_PTR(material);
 }
-std::vector<mesh3d::triangle> mesh3d::check_val_cache(const char *file)
+std::vector<mesh3d::triangle> mesh3d::check_val_cache(const std::string &file)
 {
 	if (use_geo_val_cache)
 		if (geo_val_cache.find(file) != geo_val_cache.end())
@@ -28,7 +28,7 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 	std::vector<triangle> tris;
 	if (use_geo_val_cache)
 	{
-		tris = check_val_cache(file);
+		tris = check_val_cache(std::string(file));
 		if (tris.size() > 0)
 			return tris;
 	}
@@ -100,7 +100,7 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 		}
 	}
 	if (tris.size() > 0 && use_geo_val_cache)
-		geo_val_cache[file] = tris;
+		geo_val_cache[std::string(file)] = tris;
 	return tris;
 }
 bool mesh3d::load_from_obj(const char *file_name, buffer_base *buf)
@@ -155,9 +155,9 @@ void mesh3d::vertex_pos(const vec3f &pos)
 	buffer->sub_data(buf_data, 0, n_tris * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
-void mesh3d::vertex_rot(const vec4f &rot)
+void mesh3d::vertex_rot(const quaternionf &rot)
 {
-	mat4f m_rot = mat4f::quaternion_rotation(rot);
+	mat4f m_rot = mat4f::rotation(rot);
 	triangle *buf_data = new triangle[n_tris];
 	buffer->get_data(buf_data, 0, n_tris * sizeof(triangle));
 	for (size_t i = 0; i < n_tris; ++i)
@@ -202,9 +202,9 @@ void group_mesh3d::add_mesh_scale(size_t index, const vec3f &scale)
 	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
-void group_mesh3d::add_mesh_rot(size_t index, const vec4f &rot)
+void group_mesh3d::add_mesh_rot(size_t index, const quaternionf &rot)
 {
-	mat4f m_rot = mat4f::quaternion_rotation(rot);
+	mat4f m_rot = mat4f::rotation(rot);
 	triangle *buf_data = new triangle[t_n_tris[index]];
 	size_t n_tris_before = 0;
 	for (size_t i = 0; i < index; ++i)

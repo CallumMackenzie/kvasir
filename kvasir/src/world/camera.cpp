@@ -12,5 +12,5 @@ mat4f camera3d::perspective()
 }
 vec4f camera3d::look_vector()
 {
-	return mat4f::quaternion_rotation(rot) * vec4f(0, 0, 1);
+	return mat4f::rotation(rot) * vec4f(0, 0, 1);
 }

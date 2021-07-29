@@ -5,6 +5,7 @@
 typedef unsigned int uint;
 #endif
 
+#include <memory>
 #ifndef NO_USE_INCLUDES
 #include "shader.h"
 #include "buffer.h"
@@ -54,7 +55,7 @@ namespace kvasir
 		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s) = 0;
 		virtual void depth_buffer_active(bool b) = 0;
 		virtual type get_type() = 0;
-		virtual keystate get_keystate(key key) = 0;
+		virtual keystate get_keystate(key k) = 0;
 
 		int get_position_x();
 		int get_position_y();
@@ -63,6 +64,7 @@ namespace kvasir
 		void set_width(int w);
 		void set_height(int h);
 		double get_aspect();
+		bool key_pressed(key k);
 
 		static const char *type_to_string(type t);
 	};

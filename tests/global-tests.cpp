@@ -13,38 +13,43 @@ const char *fshader = "#version 330 core\nlayout(location=0) out vec4 col;in vec
 struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
-	mesh3d mesh;
 	mesh3d ground;
+	std::vector<mesh3d *> mshs;
 	shader_base *shader = nullptr;
 	physics3d *p3d = nullptr;
+	vec3f crot;
 
 	user_result on_start()
 	{
 		fixed_time.set_fps(10);
-		base->set_clear_colour(0xff80ff);
+		cam.far = 1000;
+		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
-		std::cout << allocs << ", " << deletes << std::endl;
 		p3d = default_physics3d();
 
-		if (!mesh.load_from_obj(R_PATH("../res/models/sphere.obj").c_str(), base->make_buffer()))
-			return user_result("Meshes failed loading.");
-		mesh.pos.z() = 4;
-		mesh.pos.y() = 1;
-		mesh.material = base->make_material();
-		mesh.material->texs[0] = base->make_texture();
-		mesh.material->texs[0]->make_png(R_PATH("../res/img/h.png").c_str());
-		p3d->add_mesh(mesh, true, 1);
-
-		if (!ground.load_from_obj(R_PATH("../res/models/cube.obj").c_str(), base->make_buffer()))
+		if (!ground.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 			return user_result("Ground failed loading.");
-		ground.pos.z() = 4;
 		ground.pos.y() = -2;
-		ground.rot = vec4f::quaternion(0.2f, vec3f(0.4f, 1.f, 0.4f));
 		ground.material = base->make_material();
 		ground.material->texs[0] = base->make_texture();
-		ground.material->texs[0]->make_png(R_PATH("../res/img/h.png").c_str());
-		ground.vertex_scale(vec3f(2.f, 0.1f, 2.f));
+		ground.material->texs[0]->make_png(RESOURCE("../res/img/h.png"));
+		ground.vertex_scale(vec3f(100.f, 0.1f, 100.f));
 		p3d->add_mesh(ground, true, 0);
+
+		for (size_t i = 0; i < 10; ++i)
+		{
+			mesh3d *ms = new mesh3d();
+			if (!ms->load_from_obj(RESOURCE(i % 2 == 0 ? "../res/models/sphere.obj" : "../res/models/cube.obj"), base->make_buffer()))
+				return user_result("Ground failed loading.");
+			ms->material = base->make_material();
+			ms->pos.y() = i * 3;
+			ms->pos.x() = (i % 2) * 0.2;
+			ms->pos.z() = (i % 3) * 0.2;
+			ms->material->texs[0] = base->make_texture();
+			ms->material->texs[0]->make_colour(0xf080ff);
+			p3d->add_mesh(*ms, true, 2);
+			mshs.push_back(ms);
+		}
 
 		shader = base->make_shader();
 		const char *s[2]{vshader, fshader};
@@ -61,44 +66,47 @@ struct kvasir_demo : kvasir_engine
 		vec3f forward;
 		vec3f up = vec3f(0.f, 1.f, 0.f);
 		vec3f rotate;
-		if (base->get_keystate(KeyW) == KeyDown) // w
+		if (base->key_pressed(KeyW))
 			forward += clv;
-		if (base->get_keystate(KeyS) == KeyDown) // s
+		if (base->key_pressed(KeyS))
 			forward -= clv;
-		if (base->get_keystate(KeyD) == KeyDown) // d
+		if (base->key_pressed(KeyD))
 			forward -= clv.cross(up);
-		if (base->get_keystate(KeyA) == KeyDown) // a
+		if (base->key_pressed(KeyA))
 			forward += clv.cross(up);
-		if (base->get_keystate(Space) == KeyDown)
+		if (base->key_pressed(KeyQ))
 			forward.y() += 1.f;
-		if (base->get_keystate(KeyE) == KeyDown)
+		if (base->key_pressed(KeyE))
 			forward.y() -= 1.f;
-
-		if (base->get_keystate(Left) == KeyDown) // Arrow left
+		if (base->key_pressed(Left))
 			rotate.y() = cms;
-		if (base->get_keystate(Right) == KeyDown) // Arrow right
+		if (base->key_pressed(Right))
 			rotate.y() = -cms;
-		if (base->get_keystate(Up) == KeyDown) // Arrow up
+		if (base->key_pressed(Up))
 			rotate.x() = -cms;
-		if (base->get_keystate(Down) == KeyDown) // Arrow down
+		if (base->key_pressed(Down))
 			rotate.x() = cms;
-		if (base->get_keystate(LShift) == KeyDown)
+		if (base->key_pressed(LShift))
 			speed *= 3.f;
-		if (base->get_keystate(LControl) == KeyDown)
+		if (base->key_pressed(LControl))
 			speed *= 7.f;
 
 		cam.rot += rotate * time.delta();
 		cam.pos += forward.normalize() * speed * time.delta();
 
-		p3d->set_transform(mesh, mesh);
 		p3d->step(time.delta());
-		mesh.pos = p3d->get_position(mesh);
-		mesh.rot = p3d->get_rotation(mesh);
 		ground.pos = p3d->get_position(ground);
 		ground.rot = p3d->get_rotation(ground);
+		for (size_t i = 0; i < mshs.size(); ++i)
+		{
+			mshs[i]->pos = p3d->get_position(*mshs[i]);
+			mshs[i]->rot = p3d->get_rotation(*mshs[i]);
+		}
+
 		base->clear();
-		base->render_mesh3d(cam, mesh, shader);
 		base->render_mesh3d(cam, ground, shader);
+		for (size_t i = 0; i < mshs.size(); ++i)
+			base->render_mesh3d(cam, *mshs[i], shader);
 		base->swap_buffers();
 	}
 	void on_fixed_update()
@@ -109,6 +117,9 @@ struct kvasir_demo : kvasir_engine
 	{
 		DEL_PTR(shader);
 		DEL_PTR(p3d);
+		for (size_t i = 0; i < mshs.size(); ++i)
+			DEL_PTR(mshs[i]);
+		mshs.clear();
 	}
 };
 
@@ -116,7 +127,7 @@ int main(int, char **)
 {
 	{
 		// linkverify().verify_link();
-		// kvasir_init();
+		kvasir_init();
 		kvasir_demo kvs;
 		kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)

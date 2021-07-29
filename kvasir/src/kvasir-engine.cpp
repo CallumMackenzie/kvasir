@@ -49,6 +49,8 @@ kvasir_engine::result kvasir_engine::start_with_base()
 		std::cerr << res.msg << std::endl;
 		return ON_START_RET_FALSE;
 	}
+	time.next_frame_ready();
+	fixed_time.next_frame_ready();
 	for (;;)
 	{
 		if (time.next_frame_ready())

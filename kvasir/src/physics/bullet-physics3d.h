@@ -22,9 +22,9 @@ namespace kvasir
 		bool add_mesh(mesh3d &mesh, bool convex, float mass);
 		void step(float delta);
 		vec3f get_position(const mesh3d &mesh);
-		vec4f get_rotation(const mesh3d &mesh);
+		quaternionf get_rotation(const mesh3d &mesh);
 		void set_position(const mesh3d &mesh, const vec3f &v);
-		void set_rotation(const mesh3d &mesh, const vec4f &v);
+		void set_rotation(const mesh3d &mesh, const quaternionf &v);
 		position3d get_transform(const mesh3d &mesh);
 		void set_transform(const mesh3d &mesh, const position3d &trns);
 
@@ -46,8 +46,8 @@ namespace kvasir
 
 		static btVector3 btV3(const vec3f &v);
 		static vec3f btV3(const btVector3 &v);
-		static vec4f btq_to_gq(const btQuaternion &q);
-		static btQuaternion gq_to_btq(const vec4f &v);
+		static quaternionf btq_to_gq(const btQuaternion &q);
+		static btQuaternion gq_to_btq(const quaternionf &v);
 	};
 }
 

@@ -73,12 +73,11 @@ bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, float mass)
 	btVector3 b_inertia;
 	mesh_info.shape->calculateLocalInertia((btScalar)mass, b_inertia);
 	btRigidBody::btRigidBodyConstructionInfo body_ci = btRigidBody::btRigidBodyConstructionInfo((btScalar)mass, motion_state, mesh_info.shape, b_inertia);
-	body_ci.m_restitution = 0.1f;
-	body_ci.m_friction = 0.5f;
+	body_ci.m_restitution = 0.f;
+	body_ci.m_friction = 1.4f;
 
 	mesh_info.body = new btRigidBody(body_ci);
 	mesh_info.body->setUserPointer(&mesh);
-	// mesh_info.body->setLinearFactor(btVector3(1, 1, 0));
 
 	coll_shapes[mesh.tag] = mesh_info;
 	world->addRigidBody(mesh_info.body);
@@ -108,10 +107,10 @@ vec3f bullet_physics3d::get_position(const mesh3d &mesh)
 		return vec3f();
 	return btV3(coll_shapes[mesh.tag].body->getWorldTransform().getOrigin());
 }
-vec4f bullet_physics3d::get_rotation(const mesh3d &mesh)
+quaternionf bullet_physics3d::get_rotation(const mesh3d &mesh)
 {
 	if (!mesh_is_valid(mesh))
-		return vec4f();
+		return quaternionf();
 	return btq_to_gq(coll_shapes[mesh.tag].body->getWorldTransform().getRotation());
 }
 void bullet_physics3d::set_position(const mesh3d &mesh, const vec3f &v)
@@ -120,7 +119,7 @@ void bullet_physics3d::set_position(const mesh3d &mesh, const vec3f &v)
 		return;
 	coll_shapes[mesh.tag].body->getWorldTransform().setOrigin(btV3(v));
 }
-void bullet_physics3d::set_rotation(const mesh3d &mesh, const vec4f &v)
+void bullet_physics3d::set_rotation(const mesh3d &mesh, const quaternionf &v)
 {
 	if (!mesh_is_valid(mesh))
 		return;
@@ -144,11 +143,11 @@ void bullet_physics3d::set_transform(const mesh3d &mesh, const position3d &trns)
 	wt.setOrigin(btV3(trns.pos));
 	wt.setRotation(gq_to_btq(trns.rot));
 }
-vec4f bullet_physics3d::btq_to_gq(const btQuaternion &q)
+quaternionf bullet_physics3d::btq_to_gq(const btQuaternion &q)
 {
-	return vec4f(q.y(), q.z(), q.w(), q.x());
+	return quaternionf(-q.x(), -q.y(), -q.z(), q.w());
 }
-btQuaternion bullet_physics3d::gq_to_btq(const vec4f &v)
+btQuaternion bullet_physics3d::gq_to_btq(const quaternionf &v)
 {
-	return btQuaternion(v.w(), v.x(), v.y(), v.z());
+	return btQuaternion(-v.x(), -v.y(), -v.z(), v.w());
 }

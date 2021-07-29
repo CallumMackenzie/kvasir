@@ -14,4 +14,7 @@ std::string R_PATH(const char *str)
 }
 #endif
 
+#define RESOURCE(X) \
+	R_PATH(X).c_str()
+
 #endif

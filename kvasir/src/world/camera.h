@@ -8,12 +8,15 @@
 namespace kvasir
 {
 
-	struct camera3d : position3d
+	struct camera3d
 	{
 		float fov = 75.f;
 		float near = 0.1f;
-		float far = 20.f;
+		float far = 100.f;
 		float aspect = 1.f;
+
+		vec3f pos;
+		vec3f rot;
 
 		mat4f view();
 		mat4f perspective();

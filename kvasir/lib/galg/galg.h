@@ -296,6 +296,8 @@ namespace galg
 	template <typename T>
 	struct vec2;
 	template <typename T>
+	struct quaternion;
+	template <typename T>
 	struct mat4;
 	template <typename T>
 	struct mat3;
@@ -328,6 +330,15 @@ namespace galg
 	typedef vec2<size_t> vec2st;
 	typedef vec2<unsigned short> vec2us;
 	typedef vec2<short> vec2s;
+
+	typedef quaternion<fp_num> quaternionfp;
+	typedef quaternion<float> quaternionf;
+	typedef quaternion<double> quaterniond;
+	typedef quaternion<int> quaternioni;
+	typedef quaternion<uint> quaternionui;
+	typedef quaternion<size_t> quaternionst;
+	typedef quaternion<unsigned short> quaternionus;
+	typedef quaternion<short> quaternions;
 
 	typedef mat4<fp_num> mat4fp;
 	typedef mat4<float> mat4f;
@@ -410,15 +421,12 @@ namespace galg
 				(x() * v2.y()) - (y() * v2.x()));
 		}
 
-		FORCE_INLINE static vec4 quaternion(T angle, const vec3<T> &unit_axis)
+		void set(T x, T y = y(), T z = z(), T w = w())
 		{
-			return vec4(unit_axis.normalized() * (T)sinf((float)angle / 2.f),
-						(T)cosf((float)angle / 2.f));
-		}
-		FORCE_INLINE vec4 &quaternion_normalize()
-		{
-			
-			return *this;
+			x() = x;
+			y() = y;
+			z() = z;
+			w() = w;
 		}
 
 		ALGEBRAIC_VEC(vec4, 4)
@@ -508,6 +516,175 @@ namespace galg
 		VEC_STD_OPS(vec2, 2)
 	};
 
+	template <typename T>
+	struct quaternion : vec4<T>
+	{
+		quaternion() : vec4<T>(0, 0, 0, 1) {}
+
+		quaternion(const vec4<T> &v)
+		{
+			this->v[0] = v.x();
+			this->v[1] = v.y();
+			this->v[2] = v.z();
+			this->v[3] = v.w();
+		}
+
+		// NOT axis angle
+		quaternion(const vec3<T> &v, T r)
+		{
+			this->v[0] = v.x();
+			this->v[1] = v.y();
+			this->v[2] = v.z();
+			this->v[3] = r;
+		}
+
+		quaternion(T x, T y, T z, T w)
+		{
+			this->v[0] = x;
+			this->v[1] = y;
+			this->v[2] = z;
+			this->v[3] = w;
+		}
+
+		vec3<T> complex() const { return this->xyz(); }
+		void complex(const vec3<T> &c)
+		{
+			this->v[0] = c[0];
+			this->v[1] = c[1];
+			this->v[2] = c[2];
+		}
+
+		T real() const { return this->v[3]; }
+		void real(T r) { this->v[3] = r; }
+
+		quaternion conjugate(void) const
+		{
+			return quaternion(-complex(), real());
+		}
+		quaternion inverse(void) const
+		{
+			return conjugate() / this->len();
+		}
+		quaternion product(const quaternion &rhs) const
+		{
+			return quaternion(this->y() * rhs.z() - this->z() * rhs.y() + this->x() * rhs.w() + this->w() * rhs.x(),
+							  this->z() * rhs.x() - this->x() * rhs.z() + this->y() * rhs.w() + this->w() * rhs.y(),
+							  this->x() * rhs.y() - this->y() * rhs.x() + this->z() * rhs.w() + this->w() * rhs.z(),
+							  this->w() * rhs.w() - this->x() * rhs.x() - this->y() * rhs.y() - this->z() * rhs.z());
+		}
+		quaternion operator*(const quaternion &rhs) const
+		{
+			return product(rhs);
+		}
+		quaternion operator*(T s) const
+		{
+			return quaternion(complex() * s, real() * s);
+		}
+		quaternion operator+(const quaternion &rhs) const
+		{
+			return quaternion(this->x() + rhs.x(), this->y() + rhs.y(), this->z() + rhs.z(), this->w() + rhs.w());
+		}
+		quaternion operator-(const quaternion &rhs) const
+		{
+			return quaternion(this->x() - rhs.x(), this->y() - rhs.y(), this->z() - rhs.z(), this->w() - rhs.w());
+		}
+		quaternion operator-() const
+		{
+			return quaternion(-this->x(), -this->y(), -this->z(), -this->w());
+		}
+		quaternion operator/(T s) const
+		{
+			if (s == 0)
+				return quaternion();
+			return quaternion(complex() / s, real() / s);
+		}
+
+		void scaled_axis(const vec3<T> &w)
+		{
+			T theta = w.len();
+			if (theta > 0.0001)
+			{
+				T s = (T)sinf((float)theta / 2.0);
+				vec3<T> W(w / theta * s);
+				this->v[0] = W[0];
+				this->v[1] = W[1];
+				this->v[2] = W[2];
+				this->v[3] = cos(theta / 2.0);
+			}
+			else
+			{
+				this->v[0] = this->v[1] = this->v[2] = 0;
+				this->v[3] = 1.0;
+			}
+		}
+
+		vec3<T> rotated_vec(const vec3<T> &v) const
+		{
+			return (((*this) * quaternion(v, 0)) * conjugate()).complex();
+		}
+
+		void euler(const vec3<T> &euler)
+		{
+			T c1 = (T)cosf((float)euler.z() * .5f);
+			T c2 = (T)cosf((float)euler.y() * .5f);
+			T c3 = (T)cosf((float)euler.x() * .5f);
+			T s1 = (T)sinf((float)euler.z() * .5f);
+			T s2 = (T)sinf((float)euler.y() * .5f);
+			T s3 = (T)sinf((float)euler.x() * .5f);
+
+			this->v[0] = c1 * c2 * s3 - s1 * s2 * c3; // x : A
+			this->v[1] = c1 * s2 * c3 + s1 * c2 * s3; // y : B
+			this->v[2] = s1 * c2 * c3 - c1 * s2 * s3; // z : C
+			this->v[3] = c1 * c2 * c3 + s1 * s2 * s3; // w : D
+		}
+
+		vec3<T> euler() const
+		{
+			vec3<T> euler;
+			const static double PI_OVER_2 = M_PI * 0.5;
+			const static double EPSILON = 1e-10;
+			T sqw, sqx, sqy, sqz;
+
+			sqw = this->v[3] * this->v[3];
+			sqx = this->v[0] * this->v[0];
+			sqy = this->v[1] * this->v[1];
+			sqz = this->v[2] * this->v[2];
+
+			euler[1] = (T)asinf(2.f * (float)(this->v[3] * this->v[1] - this->v[0] * this->v[2]));
+			if (PI_OVER_2 - fabs(euler[1]) > EPSILON)
+			{
+				euler[2] = (T)atan2f(2.f * (this->v[0] * this->v[1] + this->v[3] * this->v[2]),
+									 sqx - sqy - sqz + sqw);
+				euler[0] = (T)atan2f(2.f * (this->v[3] * this->v[0] + this->v[1] * this->v[2]),
+									 sqw - sqx - sqy + sqz);
+			}
+			else
+			{
+				euler[2] = (T)atan2f(2 * this->v[1] * this->v[2] - 2 * this->v[0] * this->v[3],
+									 2 * this->v[0] * this->v[2] + 2 * this->v[1] * this->v[3]);
+				euler[0] = 0;
+				if (euler[1] < 0)
+					euler[2] = M_PI - euler[2];
+			}
+			return euler;
+		}
+
+		static quaternion axis_angle(const vec3<T> &axis, const T angle)
+		{
+			return quaternion(axis * (T)sinf((float)angle * .5f), (T)cosf((float)angle * .5f));
+		}
+		static quaternion from_euler(const vec3<T> &eu)
+		{
+			quaternion ret;
+			ret.euler(eu);
+			return ret;
+		}
+		static quaternion from_euler(T x, T y, T z)
+		{
+			return from_euler(vec3<T>(x, y, z));
+		}
+	};
+
 	template <typename T = fp_num>
 	struct mat4
 	{
@@ -557,6 +734,21 @@ namespace galg
 		const T *operator[](const size_t index) const
 		{
 			return m[index];
+		}
+
+		mat4 transposed()
+		{
+			mat4 tmp = *this;
+			for (size_t y = 0; y < 4; ++y)
+				for (size_t x = 0; x < 4; ++x)
+					tmp[y][x] = m[x][y];
+			return tmp;
+		}
+
+		mat4 &transpose()
+		{
+			m = transposed().m;
+			return *this;
 		}
 
 		static mat4 identity()
@@ -670,27 +862,17 @@ namespace galg
 		{
 			return x_rotation(x) * y_rotation(y) * z_rotation(z);
 		}
-		FORCE_INLINE static mat4 rotation(vec4<T> r)
-		{
-			return rotation(r.x(), r.y(), r.z());
-		}
 		FORCE_INLINE static mat4 rotation(vec3<T> r)
 		{
 			return rotation(r.x(), r.y(), r.z());
 		}
-		FORCE_INLINE static mat4 quaternion_rotation(vec4<T> q)
+		FORCE_INLINE static mat4 rotation(quaternion<T> q)
 		{
-			q.quaternion_normalize();
+			q.normalize();
 			return mat4{
-				{(T)2 * (q.x() * q.x() + q.y() * q.y()) - (T)1,
-				 (T)2 * (q.y() * q.z() - q.x() * q.w()),
-				 (T)2 * (q.y() * q.w() + q.x() * q.z()), 0},
-				{(T)2 * (q.y() * q.z() + q.x() * q.w()),
-				 (T)2 * (q.x() * q.x() + q.z() * q.z()) - (T)1,
-				 (T)2 * (q.z() * q.w() - q.x() * q.y()), 0},
-				{(T)2 * (q.y() * q.w() - q.x() * q.z()),
-				 (T)2 * (q.z() * q.w() + q.x() * q.y()),
-				 (T)2 * (q.x() * q.x() + q.w() * q.w()) - (T)1,0},
+				{1 - 2 * q.y() * q.y() - 2 * q.z() * q.z(), 2 * q.x() * q.y() - 2 * q.z() * q.w(), 2 * q.x() * q.z() + 2 * q.y() * q.w(), 0},
+				{2 * q.x() * q.y() + 2 * q.z() * q.w(), 1 - 2 * q.x() * q.x() - 2 * q.z() * q.z(), 2 * q.y() * q.z() - 2 * q.x() * q.w(), 0},
+				{2 * q.x() * q.z() - 2 * q.y() * q.w(), 2 * q.y() * q.z() + 2 * q.x() * q.w(), 1 - 2 * q.x() * q.x() - 2 * q.y() * q.y(), 0},
 				{0, 0, 0, 1}};
 		}
 	};

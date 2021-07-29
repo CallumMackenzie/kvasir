@@ -61,7 +61,11 @@
 		"chrono": "cpp",
 		"thread": "cpp",
 		"internal.h": "c",
-		"null_platform.h": "c"
+		"null_platform.h": "c",
+		"ctime": "cpp",
+		"map": "cpp",
+		"ratio": "cpp",
+		"iomanip": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

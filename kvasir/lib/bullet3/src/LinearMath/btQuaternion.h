@@ -122,16 +122,16 @@ public:
 		btScalar halfYaw = btScalar(yaw) * btScalar(0.5);
 		btScalar halfPitch = btScalar(pitch) * btScalar(0.5);
 		btScalar halfRoll = btScalar(roll) * btScalar(0.5);
-		btScalar cosYaw = btCos(halfYaw);
-		btScalar sinYaw = btSin(halfYaw);
-		btScalar cosPitch = btCos(halfPitch);
-		btScalar sinPitch = btSin(halfPitch);
-		btScalar cosRoll = btCos(halfRoll);
-		btScalar sinRoll = btSin(halfRoll);
-		setValue(cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,
-				 cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,
-				 sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
-				 cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw);
+		btScalar cosYaw = btCos(halfYaw); // c2
+		btScalar sinYaw = btSin(halfYaw); // s2
+		btScalar cosPitch = btCos(halfPitch); // c3
+		btScalar sinPitch = btSin(halfPitch); // s3
+		btScalar cosRoll = btCos(halfRoll); // c1
+		btScalar sinRoll = btSin(halfRoll); // s1
+		setValue(cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw, //  y : c1 * s3 * c2  A
+				 cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw, //  z : c1 * c3 * s2  B
+				 sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw, //  x : s1 * c3 * c2  C
+				 cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw); // w : c1 * c3 * c2  D
 	}
 	/**@brief Set the quaternion using euler angles 
    * @param yaw Angle around Z

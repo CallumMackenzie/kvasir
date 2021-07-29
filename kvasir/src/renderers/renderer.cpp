@@ -41,6 +41,10 @@ double render_base::get_aspect()
 	get_size(&w, &h);
 	return (double)h / (double)w;
 }
+bool render_base::key_pressed(key k)
+{
+	return this->get_keystate(k) == KeyDown;
+}
 const char *render_base::type_to_string(type t)
 {
 	switch (t)

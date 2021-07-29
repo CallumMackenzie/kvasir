@@ -7,12 +7,21 @@ texture_base::~texture_base()
 }
 texture_image texture_base::load_image(const char *file_path)
 {
+	std::string file_path_str(file_path);
+	if (use_image_cache)
+		if (image_cache.find(file_path_str) != image_cache.end())
+			return image_cache[file_path_str];
 	std::vector<unsigned char> buffer;
 	texture_image img;
-	lodepng::load_file(buffer, std::string(file_path));
+	lodepng::load_file(buffer, file_path_str);
 	unsigned error = lodepng::decode(img.pixels, img.w, img.h, buffer);
 	if (error)
+	{
 		std::cout << "lodepng decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+		return texture_image{};
+	}
+	if (use_image_cache)
+		image_cache[file_path_str] = img;
 	return img;
 }
 texture_image texture_base::colour_image(long colour)
