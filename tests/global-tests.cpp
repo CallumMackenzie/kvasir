@@ -36,17 +36,17 @@ struct kvasir_demo : kvasir_engine
 		ground.vertex_scale(vec3f(100.f, 0.1f, 100.f));
 		p3d->add_mesh(ground, true, 0);
 
-		for (size_t i = 0; i < 10; ++i)
+		for (size_t i = 0; i < 100; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj(RESOURCE(i % 2 == 0 ? "../res/models/sphere.obj" : "../res/models/cube.obj"), base->make_buffer()))
+			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->material = base->make_material();
 			ms->pos.y() = i * 3;
 			ms->pos.x() = (i % 2) * 0.2;
 			ms->pos.z() = (i % 3) * 0.2;
+			ms->material = base->make_material();
 			ms->material->texs[0] = base->make_texture();
-			ms->material->texs[0]->make_colour(0xf080ff);
+			ms->material->texs[0]->make_colour((0xff & (int)(((float)i / (float)10) * 255.f)) | (0xff00 & (((10 * i) % 200) >> 8)) | 0x800000);
 			p3d->add_mesh(*ms, true, 2);
 			mshs.push_back(ms);
 		}
@@ -126,7 +126,6 @@ struct kvasir_demo : kvasir_engine
 int main(int, char **)
 {
 	{
-		// linkverify().verify_link();
 		kvasir_init();
 		kvasir_demo kvs;
 		kvasir_engine::result res = kvs.start(render_base::OPENGL);
