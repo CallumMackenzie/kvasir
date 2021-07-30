@@ -24,7 +24,6 @@ struct kvasir_demo : kvasir_engine
 		fixed_time.set_fps(10);
 		time.set_fps(1000);
 		cam.far = 1000;
-		base->set_size(1600, 900);
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 		p3d = default_physics3d();
@@ -36,17 +35,14 @@ struct kvasir_demo : kvasir_engine
 		ground.vertex_scale(vec3f(100.f, 1.f, 100.f));
 		p3d->add_mesh_box_hitbox(ground, vec3f(100.f, 1.f, 100.f), physics3d::static_props());
 
-		for (size_t i = 0; i < 20; ++i)
+		for (size_t i = 0; i < 30; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj(RESOURCE(i % 2 == 0 ? "../res/models/sphere.obj" : "../res/models/cube.obj"), base->make_buffer()))
+			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->pos = vec3f((float)(i % 2) * 0.2f, (float)i * 3.f, (float)(i % 3) * 0.2f);
+			ms->pos = vec3f((float)(i % 2) * 0.4f, (float)i * 3.f + 2, (float)(i % 3) * 0.4f);
 			ms->material = make_material(base, RESOURCE("../res/img/skak.png"));
-			if (i % 2 == 0)
-				p3d->add_mesh_sphere_hitbox(*ms, 1, physics3d::dynamic_props(1));
-			else
-				p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
+			p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}
 
@@ -60,15 +56,17 @@ struct kvasir_demo : kvasir_engine
 	{
 
 		cam_debug_controls(base, cam, time.delta());
+		if (base->key_pressed(Num1))
+			for (size_t i = 0; i < mshs.size(); ++i)
+				p3d->add_central_force(*mshs[i], (cam.pos - mshs[i]->pos).normalized());
 
 		p3d->step(time.delta());
-		ground.pos = p3d->get_position(ground);
-		ground.rot = p3d->get_rotation(ground);
 		for (size_t i = 0; i < mshs.size(); ++i)
 		{
 			mshs[i]->pos = p3d->get_position(*mshs[i]);
 			mshs[i]->rot = p3d->get_rotation(*mshs[i]);
 		}
+		std::cout << "FPS: " << (1.f / time.delta()) << std::endl;
 
 		base->clear();
 		base->render_mesh3d(cam, ground, shader);

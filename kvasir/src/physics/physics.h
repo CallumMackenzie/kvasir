@@ -27,6 +27,7 @@ namespace kvasir
 		virtual bool add_mesh(mesh3d &mesh, bool convex, const phys_props &props) = 0;
 		virtual bool add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props) = 0;
 		virtual bool add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props) = 0;
+		virtual void add_central_force(const mesh3d &mesh, vec3f force) = 0;
 		// virtual void add_mesh_prefab_hitbox(mesh3d &mesh, std::string key);
 		virtual void set_gravity(const vec3f &g) = 0;
 		virtual void step(float delta) = 0;

@@ -60,7 +60,7 @@ bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, const phys_props &pro
 }
 void bullet_physics3d::step(float delta)
 {
-	world->stepSimulation((btScalar)delta);
+	world->stepSimulation((btScalar)delta * 1000.f);
 }
 bool bullet_physics3d::mesh_is_valid(const mesh3d &mesh)
 {
@@ -201,4 +201,11 @@ bool bullet_physics3d::add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_
 void bullet_physics3d::create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex)
 {
 	throw EX_UNIMPLEMENTED;
+}
+void bullet_physics3d::add_central_force(const mesh3d &mesh, vec3f force)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	coll_shapes[mesh.tag].body->activate(true);
+	coll_shapes[mesh.tag].body->applyCentralImpulse(btV3(force));
 }

@@ -31,6 +31,7 @@ namespace kvasir
 		void set_rotation(const mesh3d &mesh, const quaternionf &v);
 		position3d get_transform(const mesh3d &mesh);
 		void set_transform(const mesh3d &mesh, const position3d &trns);
+		void add_central_force(const mesh3d &mesh, vec3f force);
 
 	private:
 		struct obj_info
