@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #ifndef NO_USE_INCLUDES
+#include "exception.h"
 #include "btBulletDynamicsCommon.h"
 #include "physics.h"
 #include "memory-aid.h"
@@ -19,7 +20,10 @@ namespace kvasir
 		~bullet_physics3d();
 
 		void set_gravity(const vec3f &g);
-		bool add_mesh(mesh3d &mesh, bool convex, float mass);
+		bool add_mesh(mesh3d &mesh, bool convex, const phys_props &props);
+		bool add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props);
+		bool add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props);
+		void create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex);
 		void step(float delta);
 		vec3f get_position(const mesh3d &mesh);
 		quaternionf get_rotation(const mesh3d &mesh);
@@ -42,9 +46,16 @@ namespace kvasir
 		btDiscreteDynamicsWorld *world = nullptr;
 		std::unordered_map<size_t, obj_info> coll_shapes;
 
-		bool mesh_is_valid(const mesh3d &mesh);
+		static inline bool use_coll_shape_cache = true;
+		static inline std::unordered_map<std::string, btCollisionShape *> coll_shape_cache;
 
-		static btVector3 btV3(const vec3f &v);
+		bool mesh_is_valid(const mesh3d &mesh);
+		btCollisionShape *create_mesh_hitbox(const mesh3d &mesh, bool convex);
+		bool check_mesh_tracked(const mesh3d &mesh);
+		btVector3 calculate_intertia(btCollisionShape *shape, float mass);
+		btRigidBody *get_rigidbody(mesh3d &mesh, const phys_props &props, btCollisionShape *shape);
+
+			static btVector3 btV3(const vec3f &v);
 		static vec3f btV3(const btVector3 &v);
 		static quaternionf btq_to_gq(const btQuaternion &q);
 		static btQuaternion gq_to_btq(const quaternionf &v);

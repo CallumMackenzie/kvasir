@@ -15,11 +15,18 @@ bullet_physics3d::bullet_physics3d()
 }
 bullet_physics3d::~bullet_physics3d()
 {
-	for (size_t i = 0; i < coll_shapes.size(); ++i)
+	for (size_t i = world->getNumCollisionObjects() - 1; i > 0; --i)
 	{
-		DEL_PTR(coll_shapes[i].body);
-		DEL_PTR(coll_shapes[i].shape);
+		btCollisionObject *obj = world->getCollisionObjectArray()[(int)i];
+		btRigidBody *body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+			delete body->getMotionState();
+		world->removeCollisionObject(obj);
+		delete obj;
 	}
+
+	for (size_t i = 0; i < coll_shapes.size(); ++i)
+		DEL_PTR(coll_shapes[i].shape);
 	coll_shapes.clear();
 
 	DEL_PTR(world);
@@ -40,45 +47,13 @@ vec3f bullet_physics3d::btV3(const btVector3 &v)
 {
 	return vec3f(v[0], v[1], v[2]);
 }
-bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, float mass)
+bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, const phys_props &props)
 {
-	if (coll_shapes.find(mesh.tag) != coll_shapes.end())
+	if (check_mesh_tracked(mesh))
 		return true;
 	obj_info mesh_info;
-	mesh3d::triangle *tris = new mesh3d::triangle[mesh.n_tris];
-	mesh.buffer->get_data(tris, 0, mesh.n_tris * sizeof(mesh3d::triangle));
-	if (convex)
-	{
-		mesh_info.shape = new btConvexHullShape();
-		for (size_t i = 0; i < mesh.n_tris; ++i)
-			for (size_t j = 0; j < 3; ++j)
-				((btConvexHullShape *)mesh_info.shape)->addPoint(btV3(tris[i].v[j].p));
-	}
-	else
-	{
-		btTriangleMesh *bt_tri_mesh = new btTriangleMesh();
-		for (size_t i = 0; i < mesh.n_tris; ++i)
-		{
-			btVector3 bv1 = btV3(tris[i].v[0].p),
-					  bv2 = btV3(tris[i].v[1].p),
-					  bv3 = btV3(tris[i].v[2].p);
-			bt_tri_mesh->addTriangle(bv1, bv2, bv3);
-		}
-		mesh_info.shape = new btBvhTriangleMeshShape(bt_tri_mesh, true);
-	}
-	DEL_ARR_PTR(tris);
-
-	btDefaultMotionState *motion_state = new btDefaultMotionState(btTransform(gq_to_btq(mesh.rot), btV3(mesh.pos)));
-
-	btVector3 b_inertia;
-	mesh_info.shape->calculateLocalInertia((btScalar)mass, b_inertia);
-	btRigidBody::btRigidBodyConstructionInfo body_ci = btRigidBody::btRigidBodyConstructionInfo((btScalar)mass, motion_state, mesh_info.shape, b_inertia);
-	body_ci.m_restitution = 0.f;
-	body_ci.m_friction = 1.4f;
-
-	mesh_info.body = new btRigidBody(body_ci);
-	mesh_info.body->setUserPointer(&mesh);
-
+	mesh_info.shape = create_mesh_hitbox(mesh, convex);
+	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
 	coll_shapes[mesh.tag] = mesh_info;
 	world->addRigidBody(mesh_info.body);
 	return true;
@@ -150,4 +125,80 @@ quaternionf bullet_physics3d::btq_to_gq(const btQuaternion &q)
 btQuaternion bullet_physics3d::gq_to_btq(const quaternionf &v)
 {
 	return btQuaternion(-v.x(), -v.y(), -v.z(), v.w());
+}
+bool bullet_physics3d::add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props)
+{
+	if (check_mesh_tracked(mesh))
+		return true;
+	obj_info mesh_info;
+	mesh_info.shape = new btSphereShape(diameter);
+	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
+
+	coll_shapes[mesh.tag] = mesh_info;
+	world->addRigidBody(mesh_info.body);
+	return true;
+}
+btCollisionShape *bullet_physics3d::create_mesh_hitbox(const mesh3d &mesh, bool convex)
+{
+	btCollisionShape *ret = nullptr;
+	mesh3d::triangle *tris = new mesh3d::triangle[mesh.n_tris];
+	mesh.buffer->get_data(tris, 0, mesh.n_tris * sizeof(mesh3d::triangle));
+	if (convex)
+	{
+		ret = new btConvexHullShape();
+		for (size_t i = 0; i < mesh.n_tris; ++i)
+			for (size_t j = 0; j < 3; ++j)
+				((btConvexHullShape *)ret)->addPoint(btV3(tris[i].v[j].p));
+	}
+	else
+	{
+		btTriangleMesh *bt_tri_mesh = new btTriangleMesh();
+		for (size_t i = 0; i < mesh.n_tris; ++i)
+		{
+			btVector3 bv1 = btV3(tris[i].v[0].p),
+					  bv2 = btV3(tris[i].v[1].p),
+					  bv3 = btV3(tris[i].v[2].p);
+			bt_tri_mesh->addTriangle(bv1, bv2, bv3);
+		}
+		ret = new btBvhTriangleMeshShape(bt_tri_mesh, true);
+	}
+	DEL_ARR_PTR(tris);
+	return ret;
+}
+bool bullet_physics3d::check_mesh_tracked(const mesh3d &mesh) { return coll_shapes.find(mesh.tag) != coll_shapes.end(); }
+btVector3 bullet_physics3d::calculate_intertia(btCollisionShape *shape, float mass)
+{
+	btVector3 b_inertia(0, 0, 0);
+	if (mass != 0.f)
+		shape->calculateLocalInertia((btScalar)mass, b_inertia);
+	return b_inertia;
+}
+btRigidBody *bullet_physics3d::get_rigidbody(mesh3d &mesh, const phys_props &props, btCollisionShape *shape)
+{
+	btDefaultMotionState *motion_state = new btDefaultMotionState(btTransform(gq_to_btq(mesh.rot), btV3(mesh.pos)));
+	btRigidBody::btRigidBodyConstructionInfo body_ci =
+		btRigidBody::btRigidBodyConstructionInfo(
+			(btScalar)props.mass, motion_state, shape,
+			calculate_intertia(shape, props.mass));
+	body_ci.m_restitution = props.restitution;
+	body_ci.m_friction = props.friction;
+	btRigidBody *ret = new btRigidBody(body_ci);
+	ret->setUserPointer(&mesh);
+	return ret;
+}
+bool bullet_physics3d::add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props)
+{
+	if (check_mesh_tracked(mesh))
+		return true;
+	obj_info mesh_info;
+	mesh_info.shape = new btBoxShape(btV3(size));
+	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
+
+	coll_shapes[mesh.tag] = mesh_info;
+	world->addRigidBody(mesh_info.body);
+	return true;
+}
+void bullet_physics3d::create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex)
+{
+	throw EX_UNIMPLEMENTED;
 }

@@ -24,6 +24,7 @@ struct kvasir_demo : kvasir_engine
 		fixed_time.set_fps(10);
 		time.set_fps(1000);
 		cam.far = 1000;
+		base->set_size(1600, 900);
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 		p3d = default_physics3d();
@@ -33,16 +34,19 @@ struct kvasir_demo : kvasir_engine
 		ground.pos.y() = -2;
 		ground.material = make_material(base, RESOURCE("../res/img/h.png"));
 		ground.vertex_scale(vec3f(100.f, 1.f, 100.f));
-		p3d->add_mesh(ground, true, 0);
+		p3d->add_mesh_box_hitbox(ground, vec3f(100.f, 1.f, 100.f), physics3d::static_props());
 
-		for (size_t i = 0; i < 100; ++i)
+		for (size_t i = 0; i < 20; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
+			if (!ms->load_from_obj(RESOURCE(i % 2 == 0 ? "../res/models/sphere.obj" : "../res/models/cube.obj"), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->pos = vec3f((i % 2) * 0.2, i * 3, (i % 3) * 0.2);
-			ms->material = make_material(base, 0xff80ff);
-			p3d->add_mesh(*ms, true, 1);
+			ms->pos = vec3f((float)(i % 2) * 0.2f, (float)i * 3.f, (float)(i % 3) * 0.2f);
+			ms->material = make_material(base, RESOURCE("../res/img/skak.png"));
+			if (i % 2 == 0)
+				p3d->add_mesh_sphere_hitbox(*ms, 1, physics3d::dynamic_props(1));
+			else
+				p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}
 

@@ -25,6 +25,8 @@ kvasir_engine::user_result kvasir_engine::user_result::ok()
 kvasir_engine::~kvasir_engine()
 {
 	DEL_PTR(base);
+	mesh3d::geo_val_cache.clear();
+	texture_base::image_cache.clear();
 }
 render_base *kvasir_engine::get_base(render_base::type b)
 {
