@@ -22,6 +22,7 @@ struct kvasir_demo : kvasir_engine
 	user_result on_start()
 	{
 		fixed_time.set_fps(10);
+		time.set_fps(1000);
 		cam.far = 1000;
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
@@ -30,10 +31,8 @@ struct kvasir_demo : kvasir_engine
 		if (!ground.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
-		ground.material = base->make_material();
-		ground.material->texs[0] = base->make_texture();
-		ground.material->texs[0]->make_png(RESOURCE("../res/img/h.png"));
-		ground.vertex_scale(vec3f(100.f, 0.1f, 100.f));
+		ground.material = make_material(base, RESOURCE("../res/img/h.png"));
+		ground.vertex_scale(vec3f(100.f, 1.f, 100.f));
 		p3d->add_mesh(ground, true, 0);
 
 		for (size_t i = 0; i < 100; ++i)
@@ -41,12 +40,8 @@ struct kvasir_demo : kvasir_engine
 			mesh3d *ms = new mesh3d();
 			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->pos.y() = i * 3;
-			ms->pos.x() = (i % 2) * 0.2;
-			ms->pos.z() = (i % 3) * 0.2;
-			ms->material = base->make_material();
-			ms->material->texs[0] = base->make_texture();
-			ms->material->texs[0]->make_colour((0xff & (int)(((float)i / (float)10) * 255.f)) | (0xff00 & (((10 * i) % 200) >> 8)) | 0x800000);
+			ms->pos = vec3f((i % 2) * 0.2, i * 3, (i % 3) * 0.2);
+			ms->material = make_material(base, 0xff80ff);
 			p3d->add_mesh(*ms, true, 1);
 			mshs.push_back(ms);
 		}

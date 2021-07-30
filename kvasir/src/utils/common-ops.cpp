@@ -38,3 +38,17 @@ void kvasir::cam_debug_controls(render_base *base, camera3d &cam, float delta, f
 	cam.rot += rotate * delta;
 	cam.pos += forward.normalize() * speed * delta;
 }
+kvasir::material_base *kvasir::make_material(render_base *base, const char *diffuse_img_path)
+{
+	material_base *mat = base->make_material();
+	mat->texs[0] = base->make_texture();
+	mat->texs[0]->make_png(diffuse_img_path);
+	return mat;
+}
+kvasir::material_base *kvasir::make_material(render_base *base, long colour)
+{
+	material_base *mat = base->make_material();
+	mat->texs[0] = base->make_texture();
+	mat->texs[0]->make_colour(colour);
+	return mat;
+}
