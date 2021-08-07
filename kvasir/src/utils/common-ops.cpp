@@ -9,7 +9,6 @@ void kvasir::cam_debug_controls(render_base *base, camera3d &cam, float delta, f
 	float cms = rot_speed;
 	vec3f forward;
 	vec3f up = vec3f(0.f, 1.f, 0.f);
-	vec3f rotate;
 	if (base->key_pressed(KeyW))
 		forward += clv;
 	if (base->key_pressed(KeyS))
@@ -22,21 +21,33 @@ void kvasir::cam_debug_controls(render_base *base, camera3d &cam, float delta, f
 		forward.y() += 1.f;
 	if (base->key_pressed(KeyE))
 		forward.y() -= 1.f;
-	if (base->key_pressed(Left))
-		rotate.y() = cms;
-	if (base->key_pressed(Right))
-		rotate.y() = -cms;
-	if (base->key_pressed(Up))
-		rotate.x() = -cms;
-	if (base->key_pressed(Down))
-		rotate.x() = cms;
 	if (base->key_pressed(LShift))
 		speed *= 3.f;
 	if (base->key_pressed(LControl))
 		speed *= 7.f;
 
-	cam.rot += rotate * delta;
 	cam.pos += forward.normalize() * speed * delta;
+
+	cam_debug_rotation(base, cam, delta, rot_speed);
+}
+void kvasir::cam_debug_rotation(render_base *base, camera3d &cam, float delta, float rot_speed)
+{
+	vec3f rotate;
+	if (std::abs(cam.rot.y()) >= 3.14159f * 2.f)
+		cam.rot.y() = 0.f;
+	if (base->key_pressed(Left))
+		rotate.y() = rot_speed;
+	if (base->key_pressed(Right))
+		rotate.y() = -rot_speed;
+	if (base->key_pressed(Up))
+		rotate.x() = -rot_speed;
+	if (base->key_pressed(Down))
+		rotate.x() = rot_speed;
+	cam.rot += rotate * delta;
+	if (cam.rot.x() >= 3.14159f / 2.1f)
+		cam.rot.x() = 3.14159f / 2.1f;
+	if (cam.rot.x() <= -3.14159f / 2.1f)
+		cam.rot.x() = -3.14159f / 2.1f;
 }
 kvasir::material_base *kvasir::make_material(render_base *base, const char *diffuse_img_path)
 {

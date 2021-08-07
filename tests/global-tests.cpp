@@ -13,16 +13,17 @@ const char *fshader = "#version 330 core\nlayout(location=0) out vec4 col;in vec
 struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
+	mesh3d cam_mesh;
 	mesh3d ground;
+	mesh3d ramp;
 	std::vector<mesh3d *> mshs;
 	shader_base *shader = nullptr;
 	physics3d *p3d = nullptr;
-	vec3f crot;
 
 	user_result on_start()
 	{
 		fixed_time.set_fps(10);
-		time.set_fps(1000);
+		time.set_fps(144);
 		cam.far = 1000;
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
@@ -32,8 +33,17 @@ struct kvasir_demo : kvasir_engine
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
 		ground.material = make_material(base, RESOURCE("../res/img/h.png"));
-		ground.vertex_scale(vec3f(100.f, 1.f, 100.f));
-		p3d->add_mesh_box_hitbox(ground, vec3f(100.f, 1.f, 100.f), physics3d::static_props());
+		vec3f scale(300.f, 2.f, 300.f);
+		ground.vertex_scale(scale);
+		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
+
+		p3d->add_mesh_sphere_hitbox(cam_mesh, 1.f, physics3d::dynamic_props(2));
+
+		if (!ramp.load_from_obj(RESOURCE("../res/models/ramp.obj"), base->make_buffer()))
+			return user_result("Ground failed loading.");
+		ramp.pos.z() = 20;
+		ramp.material = make_material(base, 0x80bf80);
+		p3d->add_mesh(ramp, false, physics3d::static_props());
 
 		for (size_t i = 0; i < 30; ++i)
 		{
@@ -54,24 +64,53 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
+		mesh3d *first_hit = p3d->raycast_first_hit(cam_mesh.pos, cam_mesh.pos - vec3f(0, 1.01f, 0));
+		if (first_hit)
+		{
+			if (base->key_pressed(Space))
+				p3d->add_central_force(cam_mesh, vec3f(0, 15, 0));
+			vec3f clv = cam.look_vector().xyz().normalized();
+			vec3f forward;
+			vec3f up = vec3f(0.f, 1.f, 0.f);
+			if (base->key_pressed(KeyW))
+				forward += clv;
+			if (base->key_pressed(KeyS))
+				forward -= clv;
+			if (base->key_pressed(KeyD))
+				forward -= clv.cross(up);
+			if (base->key_pressed(KeyA))
+				forward += clv.cross(up);
+			if (base->key_pressed(KeyQ))
+				forward.y() += 1.f;
+			if (base->key_pressed(KeyE))
+				forward.y() -= 1.f;
+			p3d->add_central_force(cam_mesh, forward.normalize() * 0.5f);
+		}
 
-		cam_debug_controls(base, cam, time.delta());
+		for (size_t i = 0; i < mshs.size(); ++i)
+			if ((mshs[i]->pos - cam.pos).len() <= 4)
+				p3d->activate(*mshs[i]);
 		if (base->key_pressed(Num1))
 			for (size_t i = 0; i < mshs.size(); ++i)
 				p3d->add_central_force(*mshs[i], (cam.pos - mshs[i]->pos).normalized());
 
 		p3d->step(time.delta());
+
+		cam_debug_rotation(base, cam, time.delta());
+		cam_mesh.pos = p3d->get_position(cam_mesh);
+		cam.pos = cam_mesh.pos;
 		for (size_t i = 0; i < mshs.size(); ++i)
 		{
 			mshs[i]->pos = p3d->get_position(*mshs[i]);
 			mshs[i]->rot = p3d->get_rotation(*mshs[i]);
 		}
-		std::cout << "FPS: " << (1.f / time.delta()) << std::endl;
+		std::cout << "FPS: " << (1.0 / time.delta_d()) << std::endl;
 
 		base->clear();
 		base->render_mesh3d(cam, ground, shader);
 		for (size_t i = 0; i < mshs.size(); ++i)
 			base->render_mesh3d(cam, *mshs[i], shader);
+		base->render_mesh3d(cam, ramp, shader);
 		base->swap_buffers();
 	}
 	void on_fixed_update()

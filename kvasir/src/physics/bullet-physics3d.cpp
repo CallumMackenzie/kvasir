@@ -47,16 +47,15 @@ vec3f bullet_physics3d::btV3(const btVector3 &v)
 {
 	return vec3f(v[0], v[1], v[2]);
 }
-bool bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, const phys_props &props)
+void bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, const phys_props &props)
 {
 	if (check_mesh_tracked(mesh))
-		return true;
+		return;
 	obj_info mesh_info;
 	mesh_info.shape = create_mesh_hitbox(mesh, convex);
 	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
 	coll_shapes[mesh.tag] = mesh_info;
 	world->addRigidBody(mesh_info.body);
-	return true;
 }
 void bullet_physics3d::step(float delta)
 {
@@ -93,12 +92,14 @@ void bullet_physics3d::set_position(const mesh3d &mesh, const vec3f &v)
 	if (!mesh_is_valid(mesh))
 		return;
 	coll_shapes[mesh.tag].body->getWorldTransform().setOrigin(btV3(v));
+	activate(mesh);
 }
 void bullet_physics3d::set_rotation(const mesh3d &mesh, const quaternionf &v)
 {
 	if (!mesh_is_valid(mesh))
 		return;
 	coll_shapes[mesh.tag].body->getWorldTransform().setRotation(gq_to_btq(v));
+	activate(mesh);
 }
 position3d bullet_physics3d::get_transform(const mesh3d &mesh)
 {
@@ -117,6 +118,7 @@ void bullet_physics3d::set_transform(const mesh3d &mesh, const position3d &trns)
 	btTransform &wt = coll_shapes[mesh.tag].body->getWorldTransform();
 	wt.setOrigin(btV3(trns.pos));
 	wt.setRotation(gq_to_btq(trns.rot));
+	activate(mesh);
 }
 quaternionf bullet_physics3d::btq_to_gq(const btQuaternion &q)
 {
@@ -126,17 +128,16 @@ btQuaternion bullet_physics3d::gq_to_btq(const quaternionf &v)
 {
 	return btQuaternion(-v.x(), -v.y(), -v.z(), v.w());
 }
-bool bullet_physics3d::add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props)
+void bullet_physics3d::add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props)
 {
 	if (check_mesh_tracked(mesh))
-		return true;
+		return;
 	obj_info mesh_info;
 	mesh_info.shape = new btSphereShape(diameter);
 	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
 
 	coll_shapes[mesh.tag] = mesh_info;
 	world->addRigidBody(mesh_info.body);
-	return true;
 }
 btCollisionShape *bullet_physics3d::create_mesh_hitbox(const mesh3d &mesh, bool convex)
 {
@@ -186,26 +187,64 @@ btRigidBody *bullet_physics3d::get_rigidbody(mesh3d &mesh, const phys_props &pro
 	ret->setUserPointer(&mesh);
 	return ret;
 }
-bool bullet_physics3d::add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props)
+void bullet_physics3d::add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props)
 {
 	if (check_mesh_tracked(mesh))
-		return true;
+		return;
 	obj_info mesh_info;
 	mesh_info.shape = new btBoxShape(btV3(size));
 	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
 
 	coll_shapes[mesh.tag] = mesh_info;
 	world->addRigidBody(mesh_info.body);
-	return true;
 }
 void bullet_physics3d::create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex)
 {
-	throw EX_UNIMPLEMENTED;
+	coll_shape_cache[key] = create_mesh_hitbox(mesh, convex);
+}
+void bullet_physics3d::add_mesh_prefab_hitbox(mesh3d &mesh, std::string key, const phys_props &props)
+{
+	if (check_mesh_tracked(mesh))
+		return;
+	obj_info mesh_info;
+	mesh_info.shape = coll_shape_cache[key];
+	mesh_info.body = get_rigidbody(mesh, props, mesh_info.shape);
+
+	coll_shapes[mesh.tag] = mesh_info;
+	world->addRigidBody(mesh_info.body);
 }
 void bullet_physics3d::add_central_force(const mesh3d &mesh, vec3f force)
 {
 	if (!mesh_is_valid(mesh))
 		return;
-	coll_shapes[mesh.tag].body->activate(true);
+	activate(mesh);
 	coll_shapes[mesh.tag].body->applyCentralImpulse(btV3(force));
+}
+void bullet_physics3d::activate(const mesh3d &mesh)
+{
+	if (!mesh_is_valid(mesh))
+		return;
+	coll_shapes[mesh.tag].body->activate(true);
+}
+mesh3d *bullet_physics3d::raycast_first_hit(vec3f from_, vec3f to_)
+{
+	btVector3 from = btV3(from_);
+	btVector3 to = btV3(to_);
+
+	btCollisionWorld::ClosestRayResultCallback closest(from, to);
+
+	world->rayTest(from, to, closest);
+
+	if (closest.hasHit())
+		return (mesh3d *)closest.m_collisionObject->getUserPointer();
+	else
+		return nullptr;
+}
+void bullet_physics3d::set_rotation_axes(const mesh3d &mesh, vec3f axes)
+{
+	coll_shapes[mesh.tag].body->setAngularFactor(btV3(axes));
+}
+void bullet_physics3d::set_position_axes(const mesh3d &mesh, vec3f axes)
+{
+	coll_shapes[mesh.tag].body->setLinearFactor(btV3(axes));
 }

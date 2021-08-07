@@ -20,10 +20,11 @@ namespace kvasir
 		~bullet_physics3d();
 
 		void set_gravity(const vec3f &g);
-		bool add_mesh(mesh3d &mesh, bool convex, const phys_props &props);
-		bool add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props);
-		bool add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props);
+		void add_mesh(mesh3d &mesh, bool convex, const phys_props &props);
+		void add_mesh_sphere_hitbox(mesh3d &mesh, float diameter, const phys_props &props);
+		void add_mesh_box_hitbox(mesh3d &mesh, vec3f size, const phys_props &props);
 		void create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex);
+		void add_mesh_prefab_hitbox(mesh3d &mesh, std::string key, const phys_props &props);
 		void step(float delta);
 		vec3f get_position(const mesh3d &mesh);
 		quaternionf get_rotation(const mesh3d &mesh);
@@ -32,6 +33,10 @@ namespace kvasir
 		position3d get_transform(const mesh3d &mesh);
 		void set_transform(const mesh3d &mesh, const position3d &trns);
 		void add_central_force(const mesh3d &mesh, vec3f force);
+		void activate(const mesh3d &mesh);
+		mesh3d *raycast_first_hit(vec3f from, vec3f to) ;
+		void set_rotation_axes(const mesh3d &mesh, vec3f axes);
+		void set_position_axes(const mesh3d &mesh, vec3f axes);
 
 	private:
 		struct obj_info
@@ -47,8 +52,7 @@ namespace kvasir
 		btDiscreteDynamicsWorld *world = nullptr;
 		std::unordered_map<size_t, obj_info> coll_shapes;
 
-		static inline bool use_coll_shape_cache = true;
-		static inline std::unordered_map<std::string, btCollisionShape *> coll_shape_cache;
+		std::unordered_map<std::string, btCollisionShape *> coll_shape_cache;
 
 		bool mesh_is_valid(const mesh3d &mesh);
 		btCollisionShape *create_mesh_hitbox(const mesh3d &mesh, bool convex);

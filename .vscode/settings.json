@@ -65,7 +65,15 @@
 		"ctime": "cpp",
 		"map": "cpp",
 		"ratio": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"complex": "cpp",
+		"condition_variable": "cpp",
+		"list": "cpp",
+		"mutex": "cpp",
+		"xhash": "cpp",
+		"xlocmon": "cpp",
+		"xloctime": "cpp",
+		"xtree": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }
