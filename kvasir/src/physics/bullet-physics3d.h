@@ -37,6 +37,11 @@ namespace kvasir
 		mesh3d *raycast_first_hit(vec3f from, vec3f to) ;
 		void set_rotation_axes(const mesh3d &mesh, vec3f axes);
 		void set_position_axes(const mesh3d &mesh, vec3f axes);
+		vec3f get_velocity(const mesh3d &mesh);
+		vec3f get_angular_velocity(const mesh3d &mesh);
+		void set_velocity(const mesh3d &mesh, const vec3f &lv) ;
+		void set_angular_velocity(const mesh3d &mesh, const vec3f &lv);
+		float get_mass(const mesh3d &mesh);
 
 	private:
 		struct obj_info

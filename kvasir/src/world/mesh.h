@@ -23,12 +23,12 @@ namespace kvasir
 		{
 			struct vert
 			{
-				vec3f p;
-				vec2f t;
-				vec3f n;
+				vec3f p; // Vertex pos
+				vec2f t; // Vertex UV
+				vec3f n; // Vertex normal
 			};
 
-			vert v[3];
+			vert v[3]; // Verteces in the triangle
 
 			triangle();
 			triangle(vec3f &p1, vec3f &p2, vec3f &p3);
@@ -66,6 +66,16 @@ namespace kvasir
 
 	struct mesh2d : position2d
 	{
+		struct triangle
+		{
+			struct vert
+			{
+				vec2f p; // Vertex pos
+				vec2f t; // Vertex UV
+			};
+
+			vert v[3]; // Vertecies in the triangle
+		};
 	};
 };
 

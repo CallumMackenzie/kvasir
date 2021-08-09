@@ -248,3 +248,23 @@ void bullet_physics3d::set_position_axes(const mesh3d &mesh, vec3f axes)
 {
 	coll_shapes[mesh.tag].body->setLinearFactor(btV3(axes));
 }
+vec3f bullet_physics3d::get_velocity(const mesh3d &mesh)
+{
+	return btV3(coll_shapes[mesh.tag].body->getLinearVelocity());
+}
+vec3f bullet_physics3d::get_angular_velocity(const mesh3d &mesh)
+{
+	return btV3(coll_shapes[mesh.tag].body->getAngularVelocity());
+}
+void bullet_physics3d::set_velocity(const mesh3d &mesh, const vec3f &lv)
+{
+	coll_shapes[mesh.tag].body->setLinearVelocity(btV3(lv));
+}
+void bullet_physics3d::set_angular_velocity(const mesh3d &mesh, const vec3f &lv)
+{
+	coll_shapes[mesh.tag].body->setAngularVelocity(btV3(lv));
+}
+float bullet_physics3d::get_mass(const mesh3d &mesh)
+{
+	return (float)coll_shapes[mesh.tag].body->getMass();
+}

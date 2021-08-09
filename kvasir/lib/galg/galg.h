@@ -403,6 +403,7 @@ namespace galg
 		FORCE_INLINE const T &w() const { return v[3]; }
 
 		FORCE_INLINE vec3<T> xyz() const { return vec3<T>(x(), y(), z()); }
+		FORCE_INLINE vec2<T> xy() const { return vec2<T>(x(), y()); }
 
 		FORCE_INLINE T &operator[](size_t index)
 		{
@@ -476,6 +477,7 @@ namespace galg
 		}
 
 		FORCE_INLINE vec4<T> xyz1() { return vec4<T>(x(), y(), z(), (T)1); }
+		FORCE_INLINE vec2<T> xy() const { return vec2<T>(x(), y()); }
 
 		ALGEBRAIC_VEC(vec3, 3)
 		VEC_STD_OPS(vec3, 3)

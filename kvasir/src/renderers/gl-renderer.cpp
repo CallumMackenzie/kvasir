@@ -263,6 +263,7 @@ bool gl_render_base::is_fullscreen()
 }
 bool gl_render_base::set_resizable(bool res)
 {
+	win.set_default_hints();
 	win.set_hints(gl_hints, 4);
 	if (!win.recreate_resizable(res))
 		return false;
@@ -274,6 +275,7 @@ bool gl_render_base::is_resizable()
 }
 bool gl_render_base::set_fullscreen()
 {
+	win.set_default_hints();
 	win.set_hints(gl_hints, 4);
 	if (!win.recreate_fullscreen())
 		return false;
@@ -281,6 +283,7 @@ bool gl_render_base::set_fullscreen()
 }
 bool gl_render_base::set_windowed()
 {
+	win.set_default_hints();
 	win.set_hints(gl_hints, 4);
 	if (!win.recreate_windowed())
 		return false;
@@ -288,6 +291,7 @@ bool gl_render_base::set_windowed()
 }
 bool gl_render_base::set_visible(bool b)
 {
+	win.set_default_hints();
 	win.set_hints(gl_hints, 4);
 	if (!win.recreate_visible(b))
 		return false;
@@ -304,6 +308,7 @@ bool gl_render_base::gl_load()
 		return false;
 	glViewport(0, 0, win.get_width(), win.get_height());
 	set_clear_colour(clear_colour);
+	depth_buffer_active(clear_bits & GL_DEPTH_BUFFER_BIT != 0);
 	return true;
 }
 void gl_render_base::framebuffer_size_callback(GLFWwindow *window, int width, int height)

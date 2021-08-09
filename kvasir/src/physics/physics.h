@@ -39,10 +39,14 @@ namespace kvasir
 		virtual void set_transform(const mesh3d &mesh, const position3d &trns) = 0;
 		virtual void create_mesh_hitbox_prefab(mesh3d &mesh, std::string key, bool convex) = 0;
 		virtual void activate(const mesh3d &mesh) = 0;
-
 		virtual mesh3d *raycast_first_hit(vec3f from, vec3f to) = 0;
 		virtual void set_rotation_axes(const mesh3d &mesh, vec3f axes) = 0;
 		virtual void set_position_axes(const mesh3d &mesh, vec3f axes) = 0;
+		virtual vec3f get_velocity(const mesh3d &mesh) = 0;
+		virtual vec3f get_angular_velocity(const mesh3d &mesh) = 0;
+		virtual void set_velocity(const mesh3d &mesh, const vec3f &lv) = 0;
+		virtual void set_angular_velocity(const mesh3d &mesh, const vec3f &lv) = 0;
+		virtual float get_mass(const mesh3d &mesh) = 0;
 	};
 
 	struct physics2d

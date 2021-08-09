@@ -127,24 +127,45 @@ namespace kvasir
 
 	private:
 		// static const char *get_ansi_from_col(vec3us col);
+		static char intensity_char(float i);
 		struct pixel
 		{
 			char sym = ' ';
 			long colour = 0xffffff;
 		};
+		enum class winding
+		{
+			clockwise,
+			counter_clockwise
+		};
+		struct triangle_2d
+		{
+			struct bounding_box
+			{
+				float top, left, right, bottom = 0;
+			};
+			struct vert
+			{
+				vec4f v;
+				vec2f t;
+				char sym = '0';
+				float &operator[](size_t i);
+			};
 
-		union
-		{
-			float **depth_buffer = nullptr;
-			float *depth_buffer_arr;
+			vert v[3];
+			winding base_wind = winding::counter_clockwise;
+			bool facing_view = false;
+
+			triangle_2d();
+			void set_sym(char sym);
+			void get_bounding_box(bounding_box &box);
+			winding get_wind();
 		};
-		union
-		{
-			pixel **screen = nullptr;
-			pixel *screen_arr;
-		};
-		size_t width = 1;
-		size_t height = 1;
+
+		float *depth_buffer = nullptr;
+		pixel *screen = nullptr;
+		size_t width = 0;
+		size_t height = 0;
 		float depth_buffer_clear = 1.f;
 		const char *title = "";
 		bool s_close = false;

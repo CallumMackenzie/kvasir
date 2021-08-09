@@ -11,8 +11,10 @@ include_directories(
 	./kvasir
 )
 
-add_executable(global-testing ./tests/global-tests.cpp)
-target_link_libraries(global-testing kvasir-engine)
+# add_executable(global-testing ./tests/global-tests.cpp)
+# target_link_libraries(global-testing kvasir-engine)
+add_executable(term-test ./tests/terminal-test.cpp)
+target_link_libraries(term-test kvasir-engine)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
