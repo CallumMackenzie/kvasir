@@ -153,12 +153,30 @@ void terminal_render_base::swap_buffers()
 #ifndef _WIN32
 	printf("\x1b[H");
 #endif
-	for (size_t y = 0; y < height * width; ++y)
+	if (render_colour)
 	{
-		printf("%c", screen[y].sym);
-		if (y % width == 0)
+		const char *lcp = nullptr;
+		for (int y = height - 1; y >= 0; --y)
+		{
+			for (size_t x = 0; x < width; ++x)
+			{
+				int indx = y * width + x;
+				const char *nc = get_ansi(screen[indx].colour);
+				if (lcp != nc)
+					printf(lcp = nc);
+				printf("%c", screen[indx].sym);
+			}
 			printf("\n");
+		}
+		printf("\u001b[0m");
 	}
+	else
+		for (int y = height - 1; y >= 0; --y)
+		{
+			for (size_t x = 0; x < width; ++x)
+				printf("%c", screen[y * width + x].sym);
+			printf("\n");
+		}
 }
 void terminal_render_base::poll_events() {}
 void terminal_render_base::set_position(int x, int y) { return; }
@@ -225,7 +243,7 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s)
 		{
 			vec3f rot_n = (rotation_m * tri.v[j].n).xyz().normalized();
 			float normal_view_dot = rot_n.dot(clv.xyz().normalize());
-			float lcd = vec3f(0, -1, 0).normalize().dot(rot_n);
+			float lcd = vec3f(0, 1, 0).normalize().dot(rot_n);
 			rast_tri.facing_view = normal_view_dot < 0;
 			vec4f v_pos(projection_m * (cam_view_m * (transform_m * tri.v[j].p)));
 			v_pos.w() = 1.f / v_pos.w();
@@ -241,9 +259,11 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s)
 		{
 			return !(pos.x() >= 0 && pos.y() >= 0 && pos.x() < r && pos.y() < b);
 		};
+		vec4f avg = (rast_tri.v[0].v + rast_tri.v[1].v + rast_tri.v[2].v) / 3.f;
 		if (o_box(width, height, rast_tri.v[0].v.xy()) &&
 			o_box(width, height, rast_tri.v[1].v.xy()) &&
-			o_box(width, height, rast_tri.v[2].v.xy()))
+			o_box(width, height, rast_tri.v[2].v.xy()) &&
+			!(avg.x() >= 0 && avg.x() <= width && avg.y() >= 0 && avg.y() <= height))
 			return;
 		winding wind = rast_tri.get_wind();
 		auto in_tri = [&rast_tri, &wind, &edge_fn](vec2f &p)
@@ -298,10 +318,18 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s)
 					continue;
 				const vec3f perspective = 1 / frag_coord[3] * barycentric * vec3f(rast_tri.v[0][3], rast_tri.v[1][3], rast_tri.v[2][3]);
 				float frag_depth = barycentric.dot(vec3f(rast_tri.v[0][2], rast_tri.v[1][2], rast_tri.v[2][2]));
-
 				if (frag_depth < depth_buffer[(y * width) + x])
 				{
 					screen[(y * width) + x].sym = rast_tri.v[0].sym;
+					if (terminal_texture_base::slots.size() > 0)
+					{
+						terminal_texture_base *tex = terminal_texture_base::slots[0];
+						if (!tex)
+							continue;
+						float coord_u = perspective.dot(vec3f(rast_tri.v[0].t.x(), rast_tri.v[1].t.x(), rast_tri.v[2].t.x()));
+						float coord_v = perspective.dot(vec3f(rast_tri.v[0].t.y(), rast_tri.v[1].t.y(), rast_tri.v[2].t.y()));
+						screen[(y * width) + x].colour = tex->texture.pixel_rgb(vec2f(coord_u, coord_v));
+					}
 					depth_buffer[(y * width) + x] = frag_depth;
 				}
 			}
@@ -348,77 +376,34 @@ keystate terminal_render_base::get_keystate(key key)
 }
 char terminal_render_base::intensity_char(float i)
 {
-	if (i <= 0)
-		return '\'';
-	if (i < 0.05)
-		return '.';
-	if (i < 0.1)
-		return ',';
-	if (i < 0.15)
-		return '`';
-	if (i < 0.2)
-		return '\"';
-	if (i < 0.25)
-		return '-';
-	if (i < 0.275)
-		return 'k';
-	if (i < 0.3)
-		return '_';
-	if (i < 0.325)
-		return 'h';
-	if (i < 0.35)
-		return '~';
-	if (i < 0.375)
-		return '^';
-	if (i < 0.4)
-		return '!';
-	if (i < 0.425)
-		return 't';
-	if (i < 0.45)
-		return '|';
-	if (i < 0.475)
-		return 'r';
-	if (i < 0.5)
-		return '1';
-	if (i < 0.525)
-		return '>';
-	if (i < 0.55)
-		return '/';
-	if (i < 0.575)
-		return 'f';
-	if (i < 0.6)
-		return '\\';
-	if (i < 0.625)
-		return 'l';
-	if (i < 0.65)
-		return '(';
-	if (i < 0.675)
-		return 'v';
-	if (i < 0.7)
-		return ')';
-	if (i < 0.725)
-		return 'j';
-	if (i < 0.75)
-		return '[';
-	if (i < 0.775)
-		return 'I';
-	if (i < 0.8)
-		return ']';
-	if (i < 0.825)
-		return 'o';
-	if (i < 0.85)
-		return '{';
-	if (i < 0.875)
-		return 'd';
-	if (i < 0.9)
-		return '}';
-	if (i < 0.925)
-		return '0';
-	if (i < 0.95)
-		return '$';
-	if (i < 0.975)
-		return '%';
-	return '#';
+	char chars[31]{'`', '.', '\'', ',', '-', '_', '~', '*', '\"', '^', '=', '!', '>', '|', '(', '{', '[', '1', 'L', 'U', 'O', 'P', 'A', 'G', 'K', 'R', '#', '$', '%', '&', '@'};
+	return chars[(size_t)(i * 30.f)];
+}
+const char *terminal_render_base::get_ansi(long col)
+{
+	int r = (col & 0xFF0000) >> 16;
+	int g = (col & 0x00FF00) >> 8;
+	int b = (col & 0x0000FF);
+	auto within = [](int a, int hi, int lo)
+	{ return a <= hi && a >= lo; };
+	bool r_hi = within(r, 0xff, 0x80),
+		 g_hi = within(g, 0xff, 0x80),
+		 b_hi = within(r, 0xff, 0x80);
+	if (r_hi && g_hi && b_hi)
+		return "\u001b[37m"; // White (0xffffff)
+	if (r_hi && g_hi)
+		return "\u001b[33m"; // Yellow (0xffff00)
+	if (r_hi && b_hi)
+		return "\u001b[35m"; // Magenta (0xff00ff)
+	if (g_hi && b_hi)
+		return "\u001b[36m"; // Cyan (0x00ffff)
+	if (r_hi)
+		return "\u001b[31m"; // Red (0xff0000)
+	if (g_hi)
+		return "\u001b[32m"; // Green (0x00ff00)
+	if (b_hi)
+		return "\u001b[34m"; // Blue (0x0000ff)
+	return "\u001b[30m";
 }
 terminal_render_base::triangle_2d::triangle_2d() {}
 

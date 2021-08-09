@@ -2,6 +2,22 @@
 
 using namespace kvasir;
 
+long texture_image::pixel_rgb(size_t x, size_t y)
+{
+	long ret = 0x000000;
+	if (x >= w || y >= h || x < 0 || y < 0)
+		return ret;
+	size_t i = y * w + x;
+	ret |= (pixels[i + 0] & 0xffffff);
+	ret |= (pixels[i + 1] & 0xffffff) << 8;
+	ret |= (pixels[i + 2] & 0xffffff) << 16;
+	return ret;
+}
+long texture_image::pixel_rgb(const galg::vec2f &uv)
+{
+	return pixel_rgb(uv.x() * w, uv.y() * h);
+}
+
 texture_base::~texture_base()
 {
 }
@@ -17,7 +33,7 @@ texture_image texture_base::load_image(const char *file_path)
 	unsigned error = lodepng::decode(img.pixels, img.w, img.h, buffer);
 	if (error)
 	{
-		std::cout << "lodepng decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+		std::cerr << "lodepng decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 		return texture_image{};
 	}
 	if (use_image_cache)

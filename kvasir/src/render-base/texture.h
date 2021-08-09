@@ -8,6 +8,7 @@
 #include <unordered_map>
 #ifndef NO_USE_INCLUDES
 #include "lodepng.h"
+#include "galg.h"
 #endif
 
 namespace kvasir
@@ -18,6 +19,9 @@ namespace kvasir
 		std::vector<unsigned char> pixels; // RGBA
 		unsigned w; // width
 		unsigned h; // height
+
+		long pixel_rgb(size_t x, size_t y);
+		long pixel_rgb(const galg::vec2f &uv);
 	};
 
 	struct texture_base

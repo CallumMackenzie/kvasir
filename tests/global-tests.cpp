@@ -38,17 +38,17 @@ struct kvasir_demo : kvasir_engine
 		ground.vertex_scale(scale);
 		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
 
-		cam_mesh.pos.z() = -5;
+		cam_mesh.pos.z() = -7;
 		cam.pos = cam_mesh.pos;
 		p3d->add_mesh_sphere_hitbox(cam_mesh, 1.f, physics3d::dynamic_props(10));
 
 		if (!ramp.load_from_obj(RESOURCE("../res/models/ramp.obj"), base->make_buffer()))
 			return user_result("Ground failed loading.");
-		ramp.pos.z() = 20;
+		ramp.pos.z() = 30;
 		ramp.material = make_material(base, 0x80bf80);
 		p3d->add_mesh(ramp, false, physics3d::static_props());
 
-		for (size_t i = 0; i < 10; ++i)
+		for (size_t i = 0; i < 20; ++i)
 		{
 			mesh3d *ms = new mesh3d();
 			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
@@ -63,7 +63,6 @@ struct kvasir_demo : kvasir_engine
 		const char *s[2]{vshader, fshader};
 		if (!shader->compile(s, 2))
 			return user_result("Shader failed compiling");
-
 
 		return user_result::ok();
 	}
@@ -126,7 +125,10 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_fixed_update()
 	{
-		cam.aspect = (float)base->get_aspect();
+		if (base->get_type() == render_base::TERMINAL)
+			cam.aspect = (float)base->get_aspect() * 2.f;
+		else
+			cam.aspect = (float)base->get_aspect();
 	}
 	void on_close()
 	{
@@ -143,7 +145,7 @@ int main(int, char **)
 	{
 		kvasir_init();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
+		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75 * 1.5, 32 * 1.5);
 		// kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;

@@ -10,6 +10,8 @@
 #include "memory-aid.h"
 #endif
 
+// TODO(Callum): Frustrum culling
+
 namespace kvasir
 {
 	struct terminal_buffer_base : buffer_base
@@ -126,8 +128,8 @@ namespace kvasir
 		keystate get_keystate(key key);
 
 	private:
-		// static const char *get_ansi_from_col(vec3us col);
 		static char intensity_char(float i);
+		static const char *get_ansi(long col);
 		struct pixel
 		{
 			char sym = ' ';
@@ -171,6 +173,7 @@ namespace kvasir
 		bool s_close = false;
 		bool use_depth_buffer = false;
 		vec3us clear_colour;
+		bool render_colour = true;
 	};
 }
 

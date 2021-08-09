@@ -22,6 +22,7 @@ struct kvasir_demo : kvasir_engine
 		if (!test_m.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 			return user_result("A mesh failed loading.");
 		test_m.pos.z() = 4;
+		test_m.material = make_material(base, RESOURCE("../res/img/h.png"));
 
 		return user_result::ok();
 	}
