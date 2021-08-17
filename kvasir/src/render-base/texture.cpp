@@ -7,7 +7,7 @@ long texture_image::pixel_rgb(size_t x, size_t y)
 	long ret = 0x000000;
 	if (x >= w || y >= h || x < 0 || y < 0)
 		return ret;
-	size_t i = y * w + x;
+	size_t i = (y * w + x) * 4;
 	ret |= (pixels[i + 0] & 0xffffff);
 	ret |= (pixels[i + 1] & 0xffffff) << 8;
 	ret |= (pixels[i + 2] & 0xffffff) << 16;

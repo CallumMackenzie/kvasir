@@ -69,6 +69,7 @@ add_library(
 	./src/world/position.cpp
 	./src/utils/fps-manager.cpp
 	./src/render-base/buffer.cpp
+	./src/render-base/render-buffer.cpp
 	./src/render-base/glfw-window.cpp
 	./src/utils/input.cpp
 	./src/render-base/texture.cpp
@@ -82,6 +83,7 @@ add_library(
 	./src/renderers/gl-renderer.cpp
 	./src/renderers/vulkan-renderer.cpp
 	./src/renderers/terminal-renderer.cpp
+	./src/world/game-object.cpp
 	./src/utils/common-ops.cpp
 	./src/kvasir-engine.cpp 
 )

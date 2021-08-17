@@ -30,7 +30,7 @@ namespace kvasir
 		virtual void add_central_force(const mesh3d &mesh, vec3f force) = 0;
 		virtual void add_mesh_prefab_hitbox(mesh3d &mesh, std::string key, const phys_props &props) = 0;
 		virtual void set_gravity(const vec3f &g) = 0;
-		virtual void step(float delta) = 0;
+		virtual void step(float delta_seconds) = 0;
 		virtual vec3f get_position(const mesh3d &mesh) = 0;
 		virtual quaternionf get_rotation(const mesh3d &mesh) = 0;
 		virtual void set_position(const mesh3d &mesh, const vec3f &v) = 0;

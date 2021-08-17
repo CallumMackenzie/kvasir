@@ -59,7 +59,7 @@ void bullet_physics3d::add_mesh(mesh3d &mesh, bool convex, const phys_props &pro
 }
 void bullet_physics3d::step(float delta)
 {
-	world->stepSimulation((btScalar)delta * 1000.f);
+	world->stepSimulation((btScalar)delta, 1);
 }
 bool bullet_physics3d::mesh_is_valid(const mesh3d &mesh)
 {

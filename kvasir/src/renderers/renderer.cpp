@@ -3,6 +3,11 @@
 using namespace kvasir;
 
 render_base::~render_base() {}
+buffer_base *render_base::make_buffer() { return nullptr; };
+shader_base *render_base::make_shader() { return nullptr; };
+texture_base *render_base::make_texture() { return nullptr; };
+material_base *render_base::make_material() { return nullptr; };
+render_buffer *render_base::make_render_buffer() { return nullptr; }
 int render_base::get_position_x()
 {
 	int x, y;

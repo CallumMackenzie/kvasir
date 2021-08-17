@@ -14,6 +14,7 @@ using namespace galg;
 #include "./src/world/position.h"
 #include "./src/utils/fps-manager.h"
 #include "./src/render-base/buffer.h"
+#include "./src/render-base/render-buffer.h"
 #include "./src/render-base/texture.h"
 #include "./src/world/material.h"
 #include "./src/world/mesh.h"

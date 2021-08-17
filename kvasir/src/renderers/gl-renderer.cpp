@@ -352,6 +352,45 @@ void gl_render_base::destroy()
 {
 	win.destroy();
 }
+gl_render_buffer::gl_render_buffer()
+{
+	glGenFramebuffers(1, &fbo);
+	glGenRenderbuffers(1, &rbo);
+}
+bool gl_render_buffer::set_size(size_t width_, size_t height_)
+{
+	if (tex)
+		return false;
+	bind();
+	width = width_;
+	height = height_;
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	tex = new gl_texture_base();
+	tex->gen_texture();
+	tex->bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ((gl_texture_base *)tex)->texture, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	return true;
+}
+int gl_render_buffer::get_width() { return width; }
+int gl_render_buffer::get_height() { return height; }
+gl_render_buffer::~gl_render_buffer()
+{
+	glDeleteRenderbuffers(1, &rbo);
+	glDeleteFramebuffers(1, &fbo);
+	DEL_PTR(tex)
+}
+void gl_render_buffer::bind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+}
 void gl_render_base::depth_buffer_active(bool a)
 {
 	if (a)
@@ -367,7 +406,11 @@ void gl_render_base::depth_buffer_active(bool a)
 		clear_bits ^= GL_DEPTH_BUFFER_BIT;
 	}
 }
-void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh)
+render_buffer *gl_render_base::make_render_buffer()
+{
+	return new gl_render_buffer();
+}
+void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh, render_buffer *buff)
 {
 	if (!sh || !mesh.buffer)
 		return;

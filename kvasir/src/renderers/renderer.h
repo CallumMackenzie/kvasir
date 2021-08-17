@@ -9,6 +9,7 @@ typedef unsigned int uint;
 #ifndef NO_USE_INCLUDES
 #include "shader.h"
 #include "buffer.h"
+#include "render-buffer.h"
 #include "texture.h"
 #include "mesh.h"
 #include "camera.h"
@@ -48,11 +49,12 @@ namespace kvasir
 		virtual bool is_visible() = 0;
 		virtual bool init(const char *n, int w, int h) = 0;
 		virtual void destroy() = 0;
-		virtual buffer_base *make_buffer() = 0;
-		virtual shader_base *make_shader() = 0;
-		virtual texture_base *make_texture() = 0;
-		virtual material_base *make_material() = 0;
-		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s) = 0;
+		virtual buffer_base *make_buffer();
+		virtual shader_base *make_shader();
+		virtual texture_base *make_texture();
+		virtual material_base *make_material();
+		virtual render_buffer *make_render_buffer();
+		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *buff = nullptr) = 0;
 		virtual void depth_buffer_active(bool b) = 0;
 		virtual type get_type() = 0;
 		virtual keystate get_keystate(key k) = 0;

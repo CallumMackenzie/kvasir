@@ -48,7 +48,7 @@ namespace kvasir
 		shader_base *make_shader();
 		texture_base *make_texture();
 		material_base *make_material();
-		void render_mesh3d(camera3d &, mesh3d &, shader_base *);
+		void render_mesh3d(camera3d &, mesh3d &, shader_base *, render_buffer *);
 		void depth_buffer_active(bool);
 		type get_type();
 		keystate get_keystate(key key);

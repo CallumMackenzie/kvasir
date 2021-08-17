@@ -68,9 +68,24 @@ namespace kvasir
 		void set_slot(size_t slot);
 		void free_texture();
 
-	private:
 		uint texture = GL_NONE;
 		uint slot = GL_TEXTURE0;
+	};
+
+	struct gl_render_buffer : render_buffer
+	{
+		gl_render_buffer();
+		~gl_render_buffer();
+		bool set_size(size_t width, size_t height);
+		void bind();
+		int get_width();
+		int get_height();
+
+private:
+		uint fbo = GL_NONE;
+		uint rbo = GL_NONE;
+		uint width, height = 0;
+		texture_base *tex = nullptr;
 	};
 
 	struct gl_render_base : render_base
@@ -99,9 +114,10 @@ namespace kvasir
 		shader_base *make_shader();
 		texture_base *make_texture();
 		material_base *make_material();
+		render_buffer *make_render_buffer();
 		void destroy();
 		void depth_buffer_active(bool a);
-		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh);
+		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh, render_buffer *buff = nullptr);
 		type get_type();
 		keystate get_keystate(key key);
 

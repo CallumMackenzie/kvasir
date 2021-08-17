@@ -161,7 +161,7 @@ material_base *vulkan_render_base::make_material()
 	throw EX_UNIMPLEMENTED;
 	return nullptr;
 }
-void vulkan_render_base::render_mesh3d(camera3d &, mesh3d &, shader_base *)
+void vulkan_render_base::render_mesh3d(camera3d &, mesh3d &, shader_base *, render_buffer *)
 {
 	throw EX_UNIMPLEMENTED;
 }

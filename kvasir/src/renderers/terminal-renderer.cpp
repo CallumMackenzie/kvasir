@@ -218,7 +218,7 @@ bool terminal_render_base::init(const char *n, int w, int h)
 #endif
 }
 void terminal_render_base::destroy() { s_close = true; }
-void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s)
+void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *rbuff)
 {
 	if (m.buffer)
 		m.buffer->bind_vao();
@@ -252,6 +252,7 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s)
 				(v_pos.y() * v_pos.w() + 0.5f) * height,
 				v_pos.z() * v_pos.w(),
 				v_pos.w());
+			rast_tri.v[j].t = tri.v[j].t;
 
 			rast_tri.v[j].sym = intensity_char((lcd / 2.f) + 0.5f);
 		}

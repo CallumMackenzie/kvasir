@@ -22,7 +22,7 @@ struct kvasir_demo : kvasir_engine
 
 	user_result on_start()
 	{
-		base->set_fullscreen();
+		// base->set_fullscreen();
 		fixed_time.set_fps(5);
 		time.set_fps(144);
 		cam.far = 1000;
@@ -145,7 +145,7 @@ int main(int, char **)
 	{
 		kvasir_init();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75 * 1.5, 32 * 1.5);
+		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
 		// kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
