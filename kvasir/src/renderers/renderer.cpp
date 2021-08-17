@@ -67,3 +67,9 @@ const char *render_base::type_to_string(type t)
 	}
 	return "Unknown";
 }
+void render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *buff)
+{
+}
+void render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff)
+{
+}

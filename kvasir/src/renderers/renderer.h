@@ -54,7 +54,8 @@ namespace kvasir
 		virtual texture_base *make_texture();
 		virtual material_base *make_material();
 		virtual render_buffer *make_render_buffer();
-		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *buff = nullptr) = 0;
+		virtual void render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *buff = nullptr);
+		virtual void render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff = nullptr);
 		virtual void depth_buffer_active(bool b) = 0;
 		virtual type get_type() = 0;
 		virtual keystate get_keystate(key k) = 0;

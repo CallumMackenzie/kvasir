@@ -977,6 +977,10 @@ namespace galg
 		{
 			return mat2{{x, 0}, {0, y}};
 		}
+		FORCE_INLINE static mat2 scale(vec2<T> s)
+		{
+			return scale(s.x(), s.y());
+		}
 	};
 }
 

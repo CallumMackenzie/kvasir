@@ -118,6 +118,7 @@ private:
 		void destroy();
 		void depth_buffer_active(bool a);
 		void render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh, render_buffer *buff = nullptr);
+		void render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff = nullptr);
 		type get_type();
 		keystate get_keystate(key key);
 

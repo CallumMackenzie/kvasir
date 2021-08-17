@@ -76,6 +76,14 @@ namespace kvasir
 
 			vert v[3]; // Vertecies in the triangle
 		};
+
+		buffer_base *buffer = nullptr;
+		material_base *material = nullptr;
+		size_t n_tris = 0;
+
+		mesh2d();
+		~mesh2d();
+		bool make_quad(const vec2f &size, buffer_base *buf);
 	};
 };
 

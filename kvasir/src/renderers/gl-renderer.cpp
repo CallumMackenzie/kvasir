@@ -431,6 +431,23 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh,
 	sh->u_mat4f("rot", m_rotation.m);
 	sh->render((int)mesh.n_tris);
 }
+void gl_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff)
+{
+	if (!s || !m.buffer)
+		return;
+	mat2f m_scale = mat2f::scale(m.scale),
+		  m_rotation = mat2f::rotation(m.rot);
+	s->use();
+	s->u_int1("diff", 0);
+	m.buffer->bind_vao();
+	if (m.material)
+		m.material->bind();
+	s->u_mat2f("transform", (m_scale * m_rotation).m);
+	vec2f pos = m.pos - c.pos;
+	s->u_float2("pos", pos.x(), pos.y());
+	s->u_float1("aspect", c.aspect);
+	s->render((int)m.n_tris);
+}
 render_base::type gl_render_base::get_type()
 {
 	return OPENGL;

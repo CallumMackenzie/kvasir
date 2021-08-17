@@ -444,3 +444,100 @@ float &terminal_render_base::triangle_2d::vert::operator[](size_t i)
 {
 	return this->v[i];
 }
+void terminal_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *rbuff)
+{
+	if (m.buffer)
+		m.buffer->bind_vao();
+	auto buff = terminal_buffer_base::bound;
+	if (!buff)
+		return;
+	auto transform_m = mat2f::scale(m.scale) *
+					   mat2f::rotation(m.rot);
+	auto edge_fn = [](const vec4f &a, const vec4f &b, const vec2f &c)
+	{
+		return ((c.x() - a.x()) * (b.y() - a.y()) - (c.y() - a.y()) * (b.x() - a.x()) >= 0);
+	};
+	auto render_tri_2d = [&transform_m, &m, this, &edge_fn, &c](mesh2d::triangle &tri)
+	{
+		triangle_2d rast_tri;
+		for (size_s j = 0; j < 3; ++j)
+		{
+			vec2f trns = tri.v[j].p;
+			trns = transform_m * trns;
+			trns.x() *= c.aspect;
+			trns -= m.pos;
+			trns += 0.5f;
+			trns *= vec2f(width, height);
+			rast_tri.v[j].v = vec4f(trns.x(), trns.y());
+			rast_tri.v[j].t = tri.v[j].t;
+			rast_tri.v[j].sym = '#';
+		}
+		winding wind = winding::counter_clockwise; // rast_tri.base_wind;
+		auto in_tri = [&rast_tri, &wind, &edge_fn](vec2f &p)
+		{
+			bool inside = true;
+			if (wind == winding::clockwise)
+			{
+				inside &= edge_fn(rast_tri.v[0].v, rast_tri.v[2].v, p);
+				inside &= edge_fn(rast_tri.v[1].v, rast_tri.v[0].v, p);
+				inside &= edge_fn(rast_tri.v[2].v, rast_tri.v[1].v, p);
+			}
+			else
+			{
+				inside &= edge_fn(rast_tri.v[0].v, rast_tri.v[1].v, p);
+				inside &= edge_fn(rast_tri.v[1].v, rast_tri.v[2].v, p);
+				inside &= edge_fn(rast_tri.v[2].v, rast_tri.v[0].v, p);
+			}
+			return inside;
+		};
+		const vec3f barycentric_d0 = vec3f(rast_tri.v[1][1] - rast_tri.v[2][1], rast_tri.v[2][1] - rast_tri.v[0][1], rast_tri.v[0][1] - rast_tri.v[1][1]);
+		const vec3f barycentric_d1 = vec3f(rast_tri.v[2][0] - rast_tri.v[1][0], rast_tri.v[0][0] - rast_tri.v[2][0], rast_tri.v[1][0] - rast_tri.v[0][0]);
+		const vec3f barycentric_0 = vec3f(
+			rast_tri.v[1][0] * rast_tri.v[2][1] - rast_tri.v[2][0] * rast_tri.v[1][1],
+			rast_tri.v[2][0] * rast_tri.v[0][1] - rast_tri.v[0][0] * rast_tri.v[2][1],
+			rast_tri.v[0][0] * rast_tri.v[1][1] - rast_tri.v[1][0] * rast_tri.v[0][1]);
+		triangle_2d::bounding_box box;
+		rast_tri.get_bounding_box(box);
+		if (box.top < 0)
+			box.top = 0;
+		if (box.left < 0)
+			box.left = 0;
+		if (box.right >= width)
+			box.right = width - 1;
+		if (box.bottom >= height)
+			box.bottom = height - 1;
+		for (size_t y = (size_t)box.top; y <= box.bottom; ++y)
+			for (size_t x = (size_t)box.left; x <= box.right; ++x)
+			{
+				vec2f p((float)x, (float)y);
+				if (!in_tri(p))
+					continue;
+				vec4f frag_coord;
+				frag_coord.x() = (float)x + 0.5f;
+				frag_coord.y() = (float)y + 0.5f;
+				const vec3f barycentric = frag_coord[0] * barycentric_d0 + frag_coord[1] * barycentric_d1 + barycentric_0;
+				// if (barycentric[0] < 0 || barycentric[1] < 0 || barycentric[2] < 0)
+				// 	continue;
+				long col = 0x0;
+				if (terminal_texture_base::slots.size() > 0)
+				{
+					terminal_texture_base *tex = terminal_texture_base::slots[0];
+					if (tex)
+					{
+						float coord_u = barycentric.dot(vec3f(rast_tri.v[0].t.x(), rast_tri.v[1].t.x(), rast_tri.v[2].t.x()));
+						float coord_v = barycentric.dot(vec3f(rast_tri.v[0].t.y(), rast_tri.v[1].t.y(), rast_tri.v[2].t.y()));
+						col = tex->texture.pixel_rgb(vec2f(coord_u, coord_v));
+					}
+				}
+				screen[(y * width) + x].colour = col;
+				screen[(y * width) + x].sym = rast_tri.v[0].sym;
+			}
+	};
+	mesh2d::triangle *tris = new mesh2d::triangle[m.n_tris];
+	buff->get_data(tris, 0, m.n_tris * sizeof(mesh2d::triangle));
+	if (!tris)
+		return;
+	for (size_t i = 0; i < m.n_tris; ++i)
+		render_tri_2d(tris[i]);
+	delete[] tris;
+}

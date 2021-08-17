@@ -216,3 +216,39 @@ void group_mesh3d::add_mesh_rot(size_t index, const quaternionf &rot)
 	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
+
+mesh2d::mesh2d() {}
+mesh2d::~mesh2d()
+{
+	DEL_PTR(buffer)
+	DEL_PTR(material)
+}
+
+bool mesh2d::make_quad(const vec2f &size, buffer_base *buf)
+{
+	DEL_PTR(buffer)
+	triangle tris[2];
+	float x = size.x() * 0.5f;
+	float y = size.y() * 0.5f;
+	tris[0].v[0].p = vec2f(-x, -y);
+	tris[0].v[1].p = vec2f(-x, y);
+	tris[0].v[2].p = vec2f(x, y);
+	tris[0].v[0].t = vec2f(0, 1);
+	tris[0].v[1].t = vec2f(0, 0);
+	tris[0].v[2].t = vec2f(1, 0);
+
+	tris[1].v[0].p = vec2f(-x, -y);
+	tris[1].v[1].p = vec2f(x, y);
+	tris[1].v[2].p = vec2f(x, -y);
+	tris[1].v[0].t = vec2f(0, 1);
+	tris[1].v[1].t = vec2f(1, 0);
+	tris[1].v[2].t = vec2f(1, 1);
+
+	n_tris = 2;
+	buffer = buf;
+	buffer->gen_buffer();
+	buffer->set_data(&tris[0], 2 * sizeof(triangle));
+	buffer->attrib_ptr(0, 2, sizeof(triangle::vert));
+	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec2f));
+	return true;
+}
