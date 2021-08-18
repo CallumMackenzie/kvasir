@@ -65,7 +65,7 @@ include_directories(
 )
 
 add_library(
-	kvasir-engine 
+	kvasir-engine
 	./lib/glad/glad.c 
 	./lib/lodepng/lodepng.cpp
 	./src/world/position.cpp
@@ -99,6 +99,8 @@ target_link_libraries(
 	BulletCollision
 	LinearMath
 	Bullet3Common
+	Bullet3Geometry
+	BulletSoftBody
 )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

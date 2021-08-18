@@ -308,7 +308,7 @@ bool gl_render_base::gl_load()
 		return false;
 	glViewport(0, 0, win.get_width(), win.get_height());
 	set_clear_colour(clear_colour);
-	depth_buffer_active(clear_bits & GL_DEPTH_BUFFER_BIT != 0);
+	depth_buffer_active((clear_bits & GL_DEPTH_BUFFER_BIT) != 0);
 	return true;
 }
 void gl_render_base::framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -362,8 +362,8 @@ bool gl_render_buffer::set_size(size_t width_, size_t height_)
 	if (tex)
 		return false;
 	bind();
-	width = width_;
-	height = height_;
+	width = (uint)width_;
+	height = (uint)height_;
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 	tex = new gl_texture_base();

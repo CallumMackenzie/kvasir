@@ -145,8 +145,8 @@ int main(int, char **)
 	{
 		kvasir_init();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
-		// kvasir_engine::result res = kvs.start(render_base::OPENGL);
+		// kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
+		kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}

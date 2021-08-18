@@ -20,7 +20,7 @@ namespace kvasir
 	struct position2d
 	{
 		vec2f pos;
-		float rot;
+		float rot = 0.f;
 		vec2f scale = galg::vec2f(1, 1);
 		vec2f rot_pt;
 	};

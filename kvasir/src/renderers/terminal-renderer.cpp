@@ -156,11 +156,11 @@ void terminal_render_base::swap_buffers()
 	if (render_colour)
 	{
 		const char *lcp = nullptr;
-		for (int y = height - 1; y >= 0; --y)
+		for (int y = (int)height - 1; y >= 0; --y)
 		{
 			for (size_t x = 0; x < width; ++x)
 			{
-				int indx = y * width + x;
+				int indx = y * (int)width + (int)x;
 				const char *nc = get_ansi(screen[indx].colour);
 				if (lcp != nc)
 					printf(lcp = nc);
@@ -171,7 +171,7 @@ void terminal_render_base::swap_buffers()
 		printf("\u001b[0m");
 	}
 	else
-		for (int y = height - 1; y >= 0; --y)
+		for (int y = (int)height - 1; y >= 0; --y)
 		{
 			for (size_t x = 0; x < width; ++x)
 				printf("%c", screen[y * width + x].sym);
@@ -261,9 +261,9 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s,
 			return !(pos.x() >= 0 && pos.y() >= 0 && pos.x() < r && pos.y() < b);
 		};
 		vec4f avg = (rast_tri.v[0].v + rast_tri.v[1].v + rast_tri.v[2].v) / 3.f;
-		if (o_box(width, height, rast_tri.v[0].v.xy()) &&
-			o_box(width, height, rast_tri.v[1].v.xy()) &&
-			o_box(width, height, rast_tri.v[2].v.xy()) &&
+		if (o_box((float)width, (float)height, rast_tri.v[0].v.xy()) &&
+			o_box((float)width, (float)height, rast_tri.v[1].v.xy()) &&
+			o_box((float)width, (float)height, rast_tri.v[2].v.xy()) &&
 			!(avg.x() >= 0 && avg.x() <= width && avg.y() >= 0 && avg.y() <= height))
 			return;
 		winding wind = rast_tri.get_wind();
@@ -298,9 +298,9 @@ void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s,
 		if (box.left < 0)
 			box.left = 0;
 		if (box.right >= width)
-			box.right = width - 1;
+			box.right = (float)width - 1.f;
 		if (box.bottom >= height)
-			box.bottom = height - 1;
+			box.bottom = (float)height - 1.f;
 		for (size_t y = (size_t)box.top; y <= box.bottom; ++y)
 			for (size_t x = (size_t)box.left; x <= box.right; ++x)
 			{
@@ -467,7 +467,7 @@ void terminal_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s,
 			trns.x() *= c.aspect;
 			trns -= m.pos;
 			trns += 0.5f;
-			trns *= vec2f(width, height);
+			trns *= vec2f((float)width, (float)height);
 			rast_tri.v[j].v = vec4f(trns.x(), trns.y());
 			rast_tri.v[j].t = tri.v[j].t;
 			rast_tri.v[j].sym = '#';
@@ -503,9 +503,9 @@ void terminal_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s,
 		if (box.left < 0)
 			box.left = 0;
 		if (box.right >= width)
-			box.right = width - 1;
+			box.right = (float)width - 1.f;
 		if (box.bottom >= height)
-			box.bottom = height - 1;
+			box.bottom = (float)height - 1.f;
 		for (size_t y = (size_t)box.top; y <= box.bottom; ++y)
 			for (size_t x = (size_t)box.left; x <= box.right; ++x)
 			{

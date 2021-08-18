@@ -16,7 +16,7 @@ long texture_image::pixel_rgb(size_t x, size_t y)
 }
 long texture_image::pixel_rgb(const galg::vec2f &uv)
 {
-	return pixel_rgb(uv.x() * w, uv.y() * h);
+	return pixel_rgb((size_t)(uv.x() * (float)w), (size_t)(uv.y() * (float)h));
 }
 
 texture_base::~texture_base()
