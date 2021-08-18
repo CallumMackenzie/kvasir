@@ -7,7 +7,6 @@
 #include <stddef.h>
 #include <unordered_map>
 #ifndef NO_USE_INCLUDES
-#include "lodepng.h"
 #include "galg.h"
 #endif
 

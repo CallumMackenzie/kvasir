@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "lodepng.h"
 
 using namespace kvasir;
 

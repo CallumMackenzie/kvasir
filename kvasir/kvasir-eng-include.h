@@ -26,6 +26,4 @@ using namespace galg;
 #include "./src/utils/common-ops.h"
 #include "./src/kvasir-engine.h"
 
-
-
 #endif
