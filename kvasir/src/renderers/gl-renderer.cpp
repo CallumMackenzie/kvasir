@@ -308,7 +308,7 @@ bool gl_render_base::gl_load()
 		return false;
 	glViewport(0, 0, win.get_width(), win.get_height());
 	set_clear_colour(clear_colour);
-	depth_buffer_active(clear_bits & GL_DEPTH_BUFFER_BIT != 0);
+	depth_buffer_active((clear_bits & GL_DEPTH_BUFFER_BIT) != 0);
 	return true;
 }
 void gl_render_base::framebuffer_size_callback(GLFWwindow *window, int width, int height)

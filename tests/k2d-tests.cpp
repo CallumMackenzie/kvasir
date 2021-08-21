@@ -1,6 +1,6 @@
 #include "kvasir-eng-include.h"
 
-COUNT_MEMORY
+// COUNT_MEMORY
 
 using namespace kvasir;
 
@@ -13,7 +13,7 @@ int main(int, char **)
 	{
 		frame_manager fm;
 		bool running = true;
-		render_base *base = kvasir_engine::get_base(render_base::TERMINAL);
+		render_base *base = kvasir_engine::get_base(render_base::OPENGL);
 		if (base)
 			if (base->init("Kvasir", 72, 48))
 			{
@@ -67,6 +67,6 @@ int main(int, char **)
 				}
 			}
 	}
-	PRINT_MEMORY_SUMMARY
+	// PRINT_MEMORY_SUMMARY
 	return 0;
 }

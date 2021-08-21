@@ -163,7 +163,7 @@ void terminal_render_base::swap_buffers()
 				int indx = y * width + x;
 				const char *nc = get_ansi(screen[indx].colour);
 				if (lcp != nc)
-					printf(lcp = nc);
+					printf("%s", (lcp = nc));
 				printf("%c", screen[indx].sym);
 			}
 			printf("\n");
@@ -348,7 +348,7 @@ void terminal_render_base::depth_buffer_active(bool b)
 	if (b == use_depth_buffer)
 		return;
 	DEL_ARR_PTR(depth_buffer);
-	if (use_depth_buffer = b)
+	if ((bool)(use_depth_buffer = b))
 		depth_buffer = new float[width * height];
 }
 buffer_base *terminal_render_base::make_buffer()

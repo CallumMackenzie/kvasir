@@ -7,7 +7,7 @@
 
 #define FORCE_INLINE inline
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 typedef unsigned int uint;
 #endif
 
@@ -422,12 +422,30 @@ namespace galg
 				(x() * v2.y()) - (y() * v2.x()));
 		}
 
-		void set(T x, T y = y(), T z = z(), T w = w())
+		void set(T x, T y, T z, T w)
 		{
 			x() = x;
 			y() = y;
 			z() = z;
 			w() = w;
+		}
+
+		void set(T x, T y, T z)
+		{
+			x() = x;
+			y() = y;
+			z() = z;
+		}
+
+		void set(T x, T y)
+		{
+			x() = x;
+			y() = y;
+		}
+
+		void set(vec4 v)
+		{
+			set(v.x(), v.y(), v.z(), v.w());
 		}
 
 		ALGEBRAIC_VEC(vec4, 4)
