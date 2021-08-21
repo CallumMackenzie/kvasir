@@ -1,13 +1,19 @@
 
-# Vulkan needs to be installed
-# The BULLET_HOME variable needs to be set
+# Config
+set(BUILD_VULKAN ON)
+set(BUILD_FREETYPE OFF)
+set(BUILD_BULLET ON)
+set(BUILD_TERMINAL ON)
+set(BUILD_DIRECTX OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# CMake general
 cmake_minimum_required(VERSION 3.0.0)
 project(kvasir-engine VERSION 0.1.0)
-
 include(CTest)
 enable_testing()
 
+# Use c++ 17
 if(CMAKE_VERSION VERSION_LESS "3.1")
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17")
@@ -16,29 +22,34 @@ else()
 	set(CMAKE_CXX_STANDARD 17)
 endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
+# GLFW config
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# Windows linking
 if(WIN32)
-	set(FREETYPE_INCLUDE_DIRS ./lib/freetype/include)
-	set(FREETYPE_LIBRARY freetype)
-	set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK/}Lib)
-	set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
+	if (BUILD_FREETYPE)
+		set(FREETYPE_INCLUDE_DIRS ./lib/freetype/include)
+		set(FREETYPE_LIBRARY freetype)
+	endif()
+	if (BUILD_VULKAN)
+		set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK/}Lib)
+		set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
+	endif()
 endif()
 
-if(WIN32)
-	set(BULLET_ROOT E:/bullet3)
-endif()
-
-# set(BUILD_BULLET3 1)
+# Dependencies
 add_subdirectory(./lib/glfw glfw)
 add_subdirectory(./lib/bullet3 bullet3)
-find_package(Freetype REQUIRED)
-find_package(Vulkan REQUIRED FATAL_ERROR)
+if (BUILD_FREETYPE)
+	find_package(Freetype REQUIRED FATAL_ERROR)
+endif()
+if (BUILD_VULKAN)
+	find_package(Vulkan REQUIRED FATAL_ERROR)
+endif()
 
+# Link dirs
 link_directories(
 	./lib/glfw
 	./lib/bullet3
@@ -47,6 +58,7 @@ link_directories(
 	${Vulkan_LIBRARY}
 )
 
+# Include dirs
 include_directories(
 	./lib/glad/include/glad
 	./lib/glad/include/KHR
@@ -64,6 +76,7 @@ include_directories(
 	./lib/bullet3/src
 )
 
+# Files
 add_library(
 	kvasir-engine 
 	./lib/glad/glad.c 
@@ -89,10 +102,11 @@ add_library(
 	./src/utils/common-ops.cpp
 	./src/kvasir-engine.cpp 
 )
+
+# Link libraries
 target_link_libraries(
 	kvasir-engine 
 	glfw  
-	${Vulkan_LIBRARIES} 
 	BulletInverseDynamics
 	BulletSoftBody
 	BulletDynamics
@@ -100,7 +114,14 @@ target_link_libraries(
 	LinearMath
 	Bullet3Common
 )
+if (BUILD_VULKAN)
+	target_link_libraries(
+		kvasir-engine
+		${Vulkan_LIBRARIES}
+	)
+endif()
 
+# General CMake
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
