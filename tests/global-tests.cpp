@@ -9,9 +9,6 @@ COUNT_MEMORY
 
 using namespace kvasir;
 
-const char *vshader = "#version 330 core\nlayout(location=0) in vec3 v_pos;layout (location = 1) in vec2 v_uv;layout (location = 2) in vec3 v_normal;out vec3 normal;out vec2 uv;uniform mat4 transform;uniform mat4 rot;uniform mat4 view;uniform mat4 projection;void main(){gl_Position=projection*view*transform*vec4(v_pos, 1.0);normal=(rot*vec4(v_normal, 1.0)).xyz;uv=v_uv;}\n";
-const char *fshader = "#version 330 core\nlayout(location=0) out vec4 col;in vec3 normal;in vec2 uv;uniform sampler2D diff;void main(){float d=(dot(normal, normalize(vec3(1.0, 1.5, 0.2))) + 1.0) / 2.0;col=vec4(texture(diff, uv).rgb * d, 1.0);}\n";
-
 struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
@@ -35,7 +32,7 @@ struct kvasir_demo : kvasir_engine
 		if (!p3d)
 			return user_result("Physics was null.");
 
-		if (!ground.load_from_obj_data(data::cube_obj, base->make_buffer()))
+		if (!ground.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
 		ground.material = make_material(base, 0xffffff);
@@ -47,17 +44,17 @@ struct kvasir_demo : kvasir_engine
 		cam.pos = cam_mesh.pos;
 		p3d->add_mesh_sphere_hitbox(cam_mesh, 1.f, physics3d::dynamic_props(10));
 
-		if (!ramp.load_from_obj_data(data::rect_prism_obj, base->make_buffer()))
+		if (!ramp.load_from_obj_data(data::objects3d::rect_prism_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ramp.pos.z() = 30;
 		ramp.material = make_material(base, 0x80bf80);
-		ramp.vertex_scale(vec3f(3, 3, 3));
+		ramp.vertex_scale(vec3f(10, 9, 10));
 		p3d->add_mesh(ramp, true, physics3d::static_props());
 
 		for (size_t i = 0; i < 20; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj_data(data::cube_obj, base->make_buffer()))
+			if (!ms->load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 				return user_result("Ground failed loading.");
 			ms->pos = vec3f((float)(i % 2) * 0.4f, (float)i * 3.f + 2, (float)(i % 3) * 0.4f);
 			ms->material = make_material(base, 0xfa4c3a);
@@ -66,7 +63,7 @@ struct kvasir_demo : kvasir_engine
 		}
 
 		shader = base->make_shader();
-		const char *s[2]{vshader, fshader};
+		const char *s[2] GL_SHADER_ARR(diffuse3d);
 		if (!shader->compile(s, 2))
 			return user_result("Shader failed compiling");
 

@@ -1,11 +1,8 @@
 #include "kvasir-eng-include.h"
 
-// COUNT_MEMORY
+COUNT_MEMORY
 
 using namespace kvasir;
-
-const char *vshader = "#version 330 core\nlayout(location=0) in vec2 vpos;layout(location=1) in vec2 vuv;uniform float aspect;uniform vec2 pos;uniform mat2 transform;out vec2 uv; void main() {uv = vuv;vec4 tx=vec4(((vpos * transform) + pos), 0.0, 1.0);tx.x *= aspect;gl_Position=tx;}\n";
-const char *fshader = "#version 330 core\nlayout(location=0) out vec4 col; in vec2 uv; uniform sampler2D diff;void main() {col=texture(diff, uv).rgba;}\n";
 
 int main(int, char **)
 {
@@ -24,7 +21,7 @@ int main(int, char **)
 				base->set_clear_colour(0xafafaf);
 
 				shader_base *shader = base->make_shader();
-				const char *s[2]{vshader, fshader};
+				const char *s[2] GL_SHADER_ARR(diffuse2d);
 				if (!shader->compile(s, 2))
 					return -1;
 
@@ -71,6 +68,6 @@ int main(int, char **)
 				////////////////
 			}
 	}
-	// PRINT_MEMORY_SUMMARY
+	PRINT_MEMORY_SUMMARY
 	return 0;
 }
