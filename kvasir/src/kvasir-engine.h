@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #ifndef NO_USE_INCLUDES
+#include "config.h"
 #include "renderer.h"
 #include "physics.h"
 #include "bullet-physics3d.h"
@@ -18,14 +19,15 @@
 namespace kvasir
 {
 
-	bool kvasir_init();
+	KV_EXPORT bool kvasir_init();
+	KV_EXPORT void kvasir_destroy();
 
-	struct linkverify
+	struct KV_EXPORT linkverify
 	{
 		void verify_link();
 	};
 
-	struct kvasir_engine
+	struct KV_EXPORT kvasir_engine
 	{
 		frame_manager time;
 		frame_manager fixed_time;
@@ -38,7 +40,7 @@ namespace kvasir
 			ON_START_RET_FALSE = 4
 		};
 
-		struct user_result
+		struct KV_EXPORT user_result
 		{
 			user_result(const char *m, bool f = true);
 			const char *msg = nullptr;

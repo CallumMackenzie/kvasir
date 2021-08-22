@@ -3,11 +3,12 @@
 
 #include <string.h>
 #ifndef NO_USE_INCLUDES
+#include "config.h"
 #endif
 
 namespace kvasir
 {
-	struct render_buffer
+	struct KV_EXPORT render_buffer
 	{
 		virtual ~render_buffer() = 0;
 		virtual bool set_size(size_t width, size_t height) = 0;

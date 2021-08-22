@@ -35,3 +35,4 @@ texture_base *&material_base::operator[](size_t index)
 {
 	return texs[index];
 }
+std::vector<texture_base *> &material_base::get_texs() { return texs; }

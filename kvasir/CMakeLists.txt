@@ -1,14 +1,16 @@
 
 # Config
-set(BUILD_VULKAN ON)
+set(BUILD_OPENGL ON)
+set(BUILD_VULKAN OFF)
 set(BUILD_FREETYPE OFF)
 set(BUILD_BULLET ON)
-set(BUILD_TERMINAL ON)
+set(BUILD_TERMINAL OFF)
 set(BUILD_DIRECTX OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(BUILD_SHARED_LIBRARY OFF)
 
 # CMake general
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.1.2)
 project(kvasir-engine VERSION 0.1.0)
 include(CTest)
 enable_testing()
@@ -34,14 +36,33 @@ if(WIN32)
 		set(FREETYPE_LIBRARY freetype)
 	endif()
 	if (BUILD_VULKAN)
-		set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK/}Lib)
+		set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK}/Lib)
 		set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
 	endif()
 endif()
 
+# Preprocessor definitions
+if(BUILD_VULKAN)
+	add_definitions(BUILD_VULKAN=1)
+endif()
+if(BUILD_BULLET)
+	add_definitions(-DBUILD_BULLET=1)
+endif()
+if(BUILD_TERMINAL)
+	add_definitions(-DBUILD_TERMINAL=1)
+endif()
+if(BUILD_OPENGL)
+	add_definitions(-DBUILD_OPENGL=1)
+endif()
+if (BUILD_DIRECTX)
+	add_definitions(-DBUILD_DIRECTX=1)
+endif()
+
 # Dependencies
 add_subdirectory(./lib/glfw glfw)
-add_subdirectory(./lib/bullet3 bullet3)
+if(BUILD_BULLET)
+	add_subdirectory(./lib/bullet3 bullet3)
+endif()
 if (BUILD_FREETYPE)
 	find_package(Freetype REQUIRED FATAL_ERROR)
 endif()
@@ -52,11 +73,23 @@ endif()
 # Link dirs
 link_directories(
 	./lib/glfw
-	./lib/bullet3
-	./lib/freetype
 	$ENV{LD_LIBRARY_PATH}
-	${Vulkan_LIBRARY}
 )
+if (BUILD_VULKAN)
+	link_directories(
+		${Vulkan_LIBRARY}
+	)
+endif()
+if (BUILD_BULLET)
+	link_directories(
+		./lib/bullet3
+	)
+endif()
+if(BUILD_FREETYPE)
+	link_directories(
+		./lib/freetype
+	)
+endif()
 
 # Include dirs
 include_directories(
@@ -71,14 +104,34 @@ include_directories(
 	./src 
 	./src/utils 
 	./src/physics
-	${FREETYPE_INCLUDE_DIRS}
-	${Vulkan_INCLUDE_DIRS}
-	./lib/bullet3/src
 )
+if(BUILD_BULLET)
+	include_directories(
+		./lib/bullet3/src
+	)
+endif()
+if (BUILD_VULKAN)
+	include_directories(
+		${Vulkan_INCLUDE_DIRS}
+	)
+endif()
+if (BUILD_FREETYPE)
+	include_directories(
+		${FREETYPE_INCLUDE_DIRS}
+	)
+endif()
 
 # Files
+set(KV_LIB_TYPE)
+if(BUILD_SHARED_LIBRARY)
+	set(KV_LIB_TYPE SHARED)
+	add_definitions(-DBUILD_SHARED=1)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+else()
+	add_definitions(-DBUILD_STATIC=1)
+endif()
 add_library(
-	kvasir-engine
+	kvasir-engine ${KV_LIB_TYPE}
 	./lib/glad/glad.c 
 	./lib/lodepng/lodepng.cpp
 	./src/world/position.cpp
@@ -106,20 +159,25 @@ add_library(
 # Link libraries
 target_link_libraries(
 	kvasir-engine 
-	glfw  
-	BulletInverseDynamics
-	BulletSoftBody
-	BulletDynamics
-	BulletCollision
-	LinearMath
-	Bullet3Common
-	Bullet3Geometry
-	BulletSoftBody
+	glfw 
 )
 if (BUILD_VULKAN)
 	target_link_libraries(
 		kvasir-engine
 		${Vulkan_LIBRARIES}
+	)
+endif()
+if(BUILD_BULLET)
+	target_link_libraries(
+		kvasir-engine
+		BulletInverseDynamics
+		BulletSoftBody
+		BulletDynamics
+		BulletCollision
+		LinearMath
+		Bullet3Common
+		Bullet3Geometry
+		BulletSoftBody
 	)
 endif()
 

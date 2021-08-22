@@ -1,6 +1,8 @@
 #ifndef KVASIR_GL_RENDERER_H
 #define KVASIR_GL_RENDERER_H 1
 
+#ifdef BUILD_OPENGL
+
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
 #include "khrplatform.h"
@@ -81,7 +83,7 @@ namespace kvasir
 		int get_width();
 		int get_height();
 
-private:
+	private:
 		uint fbo = GL_NONE;
 		uint rbo = GL_NONE;
 		uint width, height = 0;
@@ -136,4 +138,5 @@ private:
 	};
 };
 
+#endif
 #endif

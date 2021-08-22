@@ -1,5 +1,7 @@
 #include "bullet-physics3d.h"
 
+#ifdef BUILD_BULLET
+
 using namespace galg;
 using namespace kvasir;
 
@@ -268,3 +270,5 @@ float bullet_physics3d::get_mass(const mesh3d &mesh)
 {
 	return (float)coll_shapes[mesh.tag].body->getMass();
 }
+
+#endif

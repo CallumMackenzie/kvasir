@@ -2,13 +2,14 @@
 #define KVASIR_SHADER__H_ 1
 
 #ifndef NO_USE_INCLUDES
+#include "config.h"
 #include "material.h"
 #endif
 
 namespace kvasir
 {
 
-	struct shader_base
+	struct KV_EXPORT shader_base
 	{
 		virtual ~shader_base() = 0;
 		virtual void use() = 0;

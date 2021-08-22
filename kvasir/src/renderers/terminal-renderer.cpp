@@ -1,5 +1,7 @@
 #include "terminal-renderer.h"
 
+#ifdef BUILD_TERMINAL
+
 using namespace kvasir;
 
 terminal_buffer_base::~terminal_buffer_base()
@@ -541,3 +543,5 @@ void terminal_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s,
 		render_tri_2d(tris[i]);
 	delete[] tris;
 }
+
+#endif

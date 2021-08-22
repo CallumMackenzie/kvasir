@@ -1,7 +1,6 @@
-
-// Counts allocations into a variable called 'allocs'.
 #ifndef MEMORY_AID_H_
 #define MEMORY_AID_H_ 1
+
 #define COUNT_ALLOCS                \
 	size_t allocs = 0;              \
 	void *operator new(size_t size) \

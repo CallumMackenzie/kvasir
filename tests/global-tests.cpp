@@ -29,6 +29,8 @@ struct kvasir_demo : kvasir_engine
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 		p3d = default_physics3d();
+		if (!p3d)
+			return user_result("Physics was null.");
 
 		if (!ground.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
 			return user_result("Ground failed loading.");
@@ -149,6 +151,7 @@ int main(int, char **)
 		kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
+		kvasir_destroy();
 	}
 
 	PRINT_MEMORY_SUMMARY

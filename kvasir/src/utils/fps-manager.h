@@ -2,10 +2,13 @@
 #define KVASIR_TIME_H_ 1
 
 #include <time.h>
+#ifndef NO_USE_INCLUDES
+#include "config.h"
+#endif
 
 namespace kvasir
 {
-	struct frame_manager
+	struct KV_EXPORT frame_manager
 	{
 		bool next_frame_ready();
 		void set_fps(double fps);

@@ -1,6 +1,8 @@
 #ifndef KVASIR_RENDERER_H_
 #define KVASIR_RENDERER_H_ 1
 
+#ifdef BUILD_TERMINAL
+
 #include <stdio.h>
 #include <vector>
 #include <unordered_map>
@@ -178,4 +180,5 @@ namespace kvasir
 	};
 }
 
+#endif
 #endif

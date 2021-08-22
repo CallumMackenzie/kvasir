@@ -252,3 +252,5 @@ bool mesh2d::make_quad(const vec2f &size, buffer_base *buf)
 	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec2f));
 	return true;
 }
+std::unordered_map<std::string, std::vector<mesh3d::triangle>> &mesh3d::get_geo_val_cache() { return geo_val_cache; }
+std::vector<size_t> &group_mesh3d::get_total_tris() { return t_n_tris; }

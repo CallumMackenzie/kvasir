@@ -6,6 +6,7 @@
 #define GLFW_INCLUDE_NONE
 #include "glfw3.h"
 #undef GLFW_INCLUDE_NONE
+#include "config.h"
 #endif
 
 namespace kvasir
@@ -137,12 +138,12 @@ namespace kvasir
 		Stateless = NoPress,
 		NoAction = NoPress
 	};
-	struct key_event
+	struct KV_EXPORT key_event
 	{
 		key k = Unknown;
 		keystate action = NoPress;
 	};
-	struct input
+	struct KV_EXPORT input
 	{
 		static key get_glfw_key(int glk);
 		static keystate get_glfw_kst(int kst);

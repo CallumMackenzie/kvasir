@@ -624,12 +624,12 @@ namespace galg
 			T theta = w.len();
 			if (theta > 0.0001)
 			{
-				T s = (T)sinf((float)theta / 2.0);
+				T s = (T)sinf((float)((double)theta / 2.0));
 				vec3<T> W(w / theta * s);
 				this->v[0] = W[0];
 				this->v[1] = W[1];
 				this->v[2] = W[2];
-				this->v[3] = cos(theta / 2.0);
+				this->v[3] = (T)cosf((float)theta / 2.f);
 			}
 			else
 			{
@@ -661,7 +661,7 @@ namespace galg
 		vec3<T> euler() const
 		{
 			vec3<T> euler;
-			const static double PI_OVER_2 = M_PI * 0.5;
+			const static double PI_OVER_2 = 3.1415 * 0.5;
 			const static double EPSILON = 1e-10;
 			T sqw, sqx, sqy, sqz;
 
@@ -684,7 +684,7 @@ namespace galg
 									 2 * this->v[0] * this->v[2] + 2 * this->v[1] * this->v[3]);
 				euler[0] = 0;
 				if (euler[1] < 0)
-					euler[2] = M_PI - euler[2];
+					euler[2] = 3.14159265f - euler[2];
 			}
 			return euler;
 		}

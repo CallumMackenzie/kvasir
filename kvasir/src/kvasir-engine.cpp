@@ -3,8 +3,12 @@
 
 bool kvasir::kvasir_init()
 {
-	mesh3d::use_geo_val_cache = true;
+	texture_base::init();
 	return true;
+}
+void kvasir::kvasir_destroy()
+{
+	texture_base::destroy();
 }
 
 using namespace kvasir;
@@ -25,22 +29,43 @@ kvasir_engine::user_result kvasir_engine::user_result::ok()
 kvasir_engine::~kvasir_engine()
 {
 	DEL_PTR(base);
-	mesh3d::geo_val_cache.clear();
-	texture_base::image_cache.clear();
 }
 render_base *kvasir_engine::get_base(render_base::type b)
 {
 	switch (b)
 	{
 	case render_base::OPENGL:
+#ifdef BUILD_OPENGL
 		return new gl_render_base();
+#else
+		std::cerr << "This Kvasir version was not compiled with OpenGL rendering." << std::endl;
+		break;
+#endif
 	case render_base::VULKAN:
+#ifdef BUILD_VULKAN
 		return new vulkan_render_base();
+#else
+		std::cerr << "This Kvasir version was not compiled with Vulkan rendering." << std::endl;
+		break;
+#endif
 	case render_base::TERMINAL:
+#ifdef BUILD_TERMINAL
 		return new terminal_render_base();
-	default:
+#else
+		std::cerr << "This Kvasir version was not compiled with Terminal rendering." << std::endl;
+		break;
+#endif
+	case render_base::DIRECTX:
+#ifdef BUILD_DIRECTX
 		return nullptr;
+#else
+		std::cerr << "This Kvasir version was not compiled with DirectX rendering." << std::endl;
+		break;
+#endif
+	default:
+		break;
 	}
+	return nullptr;
 }
 kvasir_engine::result kvasir_engine::start_with_base()
 {
@@ -104,5 +129,9 @@ kvasir_engine::result kvasir_engine::start(std::vector<render_base::type> t_base
 
 physics3d *kvasir_engine::default_physics3d()
 {
+#ifdef BUILD_BULLET
 	return new bullet_physics3d();
+#else
+	return nullptr;
+#endif
 }

@@ -7,17 +7,22 @@
 #include <sstream>
 #include <string>
 #ifndef NO_USE_INCLUDES
+#include "config.h"
+#include "galg-dllexport.h"
 #include "position.h"
 #include "buffer.h"
 #include "material.h"
 #include "memory-aid.h"
 #endif
 
+template class KV_EXPORT std::vector<size_t>;
+
 using namespace galg;
+
 namespace kvasir
 {
 
-	struct mesh3d : position3d
+	struct KV_EXPORT mesh3d : position3d
 	{
 		struct triangle
 		{
@@ -46,25 +51,29 @@ namespace kvasir
 		void vertex_rot(const quaternionf &rot);
 		void vertex_scale(const vec3f &scale);
 
+		static std::unordered_map<std::string, std::vector<triangle>> &get_geo_val_cache();
+
 		inline static bool use_geo_val_cache = true;
-		inline static std::unordered_map<std::string, std::vector<triangle>> geo_val_cache;
 		static std::vector<triangle> obj_to_tri_array(const char *file);
 		static std::vector<triangle> check_val_cache(const std::string &file);
+		inline static std::unordered_map<std::string, std::vector<triangle>> geo_val_cache;
 
 	private:
 		inline static size_t current_tag = 0;
 	};
 
-	struct group_mesh3d : mesh3d
+	struct KV_EXPORT group_mesh3d : mesh3d
 	{
-		std::vector<size_t> t_n_tris;
 		bool load_from_objs(std::vector<const char *> files, buffer_base *buf);
 		void add_mesh_pos(size_t index, const vec3f &pos);
 		void add_mesh_scale(size_t index, const vec3f &scale);
 		void add_mesh_rot(size_t index, const quaternionf &rot);
+		std::vector<size_t> &get_total_tris();
+
+		std::vector<size_t> t_n_tris;
 	};
 
-	struct mesh2d : position2d
+	struct KV_EXPORT mesh2d : position2d
 	{
 		struct triangle
 		{

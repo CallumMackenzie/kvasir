@@ -11,11 +11,11 @@ include_directories(
 	./kvasir
 )
 
-# GLOBAL, TERM, K2D
 set(BUILD_TESTS ON)
-set(GLOBAL_TEST OFF)
+set(GLOBAL_TEST ON)
 set(TERM_TEST OFF)
-set(K2D_TEST ON)
+set(K2D_TEST OFF)
+set(SHARED_LIB_TEST OFF)
 
 if (BUILD_TESTS)
 
@@ -32,6 +32,11 @@ endif()
 if (K2D_TEST)
 add_executable(k2d-test ./tests/k2d-tests.cpp)
 target_link_libraries(k2d-test kvasir-engine)
+endif()
+
+if(SHARED_LIB_TEST)
+add_executable(shared-lib-test ./tests/shared-lib-test.cpp)
+target_link_libraries(shared-lib-test kvasir-engine)
 endif()
 
 endif()

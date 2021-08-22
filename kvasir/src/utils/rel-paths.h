@@ -1,6 +1,10 @@
 #ifndef REL_PATHS_H_
 #define REL_PATHS_H_ 1
 
+#ifndef NO_USE_INCLUDES
+#include "config.h"
+#endif
+
 #include <string>
 #ifdef _WIN32
 std::string R_PATH(const char *str)

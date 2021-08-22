@@ -2,6 +2,7 @@
 #define KVASIR_PHYSICS_H_ 1
 
 #ifndef NO_USE_INCLUDES
+#include "config.h"
 #include "galg.h"
 #include "mesh.h"
 #endif
@@ -11,7 +12,7 @@ using namespace galg;
 namespace kvasir
 {
 
-	struct physics3d
+	struct KV_EXPORT physics3d
 	{
 		struct phys_props
 		{
@@ -49,7 +50,7 @@ namespace kvasir
 		virtual float get_mass(const mesh3d &mesh) = 0;
 	};
 
-	struct physics2d
+	struct KV_EXPORT physics2d
 	{
 		// TODO
 	};

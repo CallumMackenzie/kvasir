@@ -1,6 +1,8 @@
 #ifndef KVASIR_PHYSICS_3D_H
 #define KVASIR_PHYSICS_3D_H 1
 
+#ifdef BUILD_BULLET
+
 #include <unordered_map>
 #ifndef NO_USE_INCLUDES
 #include "exception.h"
@@ -34,12 +36,12 @@ namespace kvasir
 		void set_transform(const mesh3d &mesh, const position3d &trns);
 		void add_central_force(const mesh3d &mesh, vec3f force);
 		void activate(const mesh3d &mesh);
-		mesh3d *raycast_first_hit(vec3f from, vec3f to) ;
+		mesh3d *raycast_first_hit(vec3f from, vec3f to);
 		void set_rotation_axes(const mesh3d &mesh, vec3f axes);
 		void set_position_axes(const mesh3d &mesh, vec3f axes);
 		vec3f get_velocity(const mesh3d &mesh);
 		vec3f get_angular_velocity(const mesh3d &mesh);
-		void set_velocity(const mesh3d &mesh, const vec3f &lv) ;
+		void set_velocity(const mesh3d &mesh, const vec3f &lv);
 		void set_angular_velocity(const mesh3d &mesh, const vec3f &lv);
 		float get_mass(const mesh3d &mesh);
 
@@ -65,11 +67,12 @@ namespace kvasir
 		btVector3 calculate_intertia(btCollisionShape *shape, float mass);
 		btRigidBody *get_rigidbody(mesh3d &mesh, const phys_props &props, btCollisionShape *shape);
 
-			static btVector3 btV3(const vec3f &v);
+		static btVector3 btV3(const vec3f &v);
 		static vec3f btV3(const btVector3 &v);
 		static quaternionf btq_to_gq(const btQuaternion &q);
 		static btQuaternion gq_to_btq(const quaternionf &v);
 	};
 }
 
+#endif
 #endif

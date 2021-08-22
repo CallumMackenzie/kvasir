@@ -3,9 +3,11 @@
 
 #define NO_USE_INCLUDES 1
 
+#include "./src/config.h"
 #include <stddef.h>
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"
+#include "./src/utils/galg-dllexport.h"
 #include "./src/utils/memory-aid.h"
 #include "./src/utils/rel-paths.h"
 

@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "lodepng.h"
+#include "memory-aid.h"
 
 using namespace kvasir;
 
@@ -70,4 +71,14 @@ void texture_base::make_png(const char *path, size_t slot)
 void texture_base::make_colour(long colour, size_t slot)
 {
 	make(colour_image(colour), slot);
+}
+std::vector<unsigned char> &texture_image::get_pixels() { return pixels; }
+
+void texture_base::init()
+{
+	// image_cache = new std::unordered_map<std::string, texture_image>();
+}
+void texture_base::destroy()
+{
+	// DEL_PTR(image_cache)
 }

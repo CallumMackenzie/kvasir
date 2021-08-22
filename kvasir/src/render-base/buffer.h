@@ -2,11 +2,14 @@
 #define KVASIR_BUFFER_H_ 1
 
 #include <stddef.h>
+#ifndef NO_USE_INCLUDES
+#include "config.h"
+#endif
 
 namespace kvasir
 {
 
-	struct buffer_base
+	struct KV_EXPORT buffer_base
 	{
 		virtual ~buffer_base() = 0;
 		virtual void gen_buffer() = 0;

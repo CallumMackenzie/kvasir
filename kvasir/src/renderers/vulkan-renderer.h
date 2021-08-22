@@ -1,6 +1,8 @@
 #ifndef KVASIR_VULKAN_RENDERER_H_
 #define KVASIR_VULKAN_RENDERER_H_ 1
 
+#ifdef BUILD_VULKAN
+
 #define GLFW_INCLUDE_VULKAN 1
 
 #ifndef NO_USE_INCLUDES
@@ -74,4 +76,5 @@ namespace kvasir
 	};
 }
 
+#endif
 #endif

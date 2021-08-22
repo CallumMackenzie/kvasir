@@ -1,5 +1,7 @@
 #include "vulkan-renderer.h"
 
+#ifdef BUILD_VULKAN
+
 using namespace kvasir;
 
 vulkan_render_base::~vulkan_render_base()
@@ -177,3 +179,4 @@ keystate vulkan_render_base::get_keystate(key key)
 {
 	return input::get_glfw_kst(win.get_keystate(input::get_key(key)));
 }
+#endif

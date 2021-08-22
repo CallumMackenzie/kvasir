@@ -1,5 +1,7 @@
 #include "gl-renderer.h"
 
+#ifdef BUILD_OPENGL
+
 using namespace kvasir;
 
 gl_shader_base::~gl_shader_base()
@@ -192,7 +194,7 @@ void gl_texture_base::set_texture(const texture_image &img)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
 	if (img.pixels.size() <= 0)
 	{
-		std::cerr << "texture_image has no pixels." << std::endl;
+		std::cerr << "Error: texture_image has no pixels." << std::endl;
 		return;
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)img.w, (int)img.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &img.pixels[0]);
@@ -459,3 +461,5 @@ keystate gl_render_base::get_keystate(key key)
 {
 	return input::get_glfw_kst(win.get_keystate(input::get_key(key)));
 }
+
+#endif

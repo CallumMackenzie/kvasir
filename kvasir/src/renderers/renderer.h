@@ -7,6 +7,7 @@ typedef unsigned int uint;
 
 #include <memory>
 #ifndef NO_USE_INCLUDES
+#include "config.h"
 #include "shader.h"
 #include "buffer.h"
 #include "render-buffer.h"
@@ -18,7 +19,7 @@ typedef unsigned int uint;
 
 namespace kvasir
 {
-	struct render_base
+	struct KV_EXPORT render_base
 	{
 		enum type
 		{
