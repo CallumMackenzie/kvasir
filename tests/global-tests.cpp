@@ -1,5 +1,5 @@
 
-#define KVASIR_DLL 1
+// #define KVASIR_DLL 1
 
 #include <iostream>
 #include <cstdlib>
@@ -21,8 +21,6 @@ struct kvasir_demo : kvasir_engine
 
 	user_result on_start()
 	{
-		// base->set_fullscreen();
-
 		fixed_time.set_fps(5);
 		time.set_fps(144);
 		cam.far = 1000;
