@@ -12,7 +12,6 @@ using namespace kvasir;
 struct kvasir_demo : kvasir_engine
 {
 	camera3d cam;
-	mesh3d cam_mesh;
 	mesh3d ground;
 	mesh3d ramp;
 	std::vector<mesh3d *> mshs;
@@ -28,7 +27,7 @@ struct kvasir_demo : kvasir_engine
 		base->depth_buffer_active(true);
 		p3d = default_physics3d();
 		if (!p3d)
-			return user_result("Physics was null.");
+			return user_result("Physics was nullptr.");
 
 		if (!ground.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
@@ -37,10 +36,6 @@ struct kvasir_demo : kvasir_engine
 		vec3f scale(300.f, 2.f, 300.f);
 		ground.vertex_scale(scale);
 		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
-
-		cam_mesh.pos.z() = -7;
-		cam.pos = cam_mesh.pos;
-		p3d->add_mesh_sphere_hitbox(cam_mesh, 1.f, physics3d::dynamic_props(10));
 
 		if (!ramp.load_from_obj_data(data::objects3d::rect_prism_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
@@ -69,32 +64,6 @@ struct kvasir_demo : kvasir_engine
 	}
 	void on_update()
 	{
-		mesh3d *first_hit = p3d->raycast_first_hit(cam_mesh.pos, cam_mesh.pos - vec3f(0, 1.01f, 0));
-		if (first_hit)
-		{
-			if (base->key_pressed(Space))
-				p3d->add_central_force(cam_mesh, vec3f(0, 8 * p3d->get_mass(cam_mesh), 0));
-			vec3f clv = cam.look_vector().xyz().normalized();
-			vec3f forward;
-			vec3f up = vec3f(0.f, 1.f, 0.f);
-			if (base->key_pressed(KeyW))
-				forward += clv;
-			if (base->key_pressed(KeyS))
-				forward -= clv;
-			if (base->key_pressed(KeyD))
-				forward -= clv.cross(up);
-			if (base->key_pressed(KeyA))
-				forward += clv.cross(up);
-			if (base->key_pressed(KeyQ))
-				forward.y() += 1.f;
-			if (base->key_pressed(KeyE))
-				forward.y() -= 1.f;
-			vec3f vel = p3d->get_velocity(cam_mesh);
-			if (vel.len() > 34.f)
-				p3d->set_velocity(cam_mesh, vel.normalized() * 34.f);
-			p3d->add_central_force(cam_mesh, forward.normalize() * p3d->get_mass(cam_mesh));
-		}
-
 		for (size_t i = 0; i < mshs.size(); ++i)
 			if ((mshs[i]->pos - cam.pos).len() <= 4)
 				p3d->activate(*mshs[i]);
@@ -104,9 +73,7 @@ struct kvasir_demo : kvasir_engine
 
 		p3d->step(time.delta());
 
-		cam_debug_rotation(base, cam, time.delta());
-		cam_mesh.pos = p3d->get_position(cam_mesh);
-		cam.pos = cam_mesh.pos;
+		cam_debug_controls(base, cam, time.delta());
 		for (size_t i = 0; i < mshs.size(); ++i)
 		{
 			mshs[i]->pos = p3d->get_position(*mshs[i]);
@@ -122,7 +89,7 @@ struct kvasir_demo : kvasir_engine
 		std::cout << "FPS: " << (1.0 / time.delta_d()) << std::endl;
 
 		if (base->key_pressed(Escape))
-			base->should_close();
+			base->set_should_close(true);
 	}
 	void on_fixed_update()
 	{

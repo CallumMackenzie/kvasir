@@ -73,3 +73,4 @@ void render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_b
 void render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff)
 {
 }
+void render_base::set_should_close(bool sc) {}

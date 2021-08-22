@@ -41,6 +41,7 @@ bool glfw_window::create_fullscreen_window(const char *title)
 void glfw_window::set_gl_current_context() { glfwMakeContextCurrent(window); }
 void glfw_window::set_resize_callback(GLFWframebuffersizefun on_win_resize) { glfwSetFramebufferSizeCallback(window, on_win_resize); }
 bool glfw_window::should_close() { return glfwWindowShouldClose(window); }
+void glfw_window::set_should_close(bool sc) { glfwSetWindowShouldClose(window, (int)true); }
 void glfw_window::swap_buffers() { glfwSwapBuffers(window); }
 void glfw_window::poll_events() { glfwPollEvents(); }
 void glfw_window::set_pos(int screen_x, int screen_y) { glfwSetWindowPos(window, screen_x, screen_y); }

@@ -463,5 +463,9 @@ keystate gl_render_base::get_keystate(key key)
 {
 	return input::get_glfw_kst(win.get_keystate(input::get_key(key)));
 }
+void gl_render_base::set_should_close(bool sc)
+{
+	win.set_should_close(sc);
+}
 
 #endif

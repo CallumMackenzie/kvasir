@@ -33,8 +33,8 @@ void kvasir::cam_debug_controls(render_base *base, camera3d &cam, float delta, f
 void kvasir::cam_debug_rotation(render_base *base, camera3d &cam, float delta, float rot_speed)
 {
 	vec3f rotate;
-	if (std::abs(cam.rot.y()) >= 3.14159f * 2.f)
-		cam.rot.y() = 0.f;
+	// if (std::abs(cam.rot.y()) >= 3.14159f * 2.f)
+	// 	cam.rot.y() = 0.f;
 	if (base->key_pressed(Left))
 		rotate.y() = rot_speed;
 	if (base->key_pressed(Right))
@@ -44,10 +44,10 @@ void kvasir::cam_debug_rotation(render_base *base, camera3d &cam, float delta, f
 	if (base->key_pressed(Down))
 		rotate.x() = rot_speed;
 	cam.rot += rotate * delta;
-	if (cam.rot.x() >= 3.14159f / 2.1f)
-		cam.rot.x() = 3.14159f / 2.1f;
-	if (cam.rot.x() <= -3.14159f / 2.1f)
-		cam.rot.x() = -3.14159f / 2.1f;
+	// if (cam.rot.x() >= 3.14159f / 2.1f)
+	// 	cam.rot.x() = 3.14159f / 2.1f;
+	// if (cam.rot.x() <= -3.14159f / 2.1f)
+	// 	cam.rot.x() = -3.14159f / 2.1f;
 }
 kvasir::material_base *kvasir::make_material(render_base *base, const char *diffuse_img_path)
 {

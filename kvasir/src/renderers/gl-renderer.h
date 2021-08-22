@@ -123,6 +123,7 @@ namespace kvasir
 		void render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff = nullptr);
 		type get_type();
 		keystate get_keystate(key key);
+		void set_should_close(bool sc);
 
 	private:
 		int gl_hints[8]{

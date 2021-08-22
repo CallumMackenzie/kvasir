@@ -50,6 +50,7 @@ namespace kvasir
 		virtual bool is_visible() = 0;
 		virtual bool init(const char *n, int w, int h) = 0;
 		virtual void destroy() = 0;
+		virtual void set_should_close(bool sc);
 		virtual buffer_base *make_buffer();
 		virtual shader_base *make_shader();
 		virtual texture_base *make_texture();
