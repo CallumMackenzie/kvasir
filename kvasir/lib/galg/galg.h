@@ -6,6 +6,7 @@
 #include <cmath>
 
 #define FORCE_INLINE inline
+// #define GALG_NO_MAKE_TYPEDEFS 1
 
 #if defined(_WIN32) || defined(__APPLE__)
 typedef unsigned int uint;
@@ -304,6 +305,7 @@ namespace galg
 	template <typename T>
 	struct mat2;
 
+#ifndef GALG_MAKE_NO_TYPEDEFS
 	typedef vec4<fp_num> vec4fp;
 	typedef vec4<float> vec4f;
 	typedef vec4<double> vec4d;
@@ -366,8 +368,9 @@ namespace galg
 	typedef mat2<size_t> mat2st;
 	typedef mat2<unsigned short> mat2us;
 	typedef mat2<short> mat2s;
+#endif
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct vec4
 	{
 		T v[4];
@@ -452,7 +455,7 @@ namespace galg
 		VEC_STD_OPS(vec4, 4)
 	};
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct vec3
 	{
 		T v[3];
@@ -501,7 +504,7 @@ namespace galg
 		VEC_STD_OPS(vec3, 3)
 	};
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct vec2
 	{
 		T v[2];
@@ -705,7 +708,7 @@ namespace galg
 		}
 	};
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct mat4
 	{
 		T m[4][4] = {0};
@@ -897,7 +900,7 @@ namespace galg
 		}
 	};
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct mat3
 	{
 		T m[3][3] = {0};
@@ -942,7 +945,7 @@ namespace galg
 		ALGEBRAIC_MAT_SQUARE(mat3, 3)
 	};
 
-	template <typename T = fp_num>
+	template <typename T>
 	struct mat2
 	{
 		T m[2][2] = {0};

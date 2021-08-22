@@ -1,7 +1,10 @@
 #ifndef KVASIR_INPUT_H_
 #define KVASIR_INPUT_H_ 1
 
+#ifndef NO_STD_INCLUDES
 #include <unordered_map>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #define GLFW_INCLUDE_NONE
 #include "glfw3.h"

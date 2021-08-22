@@ -1,8 +1,11 @@
 #ifndef KVASIR_ENGINE_H_
 #define KVASIR_ENGINE_H_ 1
 
+#ifndef NO_STD_INCLUDES
 #include <vector>
 #include <iostream>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #include "renderer.h"

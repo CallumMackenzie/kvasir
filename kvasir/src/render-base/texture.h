@@ -1,11 +1,14 @@
 #ifndef KVASIR_TEXTURE_H_
 #define KVASIR_TEXTURE_H_ 1
 
+#ifndef NO_STD_INCLUDES
 #include <vector>
 #include <string>
 #include <iostream>
 #include <stddef.h>
 #include <unordered_map>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #include "galg.h"

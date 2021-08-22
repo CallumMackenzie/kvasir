@@ -5,7 +5,10 @@
 #include "config.h"
 #endif
 
+#ifndef NO_STD_INCLUDES
 #include <string>
+#endif
+
 #ifdef _WIN32
 #define R_PATH(str) \
 	std::string("../").append(str)

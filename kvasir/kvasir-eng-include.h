@@ -2,12 +2,26 @@
 #define KVASIR_ENGINE_INCLUDE_H 1
 
 #define NO_USE_INCLUDES 1
+#define NO_STD_INCLUDES 1
 
+// #define EXPANDING_INCLUDE 1
 // Define KVASIR_DLL if using a shared library
+
+#ifndef EXPANDING_INCLUDE
+#include <stddef.h>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <memory>
+#include <stdio.h>
+#include <time.h>
+#include <fstream>
+#include <sstream>
+#endif
 
 #include "./src/config.h"
 #include "./src/utils/data.h"
-#include <stddef.h>
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"
 #include "./src/utils/galg-dllexport.h"

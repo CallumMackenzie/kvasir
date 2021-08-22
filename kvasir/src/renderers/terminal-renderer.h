@@ -3,9 +3,12 @@
 
 #ifdef BUILD_TERMINAL
 
+#ifndef NO_STD_INCLUDES
 #include <stdio.h>
 #include <vector>
 #include <unordered_map>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "renderer.h"
 #include "exception.h"

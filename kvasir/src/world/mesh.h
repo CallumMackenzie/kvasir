@@ -1,11 +1,14 @@
 #ifndef MESH_H__
 #define MESH_H__ 1
 
+#ifndef NO_STD_INCLUDES
 #include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include <string>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #include "galg-dllexport.h"

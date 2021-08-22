@@ -5,7 +5,10 @@
 typedef unsigned int uint;
 #endif
 
+#ifndef NO_STD_INCLUDES
 #include <memory>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #include "shader.h"

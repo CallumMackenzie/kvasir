@@ -1,7 +1,10 @@
 #ifndef KVASIR_RENDER_BUFFER_H
 #define KVASIR_RENDER_BUFFER_H 1
 
+#ifndef NO_STD_INCLUDES
 #include <string.h>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #endif

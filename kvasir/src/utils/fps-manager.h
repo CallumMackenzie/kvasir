@@ -1,7 +1,10 @@
 #ifndef KVASIR_TIME_H_
 #define KVASIR_TIME_H_ 1
 
+#ifndef NO_STD_INCLUDES
 #include <time.h>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #endif

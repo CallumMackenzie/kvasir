@@ -6,14 +6,14 @@
 #include "galg.h"
 #endif
 
-// template struct KV_EXPORT vec2<float>;
-// template struct KV_EXPORT vec3<float>;
-// template struct KV_EXPORT vec4<float>;
-
-// template struct KV_EXPORT quaternion<float>;
-
-// template struct KV_EXPORT mat2<float>;
-// template struct KV_EXPORT mat3<float>;
-// template struct KV_EXPORT mat4<float>;
+#ifdef _WIN32
+// template CLASS_OR_STRUCT KV_EXPORT vec2<float>;
+// template CLASS_OR_STRUCT KV_EXPORT vec3<float>;
+// template CLASS_OR_STRUCT KV_EXPORT vec4<float>;
+// template CLASS_OR_STRUCT KV_EXPORT quaternion<float>;
+// template CLASS_OR_STRUCT KV_EXPORT mat2<float>;
+// template CLASS_OR_STRUCT KV_EXPORT mat3<float>;
+// template CLASS_OR_STRUCT KV_EXPORT mat4<float>;
+#endif
 
 #endif

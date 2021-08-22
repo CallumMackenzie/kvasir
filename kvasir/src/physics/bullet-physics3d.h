@@ -3,7 +3,10 @@
 
 #ifdef BUILD_BULLET
 
+#ifndef NO_STD_INCLUDES
 #include <unordered_map>
+#endif
+
 #ifndef NO_USE_INCLUDES
 #include "exception.h"
 #include "btBulletDynamicsCommon.h"

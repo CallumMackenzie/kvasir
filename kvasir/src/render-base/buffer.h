@@ -1,7 +1,9 @@
 #ifndef KVASIR_BUFFER_H_
 #define KVASIR_BUFFER_H_ 1
 
+#ifndef NO_STD_INCLUDES
 #include <stddef.h>
+#endif
 #ifndef NO_USE_INCLUDES
 #include "config.h"
 #endif
