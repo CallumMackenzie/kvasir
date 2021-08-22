@@ -32,14 +32,16 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 		if (tris.size() > 0)
 			return tris;
 	}
-	tris = obj_data_stream_to_tri_arr(&ifstream(file));
+	ifstream ifs (file);
+	tris = obj_data_stream_to_tri_arr(&ifs);
 	if (tris.size() > 0 && use_geo_val_cache)
 		get_geo_val_cache()[std::string(file)] = tris;
 	return tris;
 }
 std::vector<mesh3d::triangle> mesh3d::obj_data_to_tri_arr(const char *data)
 {
-	return obj_data_stream_to_tri_arr(&std::istringstream(data));
+	std::istringstream iss(data);
+	return obj_data_stream_to_tri_arr(&iss);
 }
 std::vector<mesh3d::triangle> mesh3d::obj_data_stream_to_tri_arr(std::basic_istream<char, std::char_traits<char>> *f)
 {

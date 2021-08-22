@@ -1,9 +1,9 @@
 #ifndef KVASIR_DATA_H
 #define KVASIR_DATA_H 1
 
-#define GL_SHADER_ARR(NAMESPACE)                                                                 \
-	{                                                                                            \
-		data::opengl_shaders::##NAMESPACE::vertex, data::opengl_shaders::##NAMESPACE::fragment \
+#define GL_SHADER_ARR(NAMESPACE)                                                             \
+	{                                                                                        \
+		data::opengl_shaders::NAMESPACE ::vertex, data::opengl_shaders::NAMESPACE ::fragment \
 	}
 
 namespace kvasir

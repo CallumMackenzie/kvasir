@@ -13,7 +13,7 @@
 #define KV_EXPORT
 #endif
 
-#elif defined(linux) || defined(__linux)
+#else
 #define KV_EXPORT
 #endif
 

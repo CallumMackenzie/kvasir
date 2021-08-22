@@ -1,6 +1,8 @@
 #ifndef MEMORY_AID_H_
 #define MEMORY_AID_H_ 1
 
+#ifndef __APPLE__
+
 #define COUNT_ALLOCS                \
 	size_t allocs = 0;              \
 	void *operator new(size_t size) \
@@ -18,11 +20,17 @@
 		free(ptr);                  \
 	}
 
+#else
+#define COUNT_DELETES
+#define COUNT_ALLOCS
+#endif
+
 // Counts allocs and frees into variables called 'allocs' and 'deletes' respectively.
 #define COUNT_MEMORY \
 	COUNT_ALLOCS     \
 	COUNT_DELETES
 
+#ifndef __APPLE__
 // Prints the number of allocations.
 #define PRINT_ALLOCS \
 	std::cout        \
@@ -38,6 +46,12 @@
 	std::cout                                \
 		<< "Allocs: " << allocs << std::endl \
 		<< "Deletes: " << deletes << std::endl;
+
+#else
+#define PRINT_ALLOCS
+#define PRINT_DELETES
+#define PRINT_MEMORY_SUMMARY
+#endif
 
 #define DEL_PTR(ptr)   \
 	if (ptr)           \
