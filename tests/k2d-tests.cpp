@@ -12,6 +12,7 @@ int main(int, char **)
 		bool running = true;
 		render_base *base = kvasir_engine::get_base(render_base::OPENGL);
 		if (base)
+		{
 			if (base->init("Kvasir", 720, 480))
 			{
 				/////////////
@@ -64,9 +65,10 @@ int main(int, char **)
 				}
 				////////////////
 				DEL_PTR(shader)
-				DEL_PTR(base)
 				////////////////
 			}
+			DEL_PTR(base)
+		}
 	}
 	PRINT_MEMORY_SUMMARY
 	return 0;

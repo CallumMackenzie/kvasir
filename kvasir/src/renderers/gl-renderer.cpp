@@ -164,8 +164,10 @@ void gl_buffer_base::bind_vao()
 }
 void gl_buffer_base::free_buffer()
 {
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+	if (vbo != 0)
+		glDeleteBuffers(1, &vbo);
+	if (vao != 0)
+		glDeleteVertexArrays(1, &vao);
 }
 
 gl_texture_base::~gl_texture_base()
