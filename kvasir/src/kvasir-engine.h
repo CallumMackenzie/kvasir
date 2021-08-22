@@ -55,8 +55,8 @@ namespace kvasir
 		virtual void on_update() = 0;
 		virtual void on_fixed_update() = 0;
 		virtual void on_close() = 0;
-		static render_base *get_base(render_base::type b);
 
+		static render_base *get_base(render_base::type b);
 		static physics3d *default_physics3d();
 
 	private:

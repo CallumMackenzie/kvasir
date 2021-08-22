@@ -145,7 +145,7 @@ btCollisionShape *bullet_physics3d::create_mesh_hitbox(const mesh3d &mesh, bool 
 {
 	btCollisionShape *ret = nullptr;
 	mesh3d::triangle *tris = new mesh3d::triangle[mesh.n_tris];
-	mesh.buffer->get_data(tris, 0, mesh.n_tris * sizeof(mesh3d::triangle));
+	((buffer_base *)mesh.get_buffer())->get_data(tris, 0, mesh.n_tris * sizeof(mesh3d::triangle));
 	if (convex)
 	{
 		ret = new btConvexHullShape();

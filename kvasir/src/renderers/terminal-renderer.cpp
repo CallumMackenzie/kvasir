@@ -222,8 +222,8 @@ bool terminal_render_base::init(const char *n, int w, int h)
 void terminal_render_base::destroy() { s_close = true; }
 void terminal_render_base::render_mesh3d(camera3d &c, mesh3d &m, shader_base *s, render_buffer *rbuff)
 {
-	if (m.buffer)
-		m.buffer->bind_vao();
+	if (m.get_buffer())
+		m.get_buffer()->bind_vao();
 	auto buff = terminal_buffer_base::bound;
 	if (!buff)
 		return;
@@ -448,8 +448,8 @@ float &terminal_render_base::triangle_2d::vert::operator[](size_t i)
 }
 void terminal_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *rbuff)
 {
-	if (m.buffer)
-		m.buffer->bind_vao();
+	if (m.get_buffer())
+		m.get_buffer()->bind_vao();
 	auto buff = terminal_buffer_base::bound;
 	if (!buff)
 		return;

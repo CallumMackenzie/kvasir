@@ -419,7 +419,7 @@ render_buffer *gl_render_base::make_render_buffer()
 }
 void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh, render_buffer *buff)
 {
-	if (!sh || !mesh.buffer)
+	if (!sh || !mesh.get_buffer())
 		return;
 	mat4f m_projection = cam.perspective(),
 		  m_rotation = mat4f::rotation(mesh.rot),
@@ -429,9 +429,9 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh,
 
 	sh->use();
 	sh->u_int1("diff", 0);
-	mesh.buffer->bind_vao();
-	if (mesh.material)
-		mesh.material->bind();
+	mesh.get_buffer()->bind_vao();
+	if (mesh.get_material())
+		mesh.get_material()->bind();
 	sh->u_mat4f("transform", (m_scale * m_rotation * m_translation).m);
 	sh->u_mat4f("view", m_view.m);
 	sh->u_mat4f("projection", m_projection.m);
@@ -440,15 +440,15 @@ void gl_render_base::render_mesh3d(camera3d &cam, mesh3d &mesh, shader_base *sh,
 }
 void gl_render_base::render_mesh2d(camera2d &c, mesh2d &m, shader_base *s, render_buffer *buff)
 {
-	if (!s || !m.buffer)
+	if (!s || !m.get_buffer())
 		return;
 	mat2f m_scale = mat2f::scale(m.scale),
 		  m_rotation = mat2f::rotation(m.rot);
 	s->use();
 	s->u_int1("diff", 0);
-	m.buffer->bind_vao();
-	if (m.material)
-		m.material->bind();
+	m.get_buffer()->bind_vao();
+	if (m.get_material())
+		m.get_material()->bind();
 	s->u_mat2f("transform", (m_scale * m_rotation).m);
 	vec2f pos = m.pos - c.pos;
 	s->u_float2("pos", pos.x(), pos.y());

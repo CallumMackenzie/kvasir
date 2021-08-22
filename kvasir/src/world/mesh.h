@@ -20,7 +20,22 @@ using namespace galg;
 namespace kvasir
 {
 
-	struct KV_EXPORT mesh3d : position3d
+	struct mesh_base
+	{
+		material_base *get_material();
+		const material_base *get_material() const;
+		void set_material(material_base *b);
+		buffer_base *get_buffer();
+		const buffer_base *get_buffer() const;
+		void set_buffer(buffer_base *b);
+		size_t n_tris = 0;
+
+	protected:
+		material_base *material = nullptr;
+		buffer_base *buffer = nullptr;
+	};
+
+	struct KV_EXPORT mesh3d : position3d, mesh_base
 	{
 		struct triangle
 		{
@@ -37,9 +52,6 @@ namespace kvasir
 			triangle(vec3f &p1, vec3f &p2, vec3f &p3);
 		};
 
-		material_base *material = nullptr;
-		buffer_base *buffer = nullptr;
-		size_t n_tris = 0;
 		const size_t tag;
 
 		mesh3d();
@@ -81,7 +93,7 @@ namespace kvasir
 		std::vector<size_t> *t_n_tris = new std::vector<size_t>();
 	};
 
-	struct KV_EXPORT mesh2d : position2d
+	struct KV_EXPORT mesh2d : position2d, mesh_base
 	{
 		struct triangle
 		{
@@ -93,10 +105,6 @@ namespace kvasir
 
 			vert v[3]; // Vertecies in the triangle
 		};
-
-		buffer_base *buffer = nullptr;
-		material_base *material = nullptr;
-		size_t n_tris = 0;
 
 		mesh2d();
 		~mesh2d();

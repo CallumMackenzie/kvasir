@@ -32,7 +32,7 @@ struct kvasir_demo : kvasir_engine
 		if (!ground.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
-		ground.material = make_material(base, 0xffffff);
+		ground.set_material(make_material(base, 0xffffff));
 		vec3f scale(300.f, 2.f, 300.f);
 		ground.vertex_scale(scale);
 		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
@@ -40,7 +40,7 @@ struct kvasir_demo : kvasir_engine
 		if (!ramp.load_from_obj_data(data::objects3d::rect_prism_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ramp.pos.z() = 30;
-		ramp.material = make_material(base, 0x80bf80);
+		ramp.set_material(make_material(base, 0x80bf80));
 		ramp.vertex_scale(vec3f(10, 9, 10));
 		p3d->add_mesh(ramp, true, physics3d::static_props());
 
@@ -50,7 +50,7 @@ struct kvasir_demo : kvasir_engine
 			if (!ms->load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 				return user_result("Ground failed loading.");
 			ms->pos = vec3f((float)(i % 2) * 0.4f, (float)i * 3.f + 2, (float)(i % 3) * 0.4f);
-			ms->material = make_material(base, 0xfa4c3a);
+			ms->set_material(make_material(base, 0xfa4c3a));
 			p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}

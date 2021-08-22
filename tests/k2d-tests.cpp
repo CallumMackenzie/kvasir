@@ -18,7 +18,7 @@ int main(int, char **)
 				/////////////
 				mesh2d m2;
 				m2.make_quad(vec2f(1, 1), base->make_buffer());
-				m2.material = make_material(base, 0x00aaff);
+				m2.set_material(make_material(base, 0x00aaff));
 				base->set_clear_colour(0xafafaf);
 
 				shader_base *shader = base->make_shader();
