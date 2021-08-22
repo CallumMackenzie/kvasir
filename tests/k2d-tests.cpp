@@ -1,6 +1,6 @@
 #include "kvasir-eng-include.h"
 
-COUNT_MEMORY
+// COUNT_MEMORY
 
 using namespace kvasir;
 
@@ -71,6 +71,6 @@ int main(int, char **)
 				////////////////
 			}
 	}
-	PRINT_MEMORY_SUMMARY
+	// PRINT_MEMORY_SUMMARY
 	return 0;
 }

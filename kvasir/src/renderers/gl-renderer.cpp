@@ -322,6 +322,9 @@ bool gl_render_base::init(const char *name, int w, int h)
 	if (!win.create_window(name, w, h))
 	{
 		std::cerr << "OpenGL GLFW window could not be created." << std::endl;
+#ifdef __APPLE__
+		std::cerr << "OpenGL may not work on VM MacOS." << std::endl;
+#endif
 		return false;
 	}
 	win.set_resize_callback(framebuffer_size_callback);
