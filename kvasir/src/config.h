@@ -7,9 +7,7 @@
 #define KV_EXPORT __declspec(dllexport)
 #elif defined(BUILD_STATIC)
 #define KV_EXPORT
-#endif
-
-#ifdef KVASIR_DLL
+#elif defined(KVASIR_DLL)
 #define KV_EXPORT __declspec(dllimport)
 #else
 #define KV_EXPORT

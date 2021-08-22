@@ -4,11 +4,13 @@
 bool kvasir::kvasir_init()
 {
 	texture_base::init();
+	mesh3d::init();
 	return true;
 }
 void kvasir::kvasir_destroy()
 {
 	texture_base::destroy();
+	mesh3d::destroy();
 }
 
 using namespace kvasir;

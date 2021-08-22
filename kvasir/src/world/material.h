@@ -17,7 +17,7 @@ namespace kvasir
 {
 	struct KV_EXPORT material_base
 	{
-		std::vector<texture_base *> texs{nullptr, nullptr, nullptr, nullptr};
+		std::vector<texture_base *> *texs = new std::vector<texture_base *>{nullptr, nullptr, nullptr, nullptr};
 
 		~material_base();
 		texture_base *&diffuse();

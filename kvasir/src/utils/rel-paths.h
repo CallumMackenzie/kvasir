@@ -7,15 +7,11 @@
 
 #include <string>
 #ifdef _WIN32
-std::string R_PATH(const char *str)
-{
-	return std::string("../").append(std::string(str));
-}
+#define R_PATH(str) \
+	std::string("../").append(str)
 #else
-std::string R_PATH(const char *str)
-{
-	return std::string(str);
-}
+#define R_PATH(str) \
+	return std::string(str)
 #endif
 
 #define RESOURCE(X) \

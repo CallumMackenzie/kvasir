@@ -17,13 +17,18 @@ namespace kvasir
 
 	struct KV_EXPORT texture_image
 	{
-		std::vector<unsigned char> pixels; // RGBA
-		unsigned w;						   // width
-		unsigned h;						   // height
+		unsigned w; // width
+		unsigned h; // height
 
+		texture_image();
+		~texture_image();
 		long pixel_rgb(size_t x, size_t y);
 		long pixel_rgb(const galg::vec2f &uv);
 		std::vector<unsigned char> &get_pixels();
+		const std::vector<unsigned char> &get_pixels() const;
+
+	private:
+		std::vector<unsigned char> pixels; // RGBA
 	};
 
 	struct KV_EXPORT texture_base
@@ -45,7 +50,9 @@ namespace kvasir
 		static void destroy();
 
 		static inline bool use_image_cache = true;
-		static inline std::unordered_map<std::string, texture_image> image_cache;
+
+	private:
+		static inline std::unordered_map<std::string, texture_image> *image_cache = nullptr;
 	};
 
 }

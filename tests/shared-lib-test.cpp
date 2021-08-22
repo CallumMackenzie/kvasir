@@ -6,5 +6,11 @@ using namespace kvasir;
 
 int main(int, char **)
 {
-	linkverify().verify_link();
+	kvasir_init();
+	render_base *base = kvasir_engine::get_base(render_base::OPENGL);
+	base->init("KVS", 720, 480);
+
+	material_base *mb = make_material(base, RESOURCE("../res/img/h.png"));
+	kvasir_destroy();
+	printf("Fin");
 }

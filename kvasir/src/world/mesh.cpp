@@ -18,8 +18,8 @@ mesh3d::~mesh3d()
 std::vector<mesh3d::triangle> mesh3d::check_val_cache(const std::string &file)
 {
 	if (use_geo_val_cache)
-		if (geo_val_cache.find(file) != geo_val_cache.end())
-			return geo_val_cache[file];
+		if (get_geo_val_cache().find(file) != get_geo_val_cache().end())
+			return get_geo_val_cache()[file];
 	return std::vector<triangle>{};
 }
 std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
@@ -32,19 +32,31 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 		if (tris.size() > 0)
 			return tris;
 	}
-	ifstream f(file);
-	if (!f.is_open())
+	tris = obj_data_stream_to_tri_arr(&ifstream(file));
+	if (tris.size() > 0 && use_geo_val_cache)
+		get_geo_val_cache()[std::string(file)] = tris;
+	return tris;
+}
+std::vector<mesh3d::triangle> mesh3d::obj_data_to_tri_arr(const char *data)
+{
+	return obj_data_stream_to_tri_arr(&std::istringstream(data));
+}
+std::vector<mesh3d::triangle> mesh3d::obj_data_stream_to_tri_arr(std::basic_istream<char, std::char_traits<char>> *f)
+{
+	using namespace std;
+	std::vector<triangle> tris;
+	if (!f)
 		return tris;
 	vector<vec3f> verts;
 	vector<vec2f> texs;
 	vector<vec3f> norms;
 	bool has_tex = false;
 	bool has_norm = false;
-	while (!f.eof())
+	while (!f->eof())
 	{
 		char line[300];
 		char junk;
-		f.getline(line, 300);
+		f->getline(line, 300);
 		stringstream s;
 		s << line;
 		if (line[0] == 'v')
@@ -99,9 +111,17 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 			tris.push_back(fTri);
 		}
 	}
-	if (tris.size() > 0 && use_geo_val_cache)
-		geo_val_cache[std::string(file)] = tris;
 	return tris;
+}
+void mesh3d::setup_buffer(std::vector<triangle> &tris)
+{
+	if (!buffer)
+		return;
+	buffer->gen_buffer();
+	buffer->set_data(&tris[0], tris.size() * sizeof(triangle));
+	buffer->attrib_ptr(0, 3, sizeof(triangle::vert));
+	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec3f));
+	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), sizeof(vec3f) + sizeof(vec2f));
 }
 bool mesh3d::load_from_obj(const char *file_name, buffer_base *buf)
 {
@@ -111,25 +131,32 @@ bool mesh3d::load_from_obj(const char *file_name, buffer_base *buf)
 	if (n_tris <= 0 || !buf)
 		return false;
 	buffer = buf;
-	buffer->gen_buffer();
-	buffer->set_data(&tris[0], tris.size() * sizeof(triangle));
-	buffer->attrib_ptr(0, 3, sizeof(triangle::vert));
-	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec3f));
-	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), sizeof(vec3f) + sizeof(vec2f));
+	setup_buffer(tris);
+	return true;
+}
+bool mesh3d::load_from_obj_data(const char *data, buffer_base *buf)
+{
+	DEL_PTR(buffer);
+	std::vector<triangle> tris = obj_data_to_tri_arr(data);
+	n_tris = tris.size();
+	if (n_tris <= 0 || !buf)
+		return false;
+	buffer = buf;
+	setup_buffer(tris);
 	return true;
 }
 bool group_mesh3d::load_from_objs(std::vector<const char *> files, buffer_base *buf)
 {
 	DEL_PTR(buffer);
 	n_tris = 0;
-	t_n_tris.clear();
+	get_t_n_tris().clear();
 	std::vector<triangle> all_tris;
 	for (size_t i = 0; i < files.size(); ++i)
 	{
 		std::vector<mesh3d::triangle> tris = mesh3d::obj_to_tri_array(files[i]);
 		if (tris.size() <= 0)
 			return false;
-		t_n_tris.push_back(tris.size());
+		get_t_n_tris().push_back(tris.size());
 		for (size_t j = 0; j < tris.size(); ++j)
 			all_tris.push_back(tris[j]);
 		tris.clear();
@@ -178,42 +205,42 @@ void mesh3d::vertex_scale(const vec3f &scale)
 }
 void group_mesh3d::add_mesh_pos(size_t index, const vec3f &pos)
 {
-	triangle *buf_data = new triangle[t_n_tris[index]];
+	triangle *buf_data = new triangle[get_t_n_tris()[index]];
 	size_t n_tris_before = 0;
 	for (size_t i = 0; i < index; ++i)
-		n_tris_before += t_n_tris[i];
-	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
-	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		n_tris_before += get_t_n_tris()[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
+	for (size_t i = 0; i < get_t_n_tris()[index]; ++i)
 		for (size_t j = 0; j < 3; ++j)
 			buf_data[i].v[j].p += pos;
-	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
 void group_mesh3d::add_mesh_scale(size_t index, const vec3f &scale)
 {
-	triangle *buf_data = new triangle[t_n_tris[index]];
+	triangle *buf_data = new triangle[get_t_n_tris()[index]];
 	size_t n_tris_before = 0;
 	for (size_t i = 0; i < index; ++i)
-		n_tris_before += t_n_tris[i];
-	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
-	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		n_tris_before += get_t_n_tris()[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
+	for (size_t i = 0; i < get_t_n_tris()[index]; ++i)
 		for (size_t j = 0; j < 3; ++j)
 			buf_data[i].v[j].p *= scale;
-	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
 void group_mesh3d::add_mesh_rot(size_t index, const quaternionf &rot)
 {
 	mat4f m_rot = mat4f::rotation(rot);
-	triangle *buf_data = new triangle[t_n_tris[index]];
+	triangle *buf_data = new triangle[get_t_n_tris()[index]];
 	size_t n_tris_before = 0;
 	for (size_t i = 0; i < index; ++i)
-		n_tris_before += t_n_tris[i];
-	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
-	for (size_t i = 0; i < t_n_tris[index]; ++i)
+		n_tris_before += get_t_n_tris()[i];
+	buffer->get_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
+	for (size_t i = 0; i < get_t_n_tris()[index]; ++i)
 		for (size_t j = 0; j < 3; ++j)
 			buf_data[i].v[j].p = (m_rot * buf_data[i].v[j].p.xyz1()).xyz();
-	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), t_n_tris[index] * sizeof(triangle));
+	buffer->sub_data(buf_data, n_tris_before * sizeof(triangle), get_t_n_tris()[index] * sizeof(triangle));
 	DEL_ARR_PTR(buf_data);
 }
 
@@ -252,5 +279,18 @@ bool mesh2d::make_quad(const vec2f &size, buffer_base *buf)
 	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec2f));
 	return true;
 }
-std::unordered_map<std::string, std::vector<mesh3d::triangle>> &mesh3d::get_geo_val_cache() { return geo_val_cache; }
-std::vector<size_t> &group_mesh3d::get_total_tris() { return t_n_tris; }
+std::unordered_map<std::string, std::vector<mesh3d::triangle>> &mesh3d::get_geo_val_cache() { return *geo_val_cache; }
+std::vector<size_t> &group_mesh3d::get_total_tris() { return get_t_n_tris(); }
+std::vector<size_t> &group_mesh3d::get_t_n_tris() { return *t_n_tris; }
+void mesh3d::init()
+{
+	geo_val_cache = new std::unordered_map<std::string, std::vector<triangle>>();
+}
+void mesh3d::destroy()
+{
+	DEL_PTR(geo_val_cache);
+}
+group_mesh3d::~group_mesh3d()
+{
+	DEL_PTR(t_n_tris);
+}

@@ -192,12 +192,12 @@ void gl_texture_base::set_texture(const texture_image &img)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	float px[] = {1.f, 0.5f, 1.f, 1.f};
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
-	if (img.pixels.size() <= 0)
+	if (img.get_pixels().size() <= 0)
 	{
 		std::cerr << "Error: texture_image has no pixels." << std::endl;
 		return;
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)img.w, (int)img.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &img.pixels[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)img.w, (int)img.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &img.get_pixels()[0]);
 	if (pow_2)
 		glGenerateMipmap(GL_TEXTURE_2D);
 }

@@ -1,4 +1,6 @@
 
+// #define KVASIR_DLL 1
+
 #include <iostream>
 #include <cstdlib>
 #include "kvasir-eng-include.h"
@@ -23,6 +25,7 @@ struct kvasir_demo : kvasir_engine
 	user_result on_start()
 	{
 		// base->set_fullscreen();
+
 		fixed_time.set_fps(5);
 		time.set_fps(144);
 		cam.far = 1000;
@@ -32,10 +35,10 @@ struct kvasir_demo : kvasir_engine
 		if (!p3d)
 			return user_result("Physics was null.");
 
-		if (!ground.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
+		if (!ground.load_from_obj_data(data::cube_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
-		ground.material = make_material(base, RESOURCE("../res/img/h.png"));
+		ground.material = make_material(base, 0xffffff);
 		vec3f scale(300.f, 2.f, 300.f);
 		ground.vertex_scale(scale);
 		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
@@ -44,19 +47,20 @@ struct kvasir_demo : kvasir_engine
 		cam.pos = cam_mesh.pos;
 		p3d->add_mesh_sphere_hitbox(cam_mesh, 1.f, physics3d::dynamic_props(10));
 
-		if (!ramp.load_from_obj(RESOURCE("../res/models/ramp.obj"), base->make_buffer()))
+		if (!ramp.load_from_obj_data(data::rect_prism_obj, base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ramp.pos.z() = 30;
 		ramp.material = make_material(base, 0x80bf80);
-		p3d->add_mesh(ramp, false, physics3d::static_props());
+		ramp.vertex_scale(vec3f(3, 3, 3));
+		p3d->add_mesh(ramp, true, physics3d::static_props());
 
 		for (size_t i = 0; i < 20; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
+			if (!ms->load_from_obj_data(data::cube_obj, base->make_buffer()))
 				return user_result("Ground failed loading.");
 			ms->pos = vec3f((float)(i % 2) * 0.4f, (float)i * 3.f + 2, (float)(i % 3) * 0.4f);
-			ms->material = make_material(base, RESOURCE("../res/img/skak.png"));
+			ms->material = make_material(base, 0xfa4c3a);
 			p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}

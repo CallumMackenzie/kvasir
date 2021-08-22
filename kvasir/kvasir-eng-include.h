@@ -3,7 +3,10 @@
 
 #define NO_USE_INCLUDES 1
 
+// Define KVASIR_DLL if using a shared library
+
 #include "./src/config.h"
+#include "./src/utils/data.h"
 #include <stddef.h>
 #include "./lib/galg/galg.h"
 #include "./lib/galg/galg_ops.h"
