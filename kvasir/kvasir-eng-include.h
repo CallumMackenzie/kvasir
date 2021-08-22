@@ -4,7 +4,7 @@
 #define NO_USE_INCLUDES 1
 #define NO_STD_INCLUDES 1
 
-// #define EXPANDING_INCLUDE 1
+#define EXPANDING_INCLUDE 1
 // Define KVASIR_DLL if using a shared library
 
 #ifndef EXPANDING_INCLUDE

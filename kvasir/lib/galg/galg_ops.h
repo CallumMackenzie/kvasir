@@ -1,8 +1,13 @@
 #ifndef GALG_OPS_H
 #define GALG_OPS_H 1
 
+#ifndef NO_STD_INCLUDES
 #include <string>
+#endif
+
+#ifndef NO_USE_INCLUDES
 #include "galg.h"
+#endif
 
 namespace galg
 {

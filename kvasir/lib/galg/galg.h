@@ -1,9 +1,11 @@
 #ifndef GALG_H
 #define GALG_H 1
 
+#ifndef NO_STD_INCLUDES
 #include <initializer_list>
 #include <string.h>
 #include <cmath>
+#endif
 
 #define FORCE_INLINE inline
 // #define GALG_NO_MAKE_TYPEDEFS 1
