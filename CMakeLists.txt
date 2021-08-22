@@ -13,11 +13,18 @@ include_directories(
 
 set(BUILD_TESTS ON)
 set(GLOBAL_TEST OFF)
-set(TERM_TEST OFF)
-set(K2D_TEST ON)
+set(TERM_TEST ON)
+set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
 
+set(BUILD_TOOLS OFF)
+set(RES_BUNDLER ON)
+
 if (BUILD_TESTS)
+
+include_directories(
+	./tests
+)
 
 if (GLOBAL_TEST)
 add_executable(global-testing ./tests/global-tests.cpp)
@@ -37,6 +44,13 @@ endif()
 if(SHARED_LIB_TEST)
 add_executable(shared-lib-test ./tests/shared-lib-test.cpp)
 target_link_libraries(shared-lib-test kvasir-engine)
+endif()
+
+endif()
+if (BUILD_TOOLS)
+
+if (RES_BUNDLER)
+add_subdirectory(./tools)
 endif()
 
 endif()

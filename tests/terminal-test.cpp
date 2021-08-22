@@ -19,10 +19,10 @@ struct kvasir_demo : kvasir_engine
 		cam.far = 1000;
 		base->depth_buffer_active(true);
 
-		if (!test_m.load_from_obj(RESOURCE("../res/models/cube.obj"), base->make_buffer()))
+		if (!test_m.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
 			return user_result("A mesh failed loading.");
 		test_m.pos.z() = 4;
-		test_m.material = make_material(base, RESOURCE("../res/img/skak.png"));
+		test_m.material = make_material(base, 0xffaaff);
 
 		return user_result::ok();
 	}
@@ -33,7 +33,7 @@ struct kvasir_demo : kvasir_engine
 		base->clear();
 		base->render_mesh3d(cam, test_m, nullptr);
 		base->swap_buffers();
-		std::cout << "FPS: " << (1.0 / time.delta_d()) << std::endl;
+		// std::cout << "FPS: " << (1.0 / time.delta_d()) << std::endl;
 	}
 	void on_fixed_update()
 	{
