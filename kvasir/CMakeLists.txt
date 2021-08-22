@@ -1,10 +1,10 @@
 
 # Config
 set(BUILD_OPENGL ON)
-set(BUILD_VULKAN OFF)
+set(BUILD_VULKAN ON)
 set(BUILD_FREETYPE OFF)
 set(BUILD_BULLET ON)
-set(BUILD_TERMINAL OFF)
+set(BUILD_TERMINAL ON)
 set(BUILD_DIRECTX OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(BUILD_SHARED_LIBRARY OFF)
@@ -43,7 +43,7 @@ endif()
 
 # Preprocessor definitions
 if(BUILD_VULKAN)
-	add_definitions(BUILD_VULKAN=1)
+	add_definitions(-DBUILD_VULKAN=1)
 endif()
 if(BUILD_BULLET)
 	add_definitions(-DBUILD_BULLET=1)
