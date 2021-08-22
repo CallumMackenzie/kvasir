@@ -1,5 +1,5 @@
 
-// #define KVASIR_DLL 1
+#define KVASIR_DLL 1
 
 #include <iostream>
 #include <cstdlib>
