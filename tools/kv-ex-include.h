@@ -1,49 +1,57 @@
-# 1 "kvasir-eng-include.h"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/usr/include/stdc-predef.h" 1 3 4
-# 1 "<command-line>" 2
-# 1 "kvasir-eng-include.h"
-
-
-
-struct test
-{
- int a = 0;
-};
-# 28 "kvasir-eng-include.h"
-# 1 "./src/config.h" 1
-# 29 "kvasir-eng-include.h" 2
-# 1 "./src/utils/data.h" 1
-# 9 "./src/utils/data.h"
+#ifndef KVASIR_INCLUDE_H__ 
+#define KVASIR_INCLUDE_H__ 1 
+#define DEL_ARR_PTR(x) if (x) {delete[] x; x = nullptr;} 
+#define DEL_PTR(x) if (x) {delete x; x = nullptr;} 
+#include <cmath> 
+#include <initializer_list> 
+#include <sstream> 
+#include <fstream> 
+#include <memory> 
+#include <iostream> 
+#include <string> 
+#include <vector> 
+#include <unordered_map> 
+#include <string.h> 
+#include <time.h> 
+#include <stddef.h> 
+#include <stdio.h> 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 namespace kvasir
 {
  namespace data
  {
   namespace objects3d
   {
-   const char *cube_obj = "v -1.0 1.0 -1.0\nv 1.000 1.0 1.0\nv 1.000 1.000 -1.000\nv -1.000 -1.000 1.000\nv 1.000 -1.000 1.000\nv -1.000 1.000 1.000\nv -1.000 -1.000 -1.000\nv 1.000 -1.000 -1.000\nvt 1.000 0.000000\nvt 0.666667 0.333333\nvt 0.666667 0.000000\nvt 0.333333 0.333333\nvt 0.000000 0.000000\nvt 0.333333 0.000000\nvt 0.333333 0.666667\nvt 0.000000 0.333333\nvt 0.333333 0.333333\nvt 0.666667 0.000000\nvt 0.333333 0.000000\nvt 0.666667 0.666667\nvt 0.333333 0.333333\nvt 0.666667 0.333333\nvt 0.333333 1.000\nvt 0.000000 0.666667\nvt 0.333333 0.666667\nvt 1.000 0.333333\nvt 0.000000 0.333333\nvt 0.000000 0.666667\nvt 0.666667 0.333333\nvt 0.333333 0.666667\nvt 0.000000 1.000\nvn 0.0000 1.0 0.0000\nvn 0.0000 -0.0000 1.0\nvn -1.0 0.0000 0.0000\nvn 0.0000 -1.0 -0.0000\nvn 1.0 0.0000 0.0000\nvn 0.0000 0.0000 -1.0\ns off\nf 1/1/1 2/2/1 3/3/1\nf 2/4/2 4/5/2 5/6/2\nf 6/7/3 7/8/3 4/9/3\nf 8/10/4 4/9/4 7/11/4\nf 3/12/5 5/13/5 8/14/5\nf 1/15/6 8/16/6 7/17/6\nf 1/1/1 6/18/1 2/2/1\nf 2/4/2 6/19/2 4/5/2\nf 6/7/3 1/20/3 7/8/3\nf 8/10/4 5/21/4 4/9/4\nf 3/12/5 2/22/5 5/13/5\nf 1/15/6 3/23/6 8/16/6\n";
-   const char *rect_prism_obj = "v -1.000000 0.000000 1.000000\nv -1.000000 0.000000 -1.000000\nv 1.000000 0.000000 1.000000\nv 1.000000 0.000000 -1.000000\nv 0.000000 1.100000 0.000000\nvt 0.375000 0.000000\nvt 0.625000 0.250000\nvt 0.375000 0.250000\nvt 0.625000 0.500000\nvt 0.375000 0.500000\nvt 0.625000 0.750000\nvt 0.375000 0.750000\nvt 0.625000 1.000000\nvt 0.375000 1.000000\nvt 0.125000 0.750000\nvt 0.125000 0.500000\nvn -0.7399 0.6727 0.0000\nvn 0.0000 0.6727 -0.7399\nvn 0.7399 0.6727 0.0000\nvn 0.0000 0.6727 0.7399\nvn 0.0000 -1.0000 0.0000\ns off\nf 1/1/1 5/2/1 2/3/1\nf 2/3/2 5/4/2 4/5/2\nf 4/5/3 5/6/3 3/7/3\nf 3/7/4 5/8/4 1/9/4\nf 4/5/5 1/10/5 2/11/5\nf 4/5/5 3/7/5 1/10/5";
+   const char *get_cube_obj();
+   const char *get_rect_prism_obj();
   }
 
   namespace opengl_shaders
   {
    namespace diffuse3d
    {
-    const char *vertex = "#version 330 core\nlayout(location=0) in vec3 v_pos;layout (location = 1) in vec2 v_uv;layout (location = 2) in vec3 v_normal;out vec3 normal;out vec2 uv;uniform mat4 transform;uniform mat4 rot;uniform mat4 view;uniform mat4 projection;void main(){gl_Position=projection*view*transform*vec4(v_pos, 1.0);normal=(rot*vec4(v_normal, 1.0)).xyz;uv=v_uv;}\n";
-    const char *fragment = "#version 330 core\nlayout(location=0) out vec4 col;in vec3 normal;in vec2 uv;uniform sampler2D diff;void main(){float d=(dot(normal, normalize(vec3(1.0, 1.5, 0.2))) + 1.0) / 2.0;col=vec4(texture(diff, uv).rgb * d, 1.0);}\n";
+    const char *get_vertex();
+    const char *get_fragment();
    }
    namespace diffuse2d
    {
-    const char *vertex = "#version 330 core\nlayout(location=0) in vec2 vpos;layout(location=1) in vec2 vuv;uniform float aspect;uniform vec2 pos;uniform mat2 transform;out vec2 uv; void main() {uv = vuv;vec4 tx=vec4(((vpos * transform) + pos), 0.0, 1.0);tx.x *= aspect;gl_Position=tx;}\n";
-    const char *fragment = "#version 330 core\nlayout(location=0) out vec4 col; in vec2 uv; uniform sampler2D diff;void main() {col=texture(diff, uv).rgba;}\n";
+    const char *get_vertex();
+    const char *get_fragment();
    }
   }
  }
 }
-# 30 "kvasir-eng-include.h" 2
-# 1 "./lib/galg/galg.h" 1
-# 290 "./lib/galg/galg.h"
+ 
+ 
+ 
 namespace galg
 {
  typedef float fp_num;
@@ -763,9 +771,9 @@ namespace galg
   }
  };
 }
-# 31 "kvasir-eng-include.h" 2
-# 1 "./lib/galg/galg_ops.h" 1
-# 12 "./lib/galg/galg_ops.h"
+ 
+ 
+ 
 namespace galg
 {
  enum class str_fmt
@@ -782,25 +790,9 @@ namespace galg
   const char close[2];
   const char seper[2];
   const char newline[2];
-  str_fmt_group(const char op, const char cl, const char br, const char nl) : open{op, '\0'}, close{cl, '\0'}, seper{br, '\0'}, newline{nl, '\0'} {}
+  str_fmt_group(const char op, const char cl, const char br, const char nl);
  };
- str_fmt_group enclosing_chars(str_fmt fmt)
- {
-  switch (fmt)
-  {
-  case str_fmt::algebraic:
-   return str_fmt_group('|', '|', ' ', '\n');
-  case str_fmt::array:
-   return str_fmt_group('{', '}', ',', '\n');
-  case str_fmt::list:
-   return str_fmt_group('(', ')', ',', '\n');
-  case str_fmt::inline_array:
-   return str_fmt_group('{', '}', ',', ' ');
-  case str_fmt::bare:
-   return str_fmt_group(' ', ' ', ' ', '\n');
-  }
-  return str_fmt_group('?', '?', '?', '?');
- }
+ str_fmt_group enclosing_chars(str_fmt fmt);
  template <typename T>
  std::string to_string(const vec4<T> &vec, str_fmt fmt = str_fmt::array)
  {
@@ -864,23 +856,20 @@ namespace galg
  {
   return to_string_mat_x<mat4<T>, 4>(m, fmt);
  }
- std::string to_string(bool b)
- {
-  return std::string(b ? "true" : "false");
- }
+ std::string to_string(bool b);
 }
-# 32 "kvasir-eng-include.h" 2
-# 1 "./src/utils/galg-dllexport.h" 1
-# 33 "kvasir-eng-include.h" 2
-# 1 "./src/utils/memory-aid.h" 1
-# 34 "kvasir-eng-include.h" 2
-# 1 "./src/utils/rel-paths.h" 1
-# 35 "kvasir-eng-include.h" 2
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 using namespace galg;
 
-# 1 "./src/world/position.h" 1
-# 10 "./src/world/position.h"
+ 
+ 
 using namespace galg;
 
 namespace kvasir
@@ -912,9 +901,9 @@ namespace kvasir
   vec2f rot_pt;
  };
 }
-# 39 "kvasir-eng-include.h" 2
-# 1 "./src/utils/fps-manager.h" 1
-# 12 "./src/utils/fps-manager.h"
+ 
+ 
+ 
 namespace kvasir
 {
  struct frame_manager
@@ -931,9 +920,9 @@ namespace kvasir
   double desired_delta = 1.0 / 60;
  };
 }
-# 40 "kvasir-eng-include.h" 2
-# 1 "./src/render-base/buffer.h" 1
-# 11 "./src/render-base/buffer.h"
+ 
+ 
+ 
 namespace kvasir
 {
 
@@ -951,9 +940,9 @@ namespace kvasir
  };
 
 }
-# 41 "kvasir-eng-include.h" 2
-# 1 "./src/render-base/render-buffer.h" 1
-# 12 "./src/render-base/render-buffer.h"
+ 
+ 
+ 
 namespace kvasir
 {
  struct render_buffer
@@ -965,9 +954,9 @@ namespace kvasir
   virtual int get_height() = 0;
  };
 }
-# 42 "kvasir-eng-include.h" 2
-# 1 "./src/render-base/texture.h" 1
-# 18 "./src/render-base/texture.h"
+ 
+ 
+ 
 namespace kvasir
 {
 
@@ -1012,9 +1001,9 @@ namespace kvasir
  };
 
 }
-# 43 "kvasir-eng-include.h" 2
-# 1 "./src/world/material.h" 1
-# 19 "./src/world/material.h"
+ 
+ 
+ 
 namespace kvasir
 {
  struct material_base
@@ -1031,9 +1020,9 @@ namespace kvasir
   std::vector<texture_base *> &get_texs();
  };
 }
-# 44 "kvasir-eng-include.h" 2
-# 1 "./src/world/mesh.h" 1
-# 21 "./src/world/mesh.h"
+ 
+ 
+ 
 using namespace galg;
 
 namespace kvasir
@@ -1130,9 +1119,9 @@ namespace kvasir
   bool make_quad(const vec2f &size, buffer_base *buf);
  };
 };
-# 45 "kvasir-eng-include.h" 2
-# 1 "./src/physics/physics.h" 1
-# 10 "./src/physics/physics.h"
+ 
+ 
+ 
 using namespace galg;
 
 namespace kvasir
@@ -1182,9 +1171,9 @@ namespace kvasir
  };
 
 }
-# 46 "kvasir-eng-include.h" 2
-# 1 "./src/world/camera.h" 1
-# 9 "./src/world/camera.h"
+ 
+ 
+ 
 namespace kvasir
 {
 
@@ -1211,9 +1200,9 @@ namespace kvasir
  };
 
 }
-# 47 "kvasir-eng-include.h" 2
-# 1 "./src/utils/input.h" 1
-# 15 "./src/utils/input.h"
+ 
+ 
+ 
 namespace kvasir
 {
  enum key
@@ -1357,9 +1346,9 @@ namespace kvasir
  };
 
 }
-# 48 "kvasir-eng-include.h" 2
-# 1 "./src/render-base/shader.h" 1
-# 9 "./src/render-base/shader.h"
+ 
+ 
+ 
 namespace kvasir
 {
 
@@ -1390,9 +1379,9 @@ namespace kvasir
  };
 
 }
-# 49 "kvasir-eng-include.h" 2
-# 1 "./src/renderers/renderer.h" 1
-# 23 "./src/renderers/renderer.h"
+ 
+ 
+ 
 namespace kvasir
 {
  struct render_base
@@ -1451,9 +1440,9 @@ namespace kvasir
  };
 
 };
-# 50 "kvasir-eng-include.h" 2
-# 1 "./src/utils/common-ops.h" 1
-# 12 "./src/utils/common-ops.h"
+ 
+ 
+ 
 namespace kvasir
 {
  void cam_debug_controls(render_base *base, camera3d &cam, float delta, float mv_speed = 3.f, float rot_speed = 1.4f, float spb1 = 3.f, float spb2 = 7.f);
@@ -1461,9 +1450,9 @@ namespace kvasir
  material_base *make_material(render_base *base, const char *diffuse_img_path);
  material_base *make_material(render_base *base, long diffuse_colour);
 }
-# 51 "kvasir-eng-include.h" 2
-# 1 "./src/kvasir-engine.h" 1
-# 22 "./src/kvasir-engine.h"
+ 
+ 
+ 
 namespace kvasir
 {
 
@@ -1511,4 +1500,4 @@ namespace kvasir
   result start_with_base();
  };
 }
-# 52 "kvasir-eng-include.h" 2
+#endif

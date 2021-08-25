@@ -12,9 +12,9 @@ include_directories(
 )
 
 set(BUILD_TESTS ON)
-set(GLOBAL_TEST OFF)
+set(GLOBAL_TEST ON)
 set(TERM_TEST OFF)
-set(K2D_TEST ON)
+set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
 
 set(BUILD_TOOLS OFF)

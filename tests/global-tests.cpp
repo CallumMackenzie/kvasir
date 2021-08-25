@@ -23,13 +23,14 @@ struct kvasir_demo : kvasir_engine
 		fixed_time.set_fps(5);
 		time.set_fps(144);
 		cam.far = 1000;
+		cam.pos = vec3f(0, 2, -6);
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 		p3d = default_physics3d();
 		if (!p3d)
 			return user_result("Physics was nullptr.");
 
-		if (!ground.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
+		if (!ground.load_from_obj_data(data::objects3d::get_cube_obj(), base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ground.pos.y() = -2;
 		ground.set_material(make_material(base, 0xffffff));
@@ -37,20 +38,20 @@ struct kvasir_demo : kvasir_engine
 		ground.vertex_scale(scale);
 		p3d->add_mesh_box_hitbox(ground, scale, physics3d::static_props());
 
-		if (!ramp.load_from_obj_data(data::objects3d::rect_prism_obj, base->make_buffer()))
+		if (!ramp.load_from_obj_data(data::objects3d::get_rect_prism_obj(), base->make_buffer()))
 			return user_result("Ground failed loading.");
 		ramp.pos.z() = 30;
-		ramp.set_material(make_material(base, 0x80bf80));
+		ramp.set_material(make_material(base, 0x80bf81));
 		ramp.vertex_scale(vec3f(10, 9, 10));
 		p3d->add_mesh(ramp, true, physics3d::static_props());
 
 		for (size_t i = 0; i < 20; ++i)
 		{
 			mesh3d *ms = new mesh3d();
-			if (!ms->load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
+			if (!ms->load_from_obj_data(data::objects3d::get_cube_obj(), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->pos = vec3f((float)(i % 2) * 0.4f, (float)i * 3.f + 2, (float)(i % 3) * 0.4f);
-			ms->set_material(make_material(base, 0xfa4c3a));
+			ms->pos = vec3f((float)(i % 2), (float)i * 3.f + 2, (float)(i % 3));
+			ms->set_material(make_material(base, 0xffff00));
 			p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}
@@ -113,8 +114,8 @@ int main(int, char **)
 	{
 		kvasir_init();
 		kvasir_demo kvs;
-		// kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
-		kvasir_engine::result res = kvs.start(render_base::OPENGL);
+		kvasir_engine::result res = kvs.start(render_base::OPENGL, "Kvasir", 75 * 2, 32 * 2);
+		// kvasir_engine::result res = kvs.start(render_base::OPENGL);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 		kvasir_destroy();

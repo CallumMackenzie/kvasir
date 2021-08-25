@@ -4,20 +4,23 @@
 #define NO_USE_INCLUDES 1
 #define NO_STD_INCLUDES 1
 
-#define EXPANDING_INCLUDE 1
+// #define EXPANDING_INCLUDE 1
 // Define KVASIR_DLL if using a shared library
 
 #ifndef EXPANDING_INCLUDE
+#include <stdio.h>
 #include <stddef.h>
+#include <time.h>
+#include <string.h>
 #include <unordered_map>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <memory>
-#include <stdio.h>
-#include <time.h>
 #include <fstream>
 #include <sstream>
+#include <initializer_list>
+#include <cmath>
 #endif
 
 #include "./src/config.h"

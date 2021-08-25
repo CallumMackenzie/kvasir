@@ -3,7 +3,7 @@
 set(BUILD_OPENGL ON)
 set(BUILD_VULKAN ON)
 set(BUILD_TERMINAL ON)
-set(BUILD_DIRECTX OFF)
+set(BUILD_DIRECTX ON)
 set(BUILD_FREETYPE OFF)
 set(BUILD_BULLET ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -132,6 +132,7 @@ else()
 endif()
 add_library(
 	kvasir-engine ${KV_LIB_TYPE}
+	./lib/galg/galg_ops.cpp
 	./lib/glad/glad.c 
 	./lib/lodepng/lodepng.cpp
 	./src/world/position.cpp
@@ -141,6 +142,7 @@ add_library(
 	./src/render-base/glfw-window.cpp
 	./src/utils/input.cpp
 	./src/render-base/texture.cpp
+	./src/utils/data.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp
 	./src/physics/physics.cpp

@@ -25,25 +25,9 @@ namespace galg
 		const char close[2];
 		const char seper[2];
 		const char newline[2];
-		str_fmt_group(const char op, const char cl, const char br, const char nl) : open{op, '\0'}, close{cl, '\0'}, seper{br, '\0'}, newline{nl, '\0'} {}
+		str_fmt_group(const char op, const char cl, const char br, const char nl);
 	};
-	str_fmt_group enclosing_chars(str_fmt fmt)
-	{
-		switch (fmt)
-		{
-		case str_fmt::algebraic:
-			return str_fmt_group('|', '|', ' ', '\n');
-		case str_fmt::array:
-			return str_fmt_group('{', '}', ',', '\n');
-		case str_fmt::list:
-			return str_fmt_group('(', ')', ',', '\n');
-		case str_fmt::inline_array:
-			return str_fmt_group('{', '}', ',', ' ');
-		case str_fmt::bare:
-			return str_fmt_group(' ', ' ', ' ', '\n');
-		}
-		return str_fmt_group('?', '?', '?', '?');
-	}
+	str_fmt_group enclosing_chars(str_fmt fmt);
 	template <typename T>
 	std::string to_string(const vec4<T> &vec, str_fmt fmt = str_fmt::array)
 	{
@@ -107,10 +91,7 @@ namespace galg
 	{
 		return to_string_mat_x<mat4<T>, 4>(m, fmt);
 	}
-	std::string to_string(bool b)
-	{
-		return std::string(b ? "true" : "false");
-	}
+	std::string to_string(bool b);
 }
 
 #endif
