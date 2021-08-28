@@ -113,7 +113,7 @@ packer::krc_file packer::obj_stream_to_krc(const char *name, std::basic_istream<
 	for (size_t i = 0; i < ch_len; ++i)
 		ret.data.push_back(ch_data_ptr[i]);
 	ret.header.clear();
-	unsigned char header_vdata[HEADER_VDATA_LEN]{0};
+	unsigned char header_vdata[BLOB_VDATA_LEN]{0};
 	krc_file::add_header_section(ret.header, krc::MESH3D, name, ret.data_stack_ptr, ret.data.size(), header_vdata);
 	ret.data_stack_ptr += ch_len;
 	return ret;
@@ -121,7 +121,7 @@ packer::krc_file packer::obj_stream_to_krc(const char *name, std::basic_istream<
 std::vector<unsigned char> packer::krc_file::serialize()
 {
 	std::vector<unsigned char> ser;
-	add_cstr("krc", ser);
+	add_cstr(KRC_TAG, ser);
 	add_uint64_t(header.size(), ser);
 	add_uint64_t(header.size() + data.size(), ser);
 
@@ -149,8 +149,8 @@ std::string packer::krc_file::get_first_name()
 {
 	if (header.size() == 0)
 		return std::string("");
-	char recv[9]{0};
-	for (size_t i = 0; i < 8; ++i)
+	char recv[BLOB_NAME_LEN + 1]{0};
+	for (size_t i = 0; i < BLOB_NAME_LEN; ++i)
 		recv[i] = (char)header[BLOB_NAME_LOC + i];
 	return std::string(recv);
 }
@@ -217,26 +217,24 @@ void packer::krc_file::get_cstr(char *recv, size_t len, std::basic_fstream<unsig
 	for (size_t i = 0; i < len; ++i)
 		recv[i] = get<unsigned char>(fs);
 }
-void packer::krc_file::add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name_c, uint64_t data_pos, uint64_t data_len, unsigned char vdata[HEADER_VDATA_LEN])
+void packer::krc_file::add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name_c, uint64_t data_pos, uint64_t data_len, unsigned char vdata[BLOB_VDATA_LEN])
 {
 	std::string data_name(data_name_c);
-	if (data_name.size() > 8)
-		throw std::exception("Data name was more than 8 characters.");
-	while (data_name.size() < 8)
-		data_name.append("_");
-	header.push_back((unsigned char)type);		  // type
-	add_cstr(data_name.c_str(), header);		  // name
-	add_uint64_t(data_len, header);				  // data len
-	add_uint64_t(data_pos, header);				  // start pos
-	for (size_t i = 0; i < HEADER_VDATA_LEN; ++i) // buffer vdata
+	if (data_name.size() > BLOB_NAME_LEN)
+		throw std::exception("Data name was too many characters.");
+	while (data_name.size() < BLOB_NAME_LEN)
+		data_name.append(BLOB_NAME_FILLER);
+	header.push_back((unsigned char)type);		// type
+	add_cstr(data_name.c_str(), header);		// name
+	add_uint64_t(data_len, header);				// data len
+	add_uint64_t(data_pos, header);				// start pos
+	for (size_t i = 0; i < BLOB_VDATA_LEN; ++i) // buffer vdata
 		header.push_back(vdata[i]);
 }
 packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> all_data)
 {
 	if (all_data.size() < HEADER_STATIC_SIZE)
 		throw std::exception("Not a correct KRC file : too small.");
-	if (all_data[SH_SIGNATURE_LOC] != 'k' || all_data[SH_SIGNATURE_LOC + 1] != 'r' || all_data[SH_SIGNATURE_LOC + 2] != 'c')
-		throw std::exception("Not a correct KRC file : no krc tag.");
 	std::vector<unsigned char> header;
 	std::vector<unsigned char> data;
 
@@ -258,18 +256,18 @@ packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> all_da
 
 	return deserialize(header, data);
 }
-std::vector<unsigned char> *packer::krc_file::get_resource_data(const char *cname)
+std::vector<unsigned char> packer::krc_file::get_resource_data(const char *cname)
 {
 	header_blob blob = find_blob(cname);
 	if (!blob.is_valid())
-		return nullptr;
+		throw std::exception("Blob is not valid.");
 	return get_resource_data_from_blob(blob);
 }
 packer::krc_file::header_blob packer::krc_file::get_blob(unsigned char *blob_start)
 {
 	header_blob ret;
 	ret.type = (krc)blob_start[BLOB_TYPE_LOC];
-	for (size_t i = 0; i < 8; ++i)
+	for (size_t i = 0; i < BLOB_NAME_LEN; ++i)
 		ret.name[i] = blob_start[BLOB_NAME_LOC + i];
 	set_bytes(&blob_start[BLOB_RES_LEN_LOC], ret.len);
 	if (is_big_endian())
@@ -277,30 +275,30 @@ packer::krc_file::header_blob packer::krc_file::get_blob(unsigned char *blob_sta
 	set_bytes(&blob_start[BLOB_DAT_START_LOC], ret.ptr);
 	if (is_big_endian())
 		reverse_bytes(ret.ptr);
-	for (size_t i = 0; i < HEADER_VDATA_LEN; ++i)
+	for (size_t i = 0; i < BLOB_VDATA_LEN; ++i)
 		ret.vdata[i] = blob_start[BLOB_VDATA_LOC + i];
 	return ret;
 }
-std::vector<unsigned char> *packer::krc_file::get_resource_data_from_blob(header_blob &blob)
+std::vector<unsigned char> packer::krc_file::get_resource_data_from_blob(header_blob &blob)
 {
 	unsigned char *data_ptr = &data[blob.ptr];
-	std::vector<unsigned char> *krc_data = new std::vector<unsigned char>();
+	std::vector<unsigned char> krc_data;
 	for (size_t i = 0; i < blob.len; ++i)
-		krc_data->push_back(data_ptr[i]);
+		krc_data.push_back(data_ptr[i]);
 	return krc_data;
 }
 packer::krc_file::header_blob packer::krc_file::find_blob(const char *cname)
 {
 	std::string name(cname);
-	if (name.size() > 8)
-		throw std::exception("Data name was more than 8 characters.");
-	while (name.size() < 8)
-		name.append("_");
-	for (size_t i = 0; i < header.size(); i += HEADER_BLOB_LEN)
+	if (name.size() > BLOB_NAME_LEN)
+		throw std::exception("Data name was too many characters.");
+	while (name.size() < BLOB_NAME_LEN)
+		name.append(BLOB_NAME_FILLER);
+	for (size_t i = 0; i < header.size(); i += BLOB_LEN)
 	{
 		header_blob blob = get_blob(&header[i]);
 		bool name_eq = true;
-		for (size_t i = 0; i < 8; ++i)
+		for (size_t i = 0; i < BLOB_NAME_LEN; ++i)
 			name_eq &= (blob.name[i] == name.c_str()[i]);
 		if (name_eq)
 			return blob;
@@ -318,7 +316,7 @@ void packer::krc_file::add_data_section(std::vector<unsigned char> &data_dest, c
 }
 void packer::krc_file::add_mesh3d(const char *name, std::vector<mesh3d::triangle> tris)
 {
-	unsigned char mesh3d_vdata[HEADER_VDATA_LEN]{0};
+	unsigned char mesh3d_vdata[BLOB_VDATA_LEN]{0};
 	std::vector<unsigned char> tris_chdata;
 	for (size_t i = 0; i < tris.size(); ++i)
 		for (size_t j = 0; j < 3; ++j)
@@ -337,7 +335,7 @@ void packer::krc_file::add_mesh3d(const char *name, std::vector<mesh3d::triangle
 		}
 	add_resource(name, krc::MESH3D, tris_chdata, mesh3d_vdata);
 }
-void packer::krc_file::add_resource(const char *name, krc type, const std::vector<unsigned char> &newdata, unsigned char vdata[HEADER_VDATA_LEN])
+void packer::krc_file::add_resource(const char *name, krc type, const std::vector<unsigned char> &newdata, unsigned char vdata[BLOB_VDATA_LEN])
 {
 	add_data_section(data, newdata);
 	add_header_section(header, type, name, data_stack_ptr, newdata.size(), vdata);
@@ -362,36 +360,12 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data(const char *name
 		throw std::exception("Header blob is not valid.");
 	if (blob.type != krc::MESH3D)
 		throw std::exception("Blob is not of type MESH3D.");
-	std::vector<unsigned char> *chdata = get_resource_data_from_blob(blob);
-	if (!chdata)
-		throw std::exception("Could not retrieve data requested.");
-	std::vector<mesh3d::triangle> ret;
-	int64_t float_ctr = -1;
-	for (size_t i = 0; i < chdata->size() / sizeof(mesh3d::triangle); ++i)
-	{
-		ret.push_back(mesh3d::triangle{});
-		for (size_t j = 0; j < 3; ++j)
-		{
-			mesh3d::triangle::vert &vt = ret[i].v[j];
-			vt.p.x() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-			vt.p.y() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-			vt.p.z() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-
-			vt.t.x() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-			vt.t.y() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-
-			vt.n.x() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-			vt.n.y() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-			vt.n.z() = get_num<float>(&(*chdata)[(++float_ctr) * 4]);
-		}
-	}
-	DEL_PTR(chdata);
-	swap_endianness(ret, is_little_endian());
-	return ret;
+	std::vector<unsigned char> chdata = get_resource_data_from_blob(blob);
+	return get_mesh3d_data_from_bytes(chdata);
 }
 void packer::krc_file::add_texture(const char *name, const texture_image &img, bool image_decoded)
 {
-	unsigned char vdata[HEADER_VDATA_LEN]{0};
+	unsigned char vdata[BLOB_VDATA_LEN]{0};
 	set_vdata_bytes<unsigned>(vdata, 0, img.w);
 	set_vdata_bytes<unsigned>(vdata, sizeof(unsigned), img.h);
 	set_vdata_bytes<unsigned char>(vdata, sizeof(unsigned) * 2, (unsigned char)image_decoded);
@@ -418,16 +392,8 @@ texture_image packer::krc_file::get_texture(const char *name)
 		throw std::exception("Header blob is not valid.");
 	if (blob.type != krc::TEXTURE)
 		throw std::exception("Blob is not of type TEXTURE.");
-	std::vector<unsigned char> *pixels = get_resource_data_from_blob(blob);
-	texture_image ret;
-	ret.set_pixels(*pixels);
-	ret.w = get_vdata<unsigned>(blob.vdata, 0);
-	ret.h = get_vdata<unsigned>(blob.vdata, sizeof(unsigned));
-	bool image_decoded = (bool)get_vdata<unsigned char>(blob.vdata, sizeof(unsigned) * 2);
-	DEL_PTR(pixels);
-	if (!image_decoded)
-		ret = texture_image::decode_png_data(ret.get_pixels());
-	return ret;
+	std::vector<unsigned char> pixels = get_resource_data_from_blob(blob);
+	return get_texture_from_bytes(pixels, blob);
 }
 void packer::krc_file::add_mesh3d_from_obj_stream(const char *name, std::basic_istream<char, std::char_traits<char>> *stream)
 {
@@ -441,7 +407,39 @@ void packer::krc_file::add_mesh3d_from_obj_file(const char *name, const char *pa
 	add_mesh3d_from_obj_stream(name, &f);
 	f.close();
 }
-packer::krc_file::header_blob packer::krc_file::get_blob_from_file(const char *file, const char *name)
+packer::krc_file::header_blob packer::krc_file::get_blob_from_file(const char *file, const char *cname)
+{
+	std::vector<header_blob> blobs = get_blobs_in_file(file);
+	std::string name(cname);
+	if (name.size() > BLOB_NAME_LEN)
+		throw std::exception("Blob name was too many characters.");
+	while (name.size() < BLOB_NAME_LEN)
+		name.append(BLOB_NAME_FILLER);
+	header_blob *target_blob = nullptr;
+	for (size_t i = 0; i < blobs.size(); ++i)
+	{
+		bool nameeq = true;
+		for (size_t j = 0; j < BLOB_NAME_LEN; ++j)
+			nameeq &= blobs[i].name[j] == name[j];
+		if (nameeq)
+		{
+			target_blob = &blobs[i];
+			break;
+		}
+	}
+	if (!target_blob)
+		return header_blob{};
+	return *target_blob;
+}
+std::string packer::krc_file::header_blob::to_string()
+{
+	char nm[BLOB_NAME_LEN + 1]{0};
+	for (size_t i = 0; i < BLOB_NAME_LEN; ++i)
+		nm[i] = name[i];
+	char tp[BLOB_TYPE_LEN + 1]{(char)type, 0};
+	return std::string("hb(type=").append(std::string(tp)).append(", name=").append(std::string(nm)).append(", len=").append(std::to_string(len)).append(", ptr=").append(std::to_string(ptr)).append(")");
+}
+std::vector<packer::krc_file::header_blob> packer::krc_file::get_blobs_in_file(const char *file)
 {
 	std::ifstream f(file, std::ios::binary);
 	if (!f.is_open())
@@ -450,4 +448,93 @@ packer::krc_file::header_blob packer::krc_file::get_blob_from_file(const char *f
 	f.read((char *)static_header_buff, HEADER_STATIC_SIZE);
 	uint64_t header_len = get_num<uint64_t>(&static_header_buff[SH_BL_LOC]);
 	uint64_t file_len = get_num<uint64_t>(&static_header_buff[SH_FL_LOC]);
+	unsigned char *dynamic_header_buff = new unsigned char[header_len]{0};
+	f.read((char *)dynamic_header_buff, header_len);
+	uint64_t n_blobs = header_len / BLOB_LEN;
+	std::vector<header_blob> blobs;
+	for (size_t i = 0; i < n_blobs; ++i)
+		blobs.push_back(get_blob(&dynamic_header_buff[i * BLOB_LEN]));
+	DEL_ARR_PTR(dynamic_header_buff);
+	return blobs;
+}
+std::vector<unsigned char> packer::krc_file::get_resource_data_from_blob_file(const header_blob &blob, const char *file)
+{
+	std::ifstream f(file, std::ios::binary);
+	if (!f.is_open())
+		throw std::exception(std::string("Could not open file (").append(std::string(file)).append(").").c_str());
+	unsigned char static_header_buff[HEADER_STATIC_SIZE]{0};
+	f.read((char *)static_header_buff, HEADER_STATIC_SIZE);
+	uint64_t header_len = get_num<uint64_t>(&static_header_buff[SH_BL_LOC]);
+	uint64_t file_len = get_num<uint64_t>(&static_header_buff[SH_FL_LOC]);
+	uint64_t data_len = file_len - header_len;
+	unsigned char *dynamic_header_buff = new unsigned char[header_len]{0};
+	f.read((char *)dynamic_header_buff, header_len);
+	DEL_ARR_PTR(dynamic_header_buff);
+	f.seekg(blob.ptr + header_len + HEADER_STATIC_SIZE);
+#define READ_BUFF_SZ 1024
+	std::vector<unsigned char> data;
+	unsigned char buff[READ_BUFF_SZ]{0};
+	for (uint64_t i = 0; i < blob.len; i += READ_BUFF_SZ)
+	{
+		f.read((char *)buff, READ_BUFF_SZ);
+		for (size_t j = 0; j < READ_BUFF_SZ; ++j)
+			data.push_back(buff[j]);
+	}
+	while (data.size() > blob.len)
+		data.pop_back();
+	return data;
+}
+std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_file(const char *name, const char *file)
+{
+	header_blob blob = get_blob_from_file(file, name);
+	if (!blob.is_valid())
+		throw std::exception("No valid blob found.");
+	if (blob.type != krc::MESH3D)
+		throw std::exception("Blob is not of type MESH3D.");
+	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
+	return get_mesh3d_data_from_bytes(chdata);
+}
+texture_image packer::krc_file::get_texture_from_file(const char *name, const char *file)
+{
+	header_blob blob = get_blob_from_file(file, name);
+	if (!blob.is_valid())
+		throw std::exception("No valid blob found.");
+	if (blob.type != krc::TEXTURE)
+		throw std::exception("Blob is not of type TEXTURE.");
+	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
+	return get_texture_from_bytes(chdata, blob);
+}
+std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_bytes(std::vector<unsigned char> &chdata)
+{
+	std::vector<mesh3d::triangle> ret;
+	int64_t float_ctr = -1;
+	for (size_t i = 0; i < chdata.size() / sizeof(mesh3d::triangle); ++i)
+	{
+		ret.push_back(mesh3d::triangle{});
+		for (size_t j = 0; j < 3; ++j)
+		{
+			mesh3d::triangle::vert &vt = ret[i].v[j];
+			vt.p.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.p.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.p.z() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.t.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.t.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.n.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.n.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			vt.n.z() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+		}
+	}
+	swap_endianness(ret, is_little_endian());
+	return ret;
+}
+texture_image packer::krc_file::get_texture_from_bytes(std::vector<unsigned char> &bytes, header_blob &blob)
+{
+	texture_image ret;
+	ret.set_pixels(bytes);
+	ret.w = get_vdata<unsigned>(blob.vdata, 0);
+	ret.h = get_vdata<unsigned>(blob.vdata, sizeof(unsigned));
+	bool image_decoded = (bool)get_vdata<unsigned char>(blob.vdata, sizeof(unsigned) * 2);
+	if (!image_decoded)
+		ret = texture_image::decode_png_data(ret.get_pixels());
+	return ret;
 }

@@ -32,19 +32,31 @@ Next x bytes is the data.
 
 */
 
+#define KRC_TAG "krc"
+#define BLOB_NAME_FILLER " "
+
+#define BLOB_TYPE_LEN 1
+#define BLOB_NAME_LEN 15
+#define BLOB_LEN_LEN sizeof(uint64_t)
+#define BLOB_POS_LEN sizeof(uint64_t)
+#define BLOB_VDATA_LEN 32
+
+#define SH_SIGNATURE_LEN (sizeof(KRC_TAG) - 1)
+#define SH_BL_LEN sizeof(uint64_t)
+#define SH_FL_LEN sizeof(uint64_t)
+
 #define SH_SIGNATURE_LOC 0
-#define SH_BL_LOC 3
-#define SH_FL_LOC (3 + 8)
+#define SH_BL_LOC SH_SIGNATURE_LEN
+#define SH_FL_LOC (SH_SIGNATURE_LEN + SH_BL_LEN)
 
 #define BLOB_TYPE_LOC 0
-#define BLOB_NAME_LOC 1
-#define BLOB_RES_LEN_LOC (1 + 8)
-#define BLOB_DAT_START_LOC (1 + 8 + 8)
-#define BLOB_VDATA_LOC (1 + 8 + 8 + 8)
+#define BLOB_NAME_LOC BLOB_TYPE_LEN
+#define BLOB_RES_LEN_LOC (BLOB_TYPE_LEN + BLOB_NAME_LEN)
+#define BLOB_DAT_START_LOC (BLOB_TYPE_LEN + BLOB_NAME_LEN + BLOB_LEN_LEN)
+#define BLOB_VDATA_LOC (BLOB_TYPE_LEN + BLOB_NAME_LEN + BLOB_LEN_LEN + BLOB_POS_LEN)
 
-#define HEADER_VDATA_LEN 32
-#define HEADER_BLOB_LEN (HEADER_VDATA_LEN + 1 + 8 + 8 + 8)
-#define HEADER_STATIC_SIZE (3 + 8 + 8)
+#define BLOB_LEN (BLOB_TYPE_LEN + BLOB_NAME_LEN + BLOB_LEN_LEN + BLOB_POS_LEN + BLOB_VDATA_LEN)
+#define HEADER_STATIC_SIZE (SH_SIGNATURE_LEN + SH_BL_LEN + SH_FL_LEN)
 
 namespace byte_ops
 {
@@ -116,12 +128,13 @@ namespace kvasir
 			struct header_blob
 			{
 				krc type = krc::UNKNOWN;
-				char name[8]{0};
+				char name[BLOB_NAME_LEN]{0};
 				uint64_t len = 0;
 				uint64_t ptr = 0;
-				unsigned char vdata[HEADER_VDATA_LEN]{0};
+				unsigned char vdata[BLOB_VDATA_LEN]{0};
 
 				bool is_valid();
+				std::string to_string();
 			};
 
 			std::vector<unsigned char> data;
@@ -142,10 +155,10 @@ namespace kvasir
 			void add_texture(const char *name, const char *png_path, bool decode_image = true);
 			void add_texture(const char *name, const texture_image &img, bool image_decoded = true);
 
-			void add_resource(const char *name, krc type, const std::vector<unsigned char> &data, unsigned char vdata[HEADER_VDATA_LEN]);
+			void add_resource(const char *name, krc type, const std::vector<unsigned char> &data, unsigned char vdata[BLOB_VDATA_LEN]);
 
-			std::vector<unsigned char> *get_resource_data(const char *name);
-			std::vector<unsigned char> *get_resource_data_from_blob(header_blob &blob);
+			std::vector<unsigned char> get_resource_data(const char *name);
+			std::vector<unsigned char> get_resource_data_from_blob(header_blob &blob);
 			header_blob find_blob(const char *name);
 			std::vector<mesh3d::triangle> get_mesh3d_data(const char *name);
 			texture_image get_texture(const char *name);
@@ -154,19 +167,24 @@ namespace kvasir
 			static krc_file deserialize(std::vector<unsigned char> header, std::vector<unsigned char> dat);
 			static krc_file deserialize(std::vector<unsigned char> all_data);
 			static krc_file deserialize(const char *file_path);
-
 			static void add_uint64_t(uint64_t val, std::vector<unsigned char> &f);
 			static void add_float(float val, std::vector<unsigned char> &f);
 			static void add_char(char val, std::vector<unsigned char> &f);
 			static void add_cstr(const char *str, std::vector<unsigned char> &f);
 			static void get_cstr(char *recv, size_t len, std::basic_fstream<unsigned char, std::char_traits<unsigned char>> &fs);
-			static void add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name, uint64_t data_pos, uint64_t data_len, unsigned char vdata[HEADER_VDATA_LEN]);
+			static void add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name, uint64_t data_pos, uint64_t data_len, unsigned char vdata[BLOB_VDATA_LEN]);
 			static void add_data_section(std::vector<unsigned char> &data_dest, const std::vector<unsigned char> &data_src);
 			static header_blob get_blob(unsigned char *blob_start);
 			static header_blob get_blob_from_file(const char *file, const char *name);
+			static std::vector<header_blob> get_blobs_in_file(const char *file);
+			static std::vector<unsigned char> get_resource_data_from_blob_file(const header_blob &blob, const char *file);
+			static std::vector<mesh3d::triangle> get_mesh3d_data_from_file(const char *name, const char *file);
+			static std::vector<mesh3d::triangle> get_mesh3d_data_from_bytes(std::vector<unsigned char> &bytes);
+			static texture_image get_texture_from_file(const char *name, const char *file);
+			static texture_image get_texture_from_bytes(std::vector<unsigned char> &bytes, header_blob &blob);
 
 			template <typename T>
-			static void set_vdata_bytes(unsigned char vdata[HEADER_VDATA_LEN], size_t offset, T val)
+			static void set_vdata_bytes(unsigned char vdata[BLOB_VDATA_LEN], size_t offset, T val)
 			{
 				unsigned char bytes[sizeof(T)]{0};
 				if (is_big_endian())
@@ -177,7 +195,7 @@ namespace kvasir
 			}
 
 			template <typename T>
-			static T get_vdata(unsigned char vdata[HEADER_VDATA_LEN], size_t offset)
+			static T get_vdata(unsigned char vdata[BLOB_VDATA_LEN], size_t offset)
 			{
 				unsigned char bytes[sizeof(T)]{0};
 				T ret = 0;

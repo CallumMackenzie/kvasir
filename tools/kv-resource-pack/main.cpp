@@ -8,7 +8,7 @@
 
 using namespace kvasir;
 
-#define KRC_FILE_LOC RESOURCE("../test.krc")
+#define KRC_FILE_LOC RESOURCE("../../../res/test.krc")
 
 COUNT_MEMORY
 
@@ -25,13 +25,11 @@ struct resource_demo : kvasir_engine
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 
-		packer::krc_file des = packer::krc_file::deserialize(KRC_FILE_LOC);
+		// packer::krc_file des = packer::krc_file::deserialize(KRC_FILE_LOC);
 
-		if (!tmsh.load_from_tri_data(des.get_mesh3d_data("Sphere"), base->make_buffer()))
-			// if (!tmsh.load_from_obj("D:\\3D Models\\isont.obj", base->make_buffer()))
+		if (!tmsh.load_from_tri_data(packer::krc_file::get_mesh3d_data_from_file("Mando", KRC_FILE_LOC), base->make_buffer()))
 			return user_result("Tmsh failed loading.");
-		tmsh.set_material(make_material(base, des.get_texture("Banana")));
-		// tmsh.set_material(make_material(base, "D:\\Images\\71OpO-3gUfL.png"));
+		tmsh.set_material(make_material(base, packer::krc_file::get_texture_from_file("Heightmp", KRC_FILE_LOC)));
 
 		shader = base->make_shader();
 		const char *s[2] GL_SHADER_ARR(diffuse3d);
@@ -71,15 +69,19 @@ int main(int, char **)
 
 	try
 	{
-#if 0
 		packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
 		strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj());
 		strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj());
-		strt.add_texture("Banana", "D:\\Images\\Bark_Pine_height.png", true);
-		strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\isont.obj");
+		strt.add_texture("Heightmp", "D:\\Images\\Bark_Pine_height.png", false);
+		strt.add_mesh3d_from_obj_file("Icos", "D:\\3D Models\\isont.obj");
+		strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\uvsmoothnt.obj");
+		strt.add_mesh3d_from_obj_file("Mando", "D:\\3D Models\\shipnt.obj");
 		if (!strt.save(KRC_FILE_LOC))
 			throw std::exception("Could not save resource.");
-#endif
+
+		auto head = packer::krc_file::get_blob_from_file(KRC_FILE_LOC, "Prism");
+		if (head.is_valid())
+			std::cout << head.to_string() << std::endl;
 
 		kvasir_init();
 		resource_demo kvs;
