@@ -63,3 +63,10 @@ kvasir::material_base *kvasir::make_material(render_base *base, long colour)
 	mat->get_texs()[0]->make_colour(colour);
 	return mat;
 }
+kvasir::material_base *kvasir::make_material(render_base *base, texture_image &img)
+{
+	material_base *mat = base->make_material();
+	mat->get_texs()[0] = base->make_texture();
+	mat->get_texs()[0]->make(img, 0);
+	return mat;
+}

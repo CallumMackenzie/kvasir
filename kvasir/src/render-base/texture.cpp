@@ -1,6 +1,7 @@
 #include "texture.h"
 #include "lodepng.h"
 #include "memory-aid.h"
+#include <exception>
 
 using namespace kvasir;
 
@@ -26,19 +27,12 @@ texture_base::~texture_base()
 texture_image texture_base::load_image(const char *file_path)
 {
 	std::string file_path_str(file_path);
-	if (use_image_cache)
+	if (use_image_cache && image_cache_valid())
 		if (get_image_cache().find(file_path_str) != get_image_cache().end())
 			return get_image_cache()[file_path_str];
-	std::vector<unsigned char> buffer;
-	texture_image img;
-	lodepng::load_file(buffer, file_path_str);
-	unsigned error = lodepng::decode(img.get_pixels(), img.w, img.h, buffer);
-	if (error)
-	{
-		std::cerr << "lodepng decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-		return texture_image{};
-	}
-	if (use_image_cache)
+	std::vector<unsigned char> buffer = texture_image::get_png_data(file_path);
+	texture_image img = texture_image::decode_png_data(buffer);
+	if (use_image_cache && image_cache_valid())
 		get_image_cache()[file_path_str] = img;
 	return img;
 }
@@ -74,9 +68,14 @@ void texture_base::make_colour(long colour, size_t slot)
 }
 const std::vector<unsigned char> &texture_image::get_pixels() const { return pixels; };
 std::vector<unsigned char> &texture_image::get_pixels() { return pixels; }
+void texture_image::set_pixels(const std::vector<unsigned char> &new_pixels)
+{
+	pixels = new_pixels;
+}
 
 void texture_base::init()
 {
+	DEL_PTR(image_cache);
 	image_cache = new std::unordered_map<std::string, texture_image>();
 }
 void texture_base::destroy()
@@ -95,4 +94,24 @@ texture_image::~texture_image()
 std::unordered_map<std::string, texture_image> &texture_base::get_image_cache()
 {
 	return *image_cache;
+}
+bool texture_base::image_cache_valid()
+{
+	return (bool)image_cache;
+}
+std::vector<unsigned char> texture_image::get_png_data(const char *file_path)
+{
+	std::vector<unsigned char> buff;
+	unsigned error = lodepng::load_file(buff, std::string(file_path));
+	if (error)
+		throw std::exception(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
+	return buff;
+}
+texture_image texture_image::decode_png_data(std::vector<unsigned char> &png_data)
+{
+	texture_image img;
+	unsigned error = lodepng::decode(img.get_pixels(), img.w, img.h, png_data);
+	if (error)
+		throw std::exception(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
+	return img;
 }

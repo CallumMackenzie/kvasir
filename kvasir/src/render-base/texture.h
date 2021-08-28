@@ -29,6 +29,10 @@ namespace kvasir
 		long pixel_rgb(const galg::vec2f &uv);
 		std::vector<unsigned char> &get_pixels();
 		const std::vector<unsigned char> &get_pixels() const;
+		void set_pixels(const std::vector<unsigned char> &new_pixels);
+
+		static std::vector<unsigned char> get_png_data(const char *file_path);
+		static texture_image decode_png_data(std::vector<unsigned char> &png_data);
 
 	private:
 		std::vector<unsigned char> pixels; // RGBA
@@ -49,6 +53,7 @@ namespace kvasir
 		static texture_image colour_image(long colour);
 
 		static std::unordered_map<std::string, texture_image> &get_image_cache();
+		static bool image_cache_valid();
 		static void init();
 		static void destroy();
 

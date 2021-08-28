@@ -15,6 +15,7 @@ namespace kvasir
 	KV_EXPORT void cam_debug_rotation(render_base *base, camera3d &cam, float delta, float rot_speed = 1.4f);
 	KV_EXPORT material_base *make_material(render_base *base, const char *diffuse_img_path);
 	KV_EXPORT material_base *make_material(render_base *base, long diffuse_colour);
+	KV_EXPORT material_base *make_material(render_base *base, texture_image &img);
 }
 
 #endif

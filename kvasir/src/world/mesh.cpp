@@ -17,7 +17,7 @@ mesh3d::~mesh3d()
 }
 std::vector<mesh3d::triangle> mesh3d::check_val_cache(const std::string &file)
 {
-	if (use_geo_val_cache)
+	if (use_geo_val_cache && geo_val_cache_valid())
 		if (get_geo_val_cache().find(file) != get_geo_val_cache().end())
 			return get_geo_val_cache()[file];
 	return std::vector<triangle>{};
@@ -34,7 +34,7 @@ std::vector<mesh3d::triangle> mesh3d::obj_to_tri_array(const char *file)
 	}
 	ifstream ifs(file);
 	tris = obj_data_stream_to_tri_arr(&ifs);
-	if (tris.size() > 0 && use_geo_val_cache)
+	if (tris.size() > 0 && use_geo_val_cache && geo_val_cache_valid())
 		get_geo_val_cache()[std::string(file)] = tris;
 	return tris;
 }
@@ -124,6 +124,10 @@ void mesh3d::setup_buffer(std::vector<triangle> &tris)
 	buffer->attrib_ptr(0, 3, sizeof(triangle::vert));
 	buffer->attrib_ptr(1, 2, sizeof(triangle::vert), sizeof(vec3f));
 	buffer->attrib_ptr(2, 3, sizeof(triangle::vert), sizeof(vec3f) + sizeof(vec2f));
+}
+bool mesh3d::geo_val_cache_valid()
+{
+	return (bool)geo_val_cache;
 }
 bool mesh3d::load_from_obj(const char *file_name, buffer_base *buf)
 {
@@ -296,6 +300,7 @@ std::vector<size_t> &group_mesh3d::get_total_tris() { return get_t_n_tris(); }
 std::vector<size_t> &group_mesh3d::get_t_n_tris() { return *t_n_tris; }
 void mesh3d::init()
 {
+	DEL_PTR(geo_val_cache);
 	geo_val_cache = new std::unordered_map<std::string, std::vector<triangle>>();
 }
 void mesh3d::destroy()

@@ -8,10 +8,15 @@
 
 using namespace kvasir;
 
+#define KRC_FILE_LOC RESOURCE("../test.krc")
+
+COUNT_MEMORY
+
 struct resource_demo : kvasir_engine
 {
 	camera3d cam;
 	mesh3d tmsh;
+	vec3f euler;
 	shader_base *shader = nullptr;
 
 	user_result on_start()
@@ -20,11 +25,13 @@ struct resource_demo : kvasir_engine
 		base->set_clear_colour(0x0f0f0f);
 		base->depth_buffer_active(true);
 
-		packer::krc_file des = packer::krc_file::deserialize("D:/test.krc");
-		std::vector<mesh3d::triangle> *tris = (std::vector<mesh3d::triangle> *)des.get_resource_data("Cube");
-		if (!tmsh.load_from_tri_data(*tris, base->make_buffer()))
+		packer::krc_file des = packer::krc_file::deserialize(KRC_FILE_LOC);
+
+		if (!tmsh.load_from_tri_data(des.get_mesh3d_data("Sphere"), base->make_buffer()))
+			// if (!tmsh.load_from_obj("D:\\3D Models\\isont.obj", base->make_buffer()))
 			return user_result("Tmsh failed loading.");
-		tmsh.set_material(make_material(base, 0xffffff));
+		tmsh.set_material(make_material(base, des.get_texture("Banana")));
+		// tmsh.set_material(make_material(base, "D:\\Images\\71OpO-3gUfL.png"));
 
 		shader = base->make_shader();
 		const char *s[2] GL_SHADER_ARR(diffuse3d);
@@ -35,6 +42,9 @@ struct resource_demo : kvasir_engine
 	}
 	void on_update()
 	{
+		euler += vec3f(1, 1, 1) * time.delta();
+		tmsh.rot.euler(euler);
+
 		cam_debug_controls(base, cam, time.delta());
 		base->clear();
 		base->render_mesh3d(cam, tmsh, shader);
@@ -58,23 +68,32 @@ struct resource_demo : kvasir_engine
 
 int main(int, char **)
 {
+
 	try
 	{
-		packer::krc_file strt = packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
-		strt.save("D:/test.krc");
+#if 0
+		packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
+		strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj());
+		strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj());
+		strt.add_texture("Banana", "D:\\Images\\Bark_Pine_height.png", true);
+		strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\isont.obj");
+		if (!strt.save(KRC_FILE_LOC))
+			throw std::exception("Could not save resource.");
+#endif
+
+		kvasir_init();
+		resource_demo kvs;
+		kvasir_engine::result res = kvs.start(render_base::OPENGL);
+		if (res != kvasir_engine::NO_ERROR)
+			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
+		kvasir_destroy();
 	}
 	catch (std::exception e)
 	{
 		std::cerr << "FATAL EXCEPTION: " << e.what() << std::endl;
-		return -1;
 	}
 
-	kvasir_init();
-	resource_demo kvs;
-	kvasir_engine::result res = kvs.start(render_base::OPENGL);
-	if (res != kvasir_engine::NO_ERROR)
-		std::cerr << "Kvasir engine crashed with code " << res << std::endl;
-	kvasir_destroy();
+	PRINT_MEMORY_SUMMARY
 
 	return 0;
 }

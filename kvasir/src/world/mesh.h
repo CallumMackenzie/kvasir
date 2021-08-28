@@ -72,6 +72,7 @@ namespace kvasir
 		static std::vector<triangle> obj_data_to_tri_arr(const char *data);
 		static std::vector<triangle> obj_data_stream_to_tri_arr(std::basic_istream<char, std::char_traits<char>> *stream);
 
+		static bool geo_val_cache_valid();
 		inline static bool use_geo_val_cache = true;
 		inline static std::unordered_map<std::string, std::vector<triangle>> *geo_val_cache = nullptr;
 

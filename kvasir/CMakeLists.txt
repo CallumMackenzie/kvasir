@@ -3,7 +3,7 @@
 macro(KVDEFAULT VNAME DEFVAL)
 	if (NOT DEFINED ${VNAME})
 		set(${VNAME} ${DEFVAL})
-		message("Macro not found, setting (" ${VNAME} "," ${DEFVAL} ")")
+		message(${VNAME} " definition not found, setting (" ${VNAME} "," ${DEFVAL} ")")
 	endif()
 endmacro()
 
