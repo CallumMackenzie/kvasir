@@ -147,6 +147,16 @@ bool mesh3d::load_from_obj_data(const char *data, buffer_base *buf)
 	setup_buffer(tris);
 	return true;
 }
+bool mesh3d::load_from_tri_data(std::vector<triangle> data, buffer_base *buf)
+{
+	DEL_PTR(buffer);
+	n_tris = data.size();
+	if (n_tris <= 0 || !buf)
+		return false;
+	buffer = buf;
+	setup_buffer(data);
+	return true;
+}
 bool group_mesh3d::load_from_objs(std::vector<const char *> files, buffer_base *buf)
 {
 	DEL_PTR(buffer);

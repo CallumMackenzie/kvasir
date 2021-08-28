@@ -1,6 +1,4 @@
 #include "krc-packer.h"
-#include <sstream>
-#include <fstream>
 
 bool byte_ops::is_big_endian()
 {
@@ -90,12 +88,12 @@ void byte_ops::set_bytes(unsigned char bytes[sizeof(unsigned char)], unsigned ch
 using namespace kvasir;
 using namespace byte_ops;
 
-packer::krc_file packer::obj_data_to_krc(const char *obj_data)
+packer::krc_file packer::obj_data_to_krc(const char *name, const char *obj_data)
 {
 	std::istringstream iss(obj_data);
-	return obj_stream_to_krc(&iss);
+	return obj_stream_to_krc(name, &iss);
 }
-packer::krc_file packer::obj_stream_to_krc(std::basic_istream<char, std::char_traits<char>> *stream)
+packer::krc_file packer::obj_stream_to_krc(const char *name, std::basic_istream<char, std::char_traits<char>> *stream)
 {
 	krc_file ret;
 	if (!stream)
@@ -108,7 +106,7 @@ packer::krc_file packer::obj_stream_to_krc(std::basic_istream<char, std::char_tr
 		ret.data.push_back(ch_data_ptr[i]);
 	ret.header.clear();
 	unsigned char header_vdata[HEADER_VDATA_LEN]{0};
-	krc_file::add_header_section(ret.header, krc::MESH3D, ret.data_stack_ptr, header_vdata);
+	krc_file::add_header_section(ret.header, krc::MESH3D, name, ret.data_stack_ptr, ret.data.size(), header_vdata);
 	ret.data_stack_ptr += ch_len;
 	return ret;
 }
@@ -125,10 +123,28 @@ std::vector<unsigned char> packer::krc_file::serialize()
 		ser.push_back(data[i]);
 	return ser;
 }
-packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> header, std::vector<unsigned char> dat, uint64_t header_len, uint64_t data_len)
+packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> header, std::vector<unsigned char> dat)
 {
-
-	return krc_file();
+	krc_file ret;
+	ret.header = header;
+	ret.data = dat;
+	ret.data_stack_ptr = dat.size();
+	return ret;
+}
+packer::krc packer::krc_file::get_first_type()
+{
+	if (header.size() == 0)
+		return krc::UNKNOWN;
+	return (krc)header[0];
+}
+std::string packer::krc_file::get_first_name()
+{
+	if (header.size() == 0)
+		return std::string("");
+	char recv[9]{0};
+	for (size_t i = 0; i < 8; ++i)
+		recv[i] = (char)header[1 + i];
+	return std::string(recv);
 }
 bool packer::krc_file::save(const char *path)
 {
@@ -147,23 +163,20 @@ packer::krc_file packer::krc_file::deserialize(const char *file_path)
 
 	char start_str[4]{0};
 	get_cstr(&start_str[0], 3, fs);
-	if (start_str[0] != 'k' || start_str[1] != 'r' || start_str[2] != 'c')
-	{
-		std::cerr << "File is not a proper KRC file." << std::endl;
-		return krc_file();
-	}
-	uint64_t header_len = get<uint64_t>(fs);
+	uint64_t buff_len = get<uint64_t>(fs);
 	uint64_t file_len = get<uint64_t>(fs);
-	uint64_t data_len = file_len - header_len;
-	std::vector<unsigned char> fdata;
-	std::vector<unsigned char> hdata;
+	std::vector<unsigned char> alldata;
+	add_cstr("krc", alldata);
+	add_uint64_t(buff_len, alldata);
+	add_uint64_t(file_len, alldata);
 
-	auto get_pow2 = [](uint64_t startctr, uint64_t val)
+	auto get_buff_len = [](uint64_t start, uint64_t val)
 	{
-		uint64_t ret = 0;
-		while ((val % (ret = (uint64_t)std::powl(2, (long double)--startctr))) != 0)
-			if (((int64_t)startctr - 1) == -1)
-				break;
+		if (start > val)
+			start = val;
+		uint64_t ret = start + 1;
+		while ((val % (--ret)) != 0)
+			;
 		return ret;
 	};
 
@@ -184,10 +197,9 @@ packer::krc_file packer::krc_file::deserialize(const char *file_path)
 		buff = nullptr;
 	};
 
-	read_file(hdata, get_pow2(6, header_len), header_len);
-	read_file(fdata, get_pow2(8, data_len), data_len);
+	read_file(alldata, get_buff_len(1024, file_len), file_len);
 
-	return deserialize(hdata, fdata, header_len, data_len);
+	return deserialize(alldata);
 }
 void packer::krc_file::add_uint64_t(uint64_t val, std::vector<unsigned char> &f)
 {
@@ -224,10 +236,97 @@ void packer::krc_file::get_cstr(char *recv, size_t len, std::basic_fstream<unsig
 	for (size_t i = 0; i < len; ++i)
 		recv[i] = get<unsigned char>(fs);
 }
-void packer::krc_file::add_header_section(std::vector<unsigned char> &header, krc type, uint64_t data_pos, unsigned char vdata[HEADER_VDATA_LEN])
+void packer::krc_file::add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name_c, uint64_t data_pos, uint64_t data_len, unsigned char vdata[HEADER_VDATA_LEN])
 {
-	header.push_back((unsigned char)type);
-	add_uint64_t(data_pos, header);
-	for (size_t i = 0; i < HEADER_VDATA_LEN; ++i)
+	std::string data_name(data_name_c);
+	if (data_name.size() > 8)
+		throw std::exception("Data name was more than 8 characters.");
+	while (data_name.size() < 8)
+		data_name.append("_");
+	header.push_back((unsigned char)type);		  // type
+	add_cstr(data_name.c_str(), header);		  // name
+	add_uint64_t(data_len, header);				  // data len
+	add_uint64_t(data_pos, header);				  // start pos
+	for (size_t i = 0; i < HEADER_VDATA_LEN; ++i) // vbuff data
 		header.push_back(vdata[i]);
+}
+packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> all_data)
+{
+	if (all_data.size() < HEADER_STATIC_SIZE)
+		throw std::exception("Not a correct KRC file : too small.");
+	if (all_data[0] != 'k' || all_data[1] != 'r' || all_data[2] != 'c')
+		throw std::exception("Not a correct KRC file : no krc tag.");
+	std::vector<unsigned char> header;
+	std::vector<unsigned char> data;
+
+	uint64_t header_len = 0, file_len = 0, data_len = 0;
+	set_bytes(&all_data[3], header_len);
+	set_bytes(&all_data[3 + 8], file_len);
+	if (is_big_endian())
+	{
+		reverse_bytes(header_len);
+		reverse_bytes(file_len);
+	}
+	data_len = file_len - header_len;
+
+	for (size_t i = 0; i < header_len; ++i)
+		header.push_back(all_data[i + HEADER_STATIC_SIZE]);
+
+	for (size_t i = 0; i < data_len; ++i)
+		data.push_back(all_data[i + HEADER_STATIC_SIZE + header_len]);
+
+	return deserialize(header, data);
+}
+void *packer::krc_file::get_resource_data(const char *cname)
+{
+	header_blob blob = find_blob(cname);
+	if (!blob.is_valid())
+		return nullptr;
+	return get_resource_data_from_blob(blob);
+}
+packer::krc_file::header_blob packer::krc_file::get_blob(unsigned char *blob_start)
+{
+	header_blob ret;
+	ret.type = (krc)blob_start[0];
+	for (size_t i = 0; i < 8; ++i)
+		ret.name[i] = blob_start[1 + i];
+	set_bytes(&blob_start[1 + 8], ret.len);
+	if (is_big_endian())
+		reverse_bytes(ret.len);
+	set_bytes(&blob_start[1 + 8 + 8], ret.ptr);
+	if (is_big_endian())
+		reverse_bytes(ret.ptr);
+	for (size_t i = 0; i < HEADER_VDATA_LEN; ++i)
+		ret.vbuff[i] = blob_start[1 + 8 + 8 + 8 + i];
+	return ret;
+}
+void *packer::krc_file::get_resource_data_from_blob(header_blob &blob)
+{
+	unsigned char *data_ptr = &data[blob.ptr];
+	std::vector<unsigned char> *krc_data = new std::vector<unsigned char>();
+	for (size_t i = 0; i < blob.len; ++i)
+		krc_data->push_back(data_ptr[i]);
+	return krc_data;
+}
+packer::krc_file::header_blob packer::krc_file::find_blob(const char *cname)
+{
+	std::string name(cname);
+	if (name.size() > 8)
+		throw std::exception("Data name was more than 8 characters.");
+	while (name.size() < 8)
+		name.append("_");
+	for (size_t i = 0; i < header.size(); i += HEADER_BLOB_LEN)
+	{
+		header_blob blob = get_blob(&header[i]);
+		bool name_eq = false;
+		for (size_t i = 0; i < 8; ++i)
+			name_eq |= (blob.name[i] == name.c_str()[i]);
+		if (name_eq)
+			return blob;
+	}
+	return header_blob();
+}
+bool packer::krc_file::header_blob::is_valid()
+{
+	return (len != 0 && name[0] != '\0');
 }

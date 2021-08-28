@@ -8,8 +8,73 @@
 
 using namespace kvasir;
 
+struct resource_demo : kvasir_engine
+{
+	camera3d cam;
+	mesh3d tmsh;
+	shader_base *shader = nullptr;
+
+	user_result on_start()
+	{
+		cam.pos = vec3f(0, 2, -6);
+		base->set_clear_colour(0x0f0f0f);
+		base->depth_buffer_active(true);
+
+		packer::krc_file des = packer::krc_file::deserialize("D:/test.krc");
+		std::vector<mesh3d::triangle> *tris = (std::vector<mesh3d::triangle> *)des.get_resource_data("Cube");
+		if (!tmsh.load_from_tri_data(*tris, base->make_buffer()))
+			return user_result("Tmsh failed loading.");
+		tmsh.set_material(make_material(base, 0xffffff));
+
+		shader = base->make_shader();
+		const char *s[2] GL_SHADER_ARR(diffuse3d);
+		if (!shader->compile(s, 2))
+			return user_result("Shader failed compiling");
+
+		return user_result::ok();
+	}
+	void on_update()
+	{
+		cam_debug_controls(base, cam, time.delta());
+		base->clear();
+		base->render_mesh3d(cam, tmsh, shader);
+		base->swap_buffers();
+
+		if (base->key_pressed(Escape))
+			base->set_should_close(true);
+	}
+	void on_fixed_update()
+	{
+		if (base->get_type() == render_base::TERMINAL)
+			cam.aspect = (float)base->get_aspect() * 2.f;
+		else
+			cam.aspect = (float)base->get_aspect();
+	}
+	void on_close()
+	{
+		DEL_PTR(shader);
+	}
+};
+
 int main(int, char **)
 {
-	packer::obj_data_to_krc(data::objects3d::get_cube_obj()).save("D:/test.krc");
-	// packer::krc_file::deserialize("D:/test.krc");
+	try
+	{
+		packer::krc_file strt = packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
+		strt.save("D:/test.krc");
+	}
+	catch (std::exception e)
+	{
+		std::cerr << "FATAL EXCEPTION: " << e.what() << std::endl;
+		return -1;
+	}
+
+	kvasir_init();
+	resource_demo kvs;
+	kvasir_engine::result res = kvs.start(render_base::OPENGL);
+	if (res != kvasir_engine::NO_ERROR)
+		std::cerr << "Kvasir engine crashed with code " << res << std::endl;
+	kvasir_destroy();
+
+	return 0;
 }

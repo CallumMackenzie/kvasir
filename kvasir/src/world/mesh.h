@@ -61,6 +61,7 @@ namespace kvasir
 		~mesh3d();
 		bool load_from_obj(const char *file_name, buffer_base *buf);
 		bool load_from_obj_data(const char *data, buffer_base *buf);
+		bool load_from_tri_data(std::vector<triangle> data, buffer_base *buf);
 		void vertex_pos(const vec3f &pos);
 		void vertex_rot(const quaternionf &rot);
 		void vertex_scale(const vec3f &scale);
