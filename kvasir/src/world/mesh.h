@@ -44,9 +44,9 @@ namespace kvasir
 		{
 			struct vert
 			{
-				vec3f p; // Vertex pos
-				vec2f t; // Vertex UV
-				vec3f n; // Vertex normal
+				vec3f p; // V (poss)
+				vec2f t; // T (text)
+				vec3f n; // N (norm)
 			};
 
 			vert v[3]; // Verteces in the triangle

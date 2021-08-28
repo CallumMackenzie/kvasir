@@ -75,7 +75,14 @@
 		"xloctime": "cpp",
 		"xtree": "cpp",
 		"bit": "cpp",
-		"*.rh": "cpp"
+		"*.rh": "cpp",
+		"charconv": "cpp",
+		"format": "cpp",
+		"forward_list": "cpp",
+		"locale": "cpp",
+		"stop_token": "cpp",
+		"xlocbuf": "cpp",
+		"xlocmes": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

@@ -5,54 +5,26 @@ set(CMAKE_CXX_STANDARD 17)
 include(CTest)
 enable_testing()
 
-add_subdirectory(./kvasir kvasir-engine)
-
-include_directories(
-	./kvasir
-)
-
-set(BUILD_TESTS ON)
-set(GLOBAL_TEST ON)
+set(GLOBAL_TEST OFF)
 set(TERM_TEST OFF)
 set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
-
-set(BUILD_TOOLS OFF)
-set(RES_BUNDLER ON)
-
-if (BUILD_TESTS)
-
-include_directories(
-	./tests
-)
+set(KV_RESOURCE_BUNDLER ON)
 
 if (GLOBAL_TEST)
-add_executable(global-testing ./tests/global-tests.cpp)
-target_link_libraries(global-testing kvasir-engine)
+add_subdirectory(./tests/engine-3d-phys)
 endif()
 
 if (TERM_TEST)
-add_executable(term-test ./tests/terminal-test.cpp)
-target_link_libraries(term-test kvasir-engine)
+add_subdirectory(./tests/engine-terminal)
 endif()
 
 if (K2D_TEST)
-add_executable(k2d-test ./tests/k2d-tests.cpp)
-target_link_libraries(k2d-test kvasir-engine)
+add_subdirectory(./tests/engine-2d)
 endif()
 
-if(SHARED_LIB_TEST)
-add_executable(shared-lib-test ./tests/shared-lib-test.cpp)
-target_link_libraries(shared-lib-test kvasir-engine)
-endif()
-
-endif()
-if (BUILD_TOOLS)
-
-if (RES_BUNDLER)
-add_subdirectory(./tools)
-endif()
-
+if(KV_RESOURCE_BUNDLER)
+add_subdirectory(./tools/kv-resource-pack)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
