@@ -172,7 +172,7 @@ namespace kvasir
 			static void add_float(float val, std::vector<unsigned char> &f);
 			static void add_char(char val, std::vector<unsigned char> &f);
 			static void add_cstr(const char *str, std::vector<unsigned char> &f);
-			static void get_cstr(char *recv, size_t len, std::basic_fstream<unsigned char, std::char_traits<unsigned char>> &fs);
+			static void get_cstr(char *recv, size_t len, std::ifstream &fs);
 			static void add_header_section(std::vector<unsigned char> &header, krc type, const char *data_name, uint64_t data_pos, uint64_t data_len, unsigned char vdata[BLOB_VDATA_LEN]);
 			static void add_data_section(std::vector<unsigned char> &data_dest, const std::vector<unsigned char> &data_src);
 			static header_blob get_blob(unsigned char *blob_start);
@@ -209,10 +209,10 @@ namespace kvasir
 			}
 
 			template <typename T>
-			static T get(std::basic_fstream<unsigned char, std::char_traits<unsigned char>> &fs)
+			static T get(std::ifstream &fs)
 			{
 				unsigned char t_buffer[sizeof(T)]{0};
-				fs.read(t_buffer, sizeof(T));
+				fs.read((char *)t_buffer, sizeof(T));
 				T ret = 0;
 				byte_ops::set_bytes(t_buffer, ret);
 				if (byte_ops::is_big_endian())

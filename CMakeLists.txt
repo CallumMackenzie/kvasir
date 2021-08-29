@@ -10,7 +10,7 @@ set(TERM_TEST OFF)
 set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
 set(KV_RESOURCE_BUNDLER OFF)
-set(FONT_RENDERING ON)
+set(FONT_RENDERING OFF)
 
 if (GLOBAL_TEST)
 add_subdirectory(./tests/engine-3d-phys)

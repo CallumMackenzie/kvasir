@@ -19,10 +19,10 @@ struct kvasir_demo : kvasir_engine
 		cam.far = 1000;
 		base->depth_buffer_active(true);
 
-		if (!test_m.load_from_obj_data(data::objects3d::cube_obj, base->make_buffer()))
+		if (!test_m.load_from_obj_data(data::objects3d::get_cube_obj(), base->make_buffer()))
 			return user_result("A mesh failed loading.");
 		test_m.pos.z() = 4;
-		test_m.material = make_material(base, 0xffaaff);
+		test_m.set_material(make_material(base, 0xffaaff));
 
 		return user_result::ok();
 	}
@@ -49,7 +49,7 @@ int main(int, char **)
 	{
 		kvasir_init();
 		kvasir_demo kvs;
-		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75 * 3, 32 * 3);
+		kvasir_engine::result res = kvs.start(render_base::TERMINAL, "Kvasir", 75, 32);
 		if (res != kvasir_engine::NO_ERROR)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 	}

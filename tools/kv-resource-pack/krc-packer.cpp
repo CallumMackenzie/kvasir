@@ -212,7 +212,7 @@ void packer::krc_file::add_cstr(const char *str, std::vector<unsigned char> &f)
 	while ((val = str[++str_ctr]) != '\0')
 		add_char(val, f);
 }
-void packer::krc_file::get_cstr(char *recv, size_t len, std::basic_fstream<unsigned char, std::char_traits<unsigned char>> &fs)
+void packer::krc_file::get_cstr(char *recv, size_t len, std::ifstream &fs)
 {
 	for (size_t i = 0; i < len; ++i)
 		recv[i] = get<unsigned char>(fs);
