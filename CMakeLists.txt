@@ -11,6 +11,7 @@ set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
 set(KV_RESOURCE_BUNDLER OFF)
 set(FONT_RENDERING OFF)
+set(VULKAN_2D ON)
 
 if (GLOBAL_TEST)
 add_subdirectory(./tests/engine-3d-phys)
@@ -30,6 +31,10 @@ endif()
 
 if(FONT_RENDERING)
 add_subdirectory(./tests/font-rendering)
+endif()
+
+if(VULKAN_2D)
+add_subdirectory(./tests/vulkan-2d)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
