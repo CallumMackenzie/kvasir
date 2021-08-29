@@ -2,6 +2,9 @@
 
 apt update
 
+# CMake
+apt install cmake
+
 # X11 tools
 apt install xorg-dev
 
@@ -17,3 +20,6 @@ apt install vulkan-sdk
 # OpenGL install
 apt install mesa-utils
 apt install libglfw3-dev
+
+# Freetype install
+apt install libfreetype-dev

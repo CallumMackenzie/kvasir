@@ -38,6 +38,7 @@ using namespace galg;
 #include "./src/render-base/buffer.h"
 #include "./src/render-base/render-buffer.h"
 #include "./src/render-base/texture.h"
+#include "./src/render-base/font-renderer.h"
 #include "./src/world/material.h"
 #include "./src/world/mesh.h"
 #include "./src/physics/physics.h"

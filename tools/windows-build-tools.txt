@@ -1,0 +1,8 @@
+
+Vulkan SDK
+	Ensure that the enviornment variables VULKAN_LINK_DIRS 
+	and VULKAN_INCLUDE_DIRS are set to the library and include
+	directories respectively.
+
+Freetype
+	Freetype is packaged with the git repository.
