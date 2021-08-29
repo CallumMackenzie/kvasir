@@ -3,12 +3,11 @@
 macro(KVDEFAULT VNAME DEFVAL)
 	if (NOT DEFINED ${VNAME})
 		set(${VNAME} ${DEFVAL})
-		message(${VNAME} " definition not found, setting (" ${VNAME} "," ${DEFVAL} ")")
+		message(${VNAME} " definition not found, defaulting to " ${DEFVAL} ".")
 	endif()
 endmacro()
 
 # Config
-
 KVDEFAULT(BUILD_OPENGL ON)
 KVDEFAULT(BUILD_VULKAN ON)
 KVDEFAULT(BUILD_TERMINAL ON)
@@ -66,6 +65,9 @@ endif()
 if (BUILD_DIRECTX)
 	add_definitions(-DBUILD_DIRECTX=1)
 endif()
+if (BUILD_FREETYPE)
+	add_definitions(-DBUILD_FREETYPE=1)
+endif()
 
 # Dependencies
 add_subdirectory(./lib/glfw glfw)
@@ -73,31 +75,13 @@ if(BUILD_BULLET)
 	add_subdirectory(./lib/bullet3 bullet3)
 endif()
 if (BUILD_FREETYPE)
-	find_package(Freetype REQUIRED FATAL_ERROR)
+	if (NOT WINDOWS)
+		find_package(Freetype)
+	endif()
 endif()
 if (BUILD_VULKAN)
 	find_package(Vulkan REQUIRED FATAL_ERROR)
-endif()
-
-# Link dirs
-link_directories(
-	./lib/glfw
-	$ENV{LD_LIBRARY_PATH}
-)
-if (BUILD_VULKAN)
-	link_directories(
-		${Vulkan_LIBRARY}
-	)
-endif()
-if (BUILD_BULLET)
-	link_directories(
-		./lib/bullet3
-	)
-endif()
-if(BUILD_FREETYPE)
-	link_directories(
-		./lib/freetype
-	)
+	message("Vulkan found.")
 endif()
 
 # Include dirs
@@ -151,6 +135,7 @@ add_library(
 	./src/render-base/glfw-window.cpp
 	./src/utils/input.cpp
 	./src/render-base/texture.cpp
+	./src/render-base/font-renderer.cpp
 	./src/utils/data.cpp
 	./src/world/material.cpp
 	./src/world/mesh.cpp
@@ -166,6 +151,27 @@ add_library(
 	./src/utils/common-ops.cpp
 	./src/kvasir-engine.cpp 
 )
+
+# Link dirs
+link_directories(
+	./lib/glfw
+	$ENV{LD_LIBRARY_PATH}
+)
+if (BUILD_VULKAN)
+	link_directories(
+		${Vulkan_LIBRARY}
+	)
+endif()
+if (BUILD_BULLET)
+	link_directories(
+		./lib/bullet3
+	)
+endif()
+if (BUILD_FREETYPE)
+	link_directories(
+		./lib/freetype
+	)
+endif()
 
 # Link libraries
 target_link_libraries(
@@ -189,6 +195,13 @@ if(BUILD_BULLET)
 		Bullet3Common
 		Bullet3Geometry
 		BulletSoftBody
+	)
+endif()
+if (BUILD_FREETYPE)
+	target_link_libraries(
+		kvasir-engine
+		${FREETYPE_LIBRARIES}
+		${FREETYPE_LIBRARY}
 	)
 endif()
 
