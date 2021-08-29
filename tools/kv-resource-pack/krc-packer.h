@@ -142,6 +142,7 @@ namespace kvasir
 			uint64_t data_stack_ptr = 0;
 
 			bool save(const char *path);
+			void clear();
 			std::vector<unsigned char> serialize();
 			krc get_first_type();
 			std::string get_first_name();

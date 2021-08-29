@@ -9,7 +9,8 @@ set(GLOBAL_TEST OFF)
 set(TERM_TEST OFF)
 set(K2D_TEST OFF)
 set(SHARED_LIB_TEST OFF)
-set(KV_RESOURCE_BUNDLER ON)
+set(KV_RESOURCE_BUNDLER OFF)
+set(FONT_RENDERING ON)
 
 if (GLOBAL_TEST)
 add_subdirectory(./tests/engine-3d-phys)
@@ -25,6 +26,10 @@ endif()
 
 if(KV_RESOURCE_BUNDLER)
 add_subdirectory(./tools/kv-resource-pack)
+endif()
+
+if(FONT_RENDERING)
+add_subdirectory(./tests/font-rendering)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

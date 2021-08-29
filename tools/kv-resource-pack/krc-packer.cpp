@@ -538,3 +538,9 @@ texture_image packer::krc_file::get_texture_from_bytes(std::vector<unsigned char
 		ret = texture_image::decode_png_data(ret.get_pixels());
 	return ret;
 }
+void packer::krc_file::clear()
+{
+	header.clear();
+	data.clear();
+	data_stack_ptr = 0;
+}
