@@ -29,7 +29,8 @@ struct resource_demo : kvasir_engine
 
 		if (!tmsh.load_from_tri_data(packer::krc_file::get_mesh3d_data_from_file("Prism", KRC_FILE_LOC), base->make_buffer()))
 			return user_result("Tmsh failed loading.");
-		tmsh.set_material(make_material(base, packer::krc_file::get_texture_from_file("Heightmp", KRC_FILE_LOC)));
+		texture_image img = packer::krc_file::get_texture_from_file("Heightmp", KRC_FILE_LOC);
+		tmsh.set_material(make_material(base, img));
 
 		shader = base->make_shader();
 		const char *s[2] GL_SHADER_ARR(diffuse3d);
@@ -71,16 +72,16 @@ int main(int, char **)
 	try
 	{
 		{
-			packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
-			strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj());
-			strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj());
-			strt.add_texture("Heightmp", "D:\\Images\\Bark_Pine_height.png", false);
-			strt.add_mesh3d_from_obj_file("Icos", "D:\\3D Models\\isont.obj");
-			strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\uvsmoothnt.obj");
-			strt.add_mesh3d_from_obj_file("Mando", "D:\\3D Models\\shipnt.obj");
-			if (!strt.save(KRC_FILE_LOC))
-				throw std::exception("Could not save resource.");
-			strt.clear();
+			// packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
+			// strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj());
+			// strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj());
+			// strt.add_texture("Heightmp", "D:\\Images\\Bark_Pine_height.png", false);
+			// strt.add_mesh3d_from_obj_file("Icos", "D:\\3D Models\\isont.obj");
+			// strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\uvsmoothnt.obj");
+			// strt.add_mesh3d_from_obj_file("Mando", "D:\\3D Models\\shipnt.obj");
+			// if (!strt.save(KRC_FILE_LOC))
+				// throw std::runtime_error("Could not save resource.");
+			// strt.clear();
 		}
 
 		kvasir_init();
@@ -90,7 +91,7 @@ int main(int, char **)
 			std::cerr << "Kvasir engine crashed with code " << res << std::endl;
 		kvasir_destroy();
 	}
-	catch (std::exception e)
+	catch (std::runtime_error e)
 	{
 		std::cerr << "FATAL EXCEPTION: " << e.what() << std::endl;
 	}

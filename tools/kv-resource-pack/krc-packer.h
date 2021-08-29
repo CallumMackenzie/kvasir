@@ -60,42 +60,33 @@ Next x bytes is the data.
 
 namespace byte_ops
 {
-	bool is_big_endian();
-	bool is_little_endian();
+	KV_EXPORT bool is_big_endian();
+	KV_EXPORT bool is_little_endian();
 	// Assumes the numeric values are the same endianness as the system.
-	void swap_endianness(std::vector<kvasir::mesh3d::triangle> &vec, bool endianness);
+	KV_EXPORT void swap_endianness(std::vector<kvasir::mesh3d::triangle> &vec, bool endianness);
 	// Assumes v is the same endianness of the system.
-	void swap_endianness(galg::vec3f &v, bool endianness);
+	KV_EXPORT void swap_endianness(galg::vec3f &v, bool endianness);
 	// Assumes v is the same endianness as the system.
-	void swap_endianness(galg::vec2f &v, bool endianness);
+	KV_EXPORT void swap_endianness(galg::vec2f &v, bool endianness);
 	// Assumes tri vals are the same endianness as the system.
-	void swap_endianness(kvasir::mesh3d::triangle &tri, bool endianness);
+	KV_EXPORT void swap_endianness(kvasir::mesh3d::triangle &tri, bool endianness);
 	// Assumes v is the same endianness as the system.
-	void swap_endianness(uint64_t &v, bool endianness);
+	KV_EXPORT void swap_endianness(uint64_t &v, bool endianness);
 
-	// Assumes v is the same endianness as the system.
-	template <typename T>
-	void make_big_endian(T &v)
-	{
-		if (is_big_endian())
-			return;
-		reverse_bytes<T>(v);
-	}
+	KV_EXPORT void get_bytes(uint64_t n, unsigned char recv[sizeof(uint64_t)]);
+	KV_EXPORT void set_bytes(unsigned char bytes[sizeof(uint64_t)], uint64_t &recv);
 
-	void get_bytes(uint64_t n, unsigned char recv[sizeof(uint64_t)]);
-	void set_bytes(unsigned char bytes[sizeof(uint64_t)], uint64_t &recv);
+	KV_EXPORT void get_bytes(unsigned char n, unsigned char recv[sizeof(unsigned char)]);
+	KV_EXPORT void set_bytes(unsigned char bytes[sizeof(unsigned char)], unsigned char &recv);
 
-	void get_bytes(unsigned char n, unsigned char recv[sizeof(unsigned char)]);
-	void set_bytes(unsigned char bytes[sizeof(unsigned char)], unsigned char &recv);
+	KV_EXPORT void get_bytes(float n, unsigned char recv[sizeof(float)]);
+	KV_EXPORT void set_bytes(unsigned char bytes[sizeof(float)], float &recv);
 
-	void get_bytes(float n, unsigned char recv[sizeof(float)]);
-	void set_bytes(unsigned char bytes[sizeof(float)], float &recv);
-
-	void get_bytes(unsigned n, unsigned char recv[sizeof(unsigned)]);
-	void set_bytes(unsigned char bytes[sizeof(unsigned)], unsigned &recv);
+	KV_EXPORT void get_bytes(unsigned n, unsigned char recv[sizeof(unsigned)]);
+	KV_EXPORT void set_bytes(unsigned char bytes[sizeof(unsigned)], unsigned &recv);
 
 	template <typename T>
-	void reverse_bytes(T &rev)
+	KV_EXPORT void reverse_bytes(T &rev)
 	{
 		unsigned char rv[sizeof(T)]{0};
 		get_bytes(rev, rv);
@@ -103,6 +94,15 @@ namespace byte_ops
 		for (size_t i = 0; i < sizeof(T); ++i)
 			rt[i] = rv[(sizeof(T) - 1) - i];
 		set_bytes(rt, rev);
+	}
+
+	// Assumes v is the same endianness as the system.
+	template <typename T>
+	KV_EXPORT void make_big_endian(T &v)
+	{
+		if (is_big_endian())
+			return;
+		reverse_bytes<T>(v);
 	}
 }
 
@@ -123,9 +123,9 @@ namespace kvasir
 			VT,
 			VTN
 		};
-		struct krc_file
+		struct KV_EXPORT krc_file
 		{
-			struct header_blob
+			struct KV_EXPORT header_blob
 			{
 				krc type = krc::UNKNOWN;
 				char name[BLOB_NAME_LEN]{0};
@@ -188,9 +188,9 @@ namespace kvasir
 			static void set_vdata_bytes(unsigned char vdata[BLOB_VDATA_LEN], size_t offset, T val)
 			{
 				unsigned char bytes[sizeof(T)]{0};
-				if (is_big_endian())
-					reverse_bytes(val);
-				get_bytes(val, bytes);
+				if (byte_ops::is_big_endian())
+					byte_ops::reverse_bytes(val);
+				byte_ops::get_bytes(val, bytes);
 				for (size_t i = 0; i < sizeof(T); ++i)
 					vdata[i + offset] = bytes[i];
 			}
@@ -202,9 +202,9 @@ namespace kvasir
 				T ret = 0;
 				for (size_t i = 0; i < sizeof(T); ++i)
 					bytes[i] = vdata[i + offset];
-				set_bytes(bytes, ret);
-				if (is_big_endian())
-					reverse_bytes<T>(ret);
+				byte_ops::set_bytes(bytes, ret);
+				if (byte_ops::is_big_endian())
+					byte_ops::reverse_bytes<T>(ret);
 				return ret;
 			}
 
@@ -214,9 +214,9 @@ namespace kvasir
 				unsigned char t_buffer[sizeof(T)]{0};
 				fs.read(t_buffer, sizeof(T));
 				T ret = 0;
-				set_bytes(t_buffer, ret);
-				if (is_big_endian())
-					reverse_bytes<T>(ret);
+				byte_ops::set_bytes(t_buffer, ret);
+				if (byte_ops::is_big_endian())
+					byte_ops::reverse_bytes<T>(ret);
 				return ret;
 			}
 
@@ -224,9 +224,9 @@ namespace kvasir
 			static void add_bytes(std::vector<unsigned char> &v, T val)
 			{
 				unsigned char bytes[sizeof(T)]{0};
-				if (is_big_endian())
-					reverse_bytes(val);
-				get_bytes(val, bytes);
+				if (byte_ops::is_big_endian())
+					byte_ops::reverse_bytes(val);
+				byte_ops::get_bytes(val, bytes);
 				for (size_t i = 0; i < sizeof(T); ++i)
 					v.push_back(bytes[i]);
 			}
@@ -235,15 +235,15 @@ namespace kvasir
 			static T get_num(unsigned char bytes[sizeof(T)])
 			{
 				T add = 0;
-				set_bytes(bytes, add);
-				if (is_big_endian())
-					reverse_bytes(add);
+				byte_ops::set_bytes(bytes, add);
+				if (byte_ops::is_big_endian())
+					byte_ops::reverse_bytes(add);
 				return add;
 			}
 		};
 
-		krc_file obj_data_to_krc(const char *name, const char *obj_data);
-		krc_file obj_stream_to_krc(const char *name, std::basic_istream<char, std::char_traits<char>> *stream);
+		KV_EXPORT krc_file obj_data_to_krc(const char *name, const char *obj_data);
+		KV_EXPORT krc_file obj_stream_to_krc(const char *name, std::basic_istream<char, std::char_traits<char>> *stream);
 	}
 }
 

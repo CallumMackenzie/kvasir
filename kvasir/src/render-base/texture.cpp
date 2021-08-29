@@ -104,7 +104,7 @@ std::vector<unsigned char> texture_image::get_png_data(const char *file_path)
 	std::vector<unsigned char> buff;
 	unsigned error = lodepng::load_file(buff, std::string(file_path));
 	if (error)
-		throw std::exception(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
+		throw std::runtime_error(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
 	return buff;
 }
 texture_image texture_image::decode_png_data(std::vector<unsigned char> &png_data)
@@ -112,6 +112,6 @@ texture_image texture_image::decode_png_data(std::vector<unsigned char> &png_dat
 	texture_image img;
 	unsigned error = lodepng::decode(img.get_pixels(), img.w, img.h, png_data);
 	if (error)
-		throw std::exception(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
+		throw std::runtime_error(std::string("Lodepng decoder error ").append(std::to_string(error).append(std::string(": ")).append(std::string(lodepng_error_text(error)))).c_str());
 	return img;
 }

@@ -30,9 +30,9 @@ namespace kvasir
 
 	private:
 		clock_t last_frame = clock();
-		double delta_time;						 // Seconds
-		double desired_delta = 1.0 / 60;		 // Seconds
-		double delta_err = desired_delta * 0.03; // Seconds
+		double delta_time;				 // Seconds
+		double desired_delta = 1.0 / 60; // Seconds
+		double delta_err = 0;			 // Seconds
 	};
 }
 

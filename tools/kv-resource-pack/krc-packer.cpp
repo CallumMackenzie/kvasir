@@ -221,7 +221,7 @@ void packer::krc_file::add_header_section(std::vector<unsigned char> &header, kr
 {
 	std::string data_name(data_name_c);
 	if (data_name.size() > BLOB_NAME_LEN)
-		throw std::exception("Data name was too many characters.");
+		throw std::runtime_error("Data name was too many characters.");
 	while (data_name.size() < BLOB_NAME_LEN)
 		data_name.append(BLOB_NAME_FILLER);
 	header.push_back((unsigned char)type);		// type
@@ -234,7 +234,7 @@ void packer::krc_file::add_header_section(std::vector<unsigned char> &header, kr
 packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> all_data)
 {
 	if (all_data.size() < HEADER_STATIC_SIZE)
-		throw std::exception("Not a correct KRC file : too small.");
+		throw std::runtime_error("Not a correct KRC file : too small.");
 	std::vector<unsigned char> header;
 	std::vector<unsigned char> data;
 
@@ -260,7 +260,7 @@ std::vector<unsigned char> packer::krc_file::get_resource_data(const char *cname
 {
 	header_blob blob = find_blob(cname);
 	if (!blob.is_valid())
-		throw std::exception("Blob is not valid.");
+		throw std::runtime_error("Blob is not valid.");
 	return get_resource_data_from_blob(blob);
 }
 packer::krc_file::header_blob packer::krc_file::get_blob(unsigned char *blob_start)
@@ -291,7 +291,7 @@ packer::krc_file::header_blob packer::krc_file::find_blob(const char *cname)
 {
 	std::string name(cname);
 	if (name.size() > BLOB_NAME_LEN)
-		throw std::exception("Data name was too many characters.");
+		throw std::runtime_error("Data name was too many characters.");
 	while (name.size() < BLOB_NAME_LEN)
 		name.append(BLOB_NAME_FILLER);
 	for (size_t i = 0; i < header.size(); i += BLOB_LEN)
@@ -357,9 +357,9 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data(const char *name
 {
 	header_blob blob = find_blob(name);
 	if (!blob.is_valid())
-		throw std::exception("Header blob is not valid.");
+		throw std::runtime_error("Header blob is not valid.");
 	if (blob.type != krc::MESH3D)
-		throw std::exception("Blob is not of type MESH3D.");
+		throw std::runtime_error("Blob is not of type MESH3D.");
 	std::vector<unsigned char> chdata = get_resource_data_from_blob(blob);
 	return get_mesh3d_data_from_bytes(chdata);
 }
@@ -389,9 +389,9 @@ texture_image packer::krc_file::get_texture(const char *name)
 {
 	header_blob blob = find_blob(name);
 	if (!blob.is_valid())
-		throw std::exception("Header blob is not valid.");
+		throw std::runtime_error("Header blob is not valid.");
 	if (blob.type != krc::TEXTURE)
-		throw std::exception("Blob is not of type TEXTURE.");
+		throw std::runtime_error("Blob is not of type TEXTURE.");
 	std::vector<unsigned char> pixels = get_resource_data_from_blob(blob);
 	return get_texture_from_bytes(pixels, blob);
 }
@@ -412,7 +412,7 @@ packer::krc_file::header_blob packer::krc_file::get_blob_from_file(const char *f
 	std::vector<header_blob> blobs = get_blobs_in_file(file);
 	std::string name(cname);
 	if (name.size() > BLOB_NAME_LEN)
-		throw std::exception("Blob name was too many characters.");
+		throw std::runtime_error("Blob name was too many characters.");
 	while (name.size() < BLOB_NAME_LEN)
 		name.append(BLOB_NAME_FILLER);
 	header_blob *target_blob = nullptr;
@@ -443,7 +443,7 @@ std::vector<packer::krc_file::header_blob> packer::krc_file::get_blobs_in_file(c
 {
 	std::ifstream f(file, std::ios::binary);
 	if (!f.is_open())
-		throw std::exception(std::string("Could not open file (").append(std::string(file)).append(").").c_str());
+		throw std::runtime_error(std::string("Could not open file (").append(std::string(file)).append(").").c_str());
 	unsigned char static_header_buff[HEADER_STATIC_SIZE]{0};
 	f.read((char *)static_header_buff, HEADER_STATIC_SIZE);
 	uint64_t header_len = get_num<uint64_t>(&static_header_buff[SH_BL_LOC]);
@@ -461,7 +461,7 @@ std::vector<unsigned char> packer::krc_file::get_resource_data_from_blob_file(co
 {
 	std::ifstream f(file, std::ios::binary);
 	if (!f.is_open())
-		throw std::exception(std::string("Could not open file (").append(std::string(file)).append(").").c_str());
+		throw std::runtime_error(std::string("Could not open file (").append(std::string(file)).append(").").c_str());
 	unsigned char static_header_buff[HEADER_STATIC_SIZE]{0};
 	f.read((char *)static_header_buff, HEADER_STATIC_SIZE);
 	uint64_t header_len = get_num<uint64_t>(&static_header_buff[SH_BL_LOC]);
@@ -488,9 +488,9 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_file(const 
 {
 	header_blob blob = get_blob_from_file(file, name);
 	if (!blob.is_valid())
-		throw std::exception("No valid blob found.");
+		throw std::runtime_error("No valid blob found.");
 	if (blob.type != krc::MESH3D)
-		throw std::exception("Blob is not of type MESH3D.");
+		throw std::runtime_error("Blob is not of type MESH3D.");
 	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
 	return get_mesh3d_data_from_bytes(chdata);
 }
@@ -498,9 +498,9 @@ texture_image packer::krc_file::get_texture_from_file(const char *name, const ch
 {
 	header_blob blob = get_blob_from_file(file, name);
 	if (!blob.is_valid())
-		throw std::exception("No valid blob found.");
+		throw std::runtime_error("No valid blob found.");
 	if (blob.type != krc::TEXTURE)
-		throw std::exception("Blob is not of type TEXTURE.");
+		throw std::runtime_error("Blob is not of type TEXTURE.");
 	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
 	return get_texture_from_bytes(chdata, blob);
 }

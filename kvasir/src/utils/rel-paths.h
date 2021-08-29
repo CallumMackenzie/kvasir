@@ -14,7 +14,7 @@
 	std::string("../").append(str)
 #else
 #define R_PATH(str) \
-	return std::string(str)
+	std::string(str)
 #endif
 
 #define RESOURCE(X) \
