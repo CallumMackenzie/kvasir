@@ -39,10 +39,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # Windows linking
 if(WIN32)
-	if (BUILD_FREETYPE)
-		set(FREETYPE_INCLUDE_DIRS ./lib/freetype/include)
-		set(FREETYPE_LIBRARY freetype)
-	endif()
 	if (BUILD_VULKAN)
 		set(VULKAN_LINK_DIRS $ENV{VULKAN_SDK}/Lib)
 		set(VULKAN_INCLUDE_DIRS $ENV{VULKAN_SDK}/include)
@@ -75,9 +71,7 @@ if(BUILD_BULLET)
 	add_subdirectory(./lib/bullet3 bullet3)
 endif()
 if (BUILD_FREETYPE)
-	if (NOT WINDOWS)
-		find_package(Freetype)
-	endif()
+	add_subdirectory(./lib/kv-text kv-text)
 endif()
 if (BUILD_VULKAN)
 	find_package(Vulkan REQUIRED FATAL_ERROR)
@@ -109,9 +103,9 @@ if (BUILD_VULKAN)
 	)
 endif()
 if (BUILD_FREETYPE)
-	include_directories(
-		${FREETYPE_INCLUDE_DIRS}
-	)
+	# include_directories(
+	# 	${FREETYPE_INCLUDE_DIRS}
+	# )
 endif()
 
 # Files
@@ -167,10 +161,10 @@ if (BUILD_BULLET)
 		./lib/bullet3
 	)
 endif()
-if (BUILD_FREETYPE)
-	link_directories(
-		./lib/freetype
-	)
+if (BUILD_BULLET)
+	# link_directories(
+	# 	${FREETYPE_LINK_DIRS}
+	# )
 endif()
 
 # Link libraries
@@ -200,8 +194,8 @@ endif()
 if (BUILD_FREETYPE)
 	target_link_libraries(
 		kvasir-engine
-		${FREETYPE_LIBRARIES}
-		${FREETYPE_LIBRARY}
+		# ${FREETYPE_LIBRARIES}
+		kv-text
 	)
 endif()
 
