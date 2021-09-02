@@ -1,5 +1,29 @@
 #include "krc-packer.h"
 
+#define CONTAINS_TEX(T) (T == krc_mesh3d_fmt::VT || T == krc_mesh3d_fmt::VTN)
+#define CONTAINS_NORM(N) (N == krc_mesh3d_fmt::VN || N == krc_mesh3d_fmt::VTN)
+
+size_t get_mesh_size(kvasir::packer::krc_mesh3d_fmt f)
+{
+	{
+		using namespace kvasir::packer;
+		switch (f)
+		{
+		case krc_mesh3d_fmt::VTN:
+			return (sizeof(vec3f) + sizeof(vec2f) + sizeof(vec3f)) * 3;
+		case krc_mesh3d_fmt::VT:
+			return (sizeof(vec3f) + sizeof(vec2f)) * 3;
+		case krc_mesh3d_fmt::VN:
+			return (sizeof(vec3f) + sizeof(vec3f)) * 3;
+		case krc_mesh3d_fmt::V:
+			return (sizeof(vec3f)) * 3;
+		default:
+			break;
+		}
+	}
+	return sizeof(kvasir::mesh3d::triangle);
+}
+
 bool byte_ops::is_big_endian()
 {
 	union
@@ -224,12 +248,16 @@ void packer::krc_file::add_header_section(std::vector<unsigned char> &header, kr
 		throw std::runtime_error("Data name was too many characters.");
 	while (data_name.size() < BLOB_NAME_LEN)
 		data_name.append(BLOB_NAME_FILLER);
-	header.push_back((unsigned char)type);		// type
-	add_cstr(data_name.c_str(), header);		// name
-	add_uint64_t(data_len, header);				// data len
-	add_uint64_t(data_pos, header);				// start pos
-	for (size_t i = 0; i < BLOB_VDATA_LEN; ++i) // buffer vdata
-		header.push_back(vdata[i]);
+	header.push_back((unsigned char)type); // type
+	add_cstr(data_name.c_str(), header);   // name
+	add_uint64_t(data_len, header);		   // data len
+	add_uint64_t(data_pos, header);		   // start pos
+	if (vdata)
+		for (size_t i = 0; i < BLOB_VDATA_LEN; ++i) // buffer vdata
+			header.push_back(vdata[i]);
+	else
+		for (size_t i = 0; i < BLOB_VDATA_LEN; ++i)
+			header.push_back((unsigned char)0);
 }
 packer::krc_file packer::krc_file::deserialize(std::vector<unsigned char> all_data)
 {
@@ -314,44 +342,23 @@ void packer::krc_file::add_data_section(std::vector<unsigned char> &data_dest, c
 	for (size_t i = 0; i < data_src.size(); ++i)
 		data_dest.push_back(data_src[i]);
 }
-void packer::krc_file::add_mesh3d(const char *name, std::vector<mesh3d::triangle> tris)
-{
-	unsigned char mesh3d_vdata[BLOB_VDATA_LEN]{0};
-	std::vector<unsigned char> tris_chdata;
-	for (size_t i = 0; i < tris.size(); ++i)
-		for (size_t j = 0; j < 3; ++j)
-		{
-			mesh3d::triangle::vert &vt = tris[i].v[j];
-			add_bytes<float>(tris_chdata, vt.p.x());
-			add_bytes<float>(tris_chdata, vt.p.y());
-			add_bytes<float>(tris_chdata, vt.p.z());
-
-			add_bytes<float>(tris_chdata, vt.t.x());
-			add_bytes<float>(tris_chdata, vt.t.y());
-
-			add_bytes<float>(tris_chdata, vt.n.x());
-			add_bytes<float>(tris_chdata, vt.n.y());
-			add_bytes<float>(tris_chdata, vt.n.z());
-		}
-	add_resource(name, krc::MESH3D, tris_chdata, mesh3d_vdata);
-}
 void packer::krc_file::add_resource(const char *name, krc type, const std::vector<unsigned char> &newdata, unsigned char vdata[BLOB_VDATA_LEN])
 {
 	add_data_section(data, newdata);
 	add_header_section(header, type, name, data_stack_ptr, newdata.size(), vdata);
 	data_stack_ptr += newdata.size();
 }
-void packer::krc_file::add_mesh3d(const char *name, mesh3d::triangle *tris, size_t ntris)
+void packer::krc_file::add_mesh3d(const char *name, mesh3d::triangle *tris, size_t ntris, krc_mesh3d_fmt mfmt)
 {
 	std::vector<mesh3d::triangle> vtris;
 	for (size_t i = 0; i < ntris; ++i)
 		vtris.push_back(tris[i]);
-	add_mesh3d(name, vtris);
+	add_mesh3d(name, vtris, mfmt);
 }
-void packer::krc_file::add_mesh3d_from_obj_data(const char *name, const char *obj_data)
+void packer::krc_file::add_mesh3d_from_obj_data(const char *name, const char *obj_data, krc_mesh3d_fmt mfmt)
 {
 	std::vector<mesh3d::triangle> tris = mesh3d::obj_data_to_tri_arr(obj_data);
-	add_mesh3d(name, tris);
+	add_mesh3d(name, tris, mfmt);
 }
 std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data(const char *name)
 {
@@ -361,7 +368,7 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data(const char *name
 	if (blob.type != krc::MESH3D)
 		throw std::runtime_error("Blob is not of type MESH3D.");
 	std::vector<unsigned char> chdata = get_resource_data_from_blob(blob);
-	return get_mesh3d_data_from_bytes(chdata);
+	return get_mesh3d_data_from_bytes(chdata, blob.vdata);
 }
 void packer::krc_file::add_texture(const char *name, const texture_image &img, bool image_decoded)
 {
@@ -395,16 +402,16 @@ texture_image packer::krc_file::get_texture(const char *name)
 	std::vector<unsigned char> pixels = get_resource_data_from_blob(blob);
 	return get_texture_from_bytes(pixels, blob);
 }
-void packer::krc_file::add_mesh3d_from_obj_stream(const char *name, std::basic_istream<char, std::char_traits<char>> *stream)
+void packer::krc_file::add_mesh3d_from_obj_stream(const char *name, std::basic_istream<char, std::char_traits<char>> *stream, krc_mesh3d_fmt mfmt)
 {
 	if (!stream)
 		return;
-	add_mesh3d(name, mesh3d::obj_data_stream_to_tri_arr(stream));
+	add_mesh3d(name, mesh3d::obj_data_stream_to_tri_arr(stream), mfmt);
 }
-void packer::krc_file::add_mesh3d_from_obj_file(const char *name, const char *path)
+void packer::krc_file::add_mesh3d_from_obj_file(const char *name, const char *path, krc_mesh3d_fmt mfmt)
 {
 	std::fstream f(path);
-	add_mesh3d_from_obj_stream(name, &f);
+	add_mesh3d_from_obj_stream(name, &f, mfmt);
 	f.close();
 }
 packer::krc_file::header_blob packer::krc_file::get_blob_from_file(const char *file, const char *cname)
@@ -492,7 +499,7 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_file(const 
 	if (blob.type != krc::MESH3D)
 		throw std::runtime_error("Blob is not of type MESH3D.");
 	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
-	return get_mesh3d_data_from_bytes(chdata);
+	return get_mesh3d_data_from_bytes(chdata, blob.vdata);
 }
 texture_image packer::krc_file::get_texture_from_file(const char *name, const char *file)
 {
@@ -504,11 +511,39 @@ texture_image packer::krc_file::get_texture_from_file(const char *name, const ch
 	std::vector<unsigned char> chdata = get_resource_data_from_blob_file(blob, file);
 	return get_texture_from_bytes(chdata, blob);
 }
-std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_bytes(std::vector<unsigned char> &chdata)
+void packer::krc_file::add_mesh3d(const char *name, std::vector<mesh3d::triangle> tris, krc_mesh3d_fmt mfmt)
 {
+	unsigned char mesh3d_vdata[BLOB_VDATA_LEN]{0};
+	mesh3d_vdata[0] = (unsigned char)mfmt;
+	std::vector<unsigned char> tris_chdata;
+	for (size_t i = 0; i < tris.size(); ++i)
+		for (size_t j = 0; j < 3; ++j)
+		{
+			mesh3d::triangle::vert &vt = tris[i].v[j];
+			add_bytes<float>(tris_chdata, vt.p.x());
+			add_bytes<float>(tris_chdata, vt.p.y());
+			add_bytes<float>(tris_chdata, vt.p.z());
+
+			if (CONTAINS_TEX(mfmt))
+			{
+				add_bytes<float>(tris_chdata, vt.t.x());
+				add_bytes<float>(tris_chdata, vt.t.y());
+			}
+			if (CONTAINS_NORM(mfmt))
+			{
+				add_bytes<float>(tris_chdata, vt.n.x());
+				add_bytes<float>(tris_chdata, vt.n.y());
+				add_bytes<float>(tris_chdata, vt.n.z());
+			}
+		}
+	add_resource(name, krc::MESH3D, tris_chdata, mesh3d_vdata);
+}
+std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_bytes(std::vector<unsigned char> &chdata, unsigned char vdata[BLOB_VDATA_LEN])
+{
+	krc_mesh3d_fmt mfmt = (krc_mesh3d_fmt)vdata[0];
 	std::vector<mesh3d::triangle> ret;
 	int64_t float_ctr = -1;
-	for (size_t i = 0; i < chdata.size() / sizeof(mesh3d::triangle); ++i)
+	for (size_t i = 0; i < chdata.size() / get_mesh_size(mfmt); ++i)
 	{
 		ret.push_back(mesh3d::triangle{});
 		for (size_t j = 0; j < 3; ++j)
@@ -517,11 +552,24 @@ std::vector<mesh3d::triangle> packer::krc_file::get_mesh3d_data_from_bytes(std::
 			vt.p.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
 			vt.p.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
 			vt.p.z() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
-			vt.t.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
-			vt.t.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
-			vt.n.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
-			vt.n.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
-			vt.n.z() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+
+			if (CONTAINS_TEX(mfmt))
+			{
+				vt.t.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+				vt.t.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			}
+			if (CONTAINS_NORM(mfmt))
+			{
+				vt.n.x() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+				vt.n.y() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+				vt.n.z() = get_num<float>(&chdata[(++float_ctr) * sizeof(float)]);
+			}
+		}
+		if (mfmt != krc_mesh3d_fmt::VN && mfmt != krc_mesh3d_fmt::VTN)
+		{
+			vec3f norm = (ret[i].v[1].p - ret[i].v[0].p).cross(ret[i].v[2].p - ret[i].v[0].p);
+			for (size_t k = 0; k < 3; ++k)
+				ret[i].v[k].n = norm;
 		}
 	}
 	swap_endianness(ret, is_little_endian());
@@ -543,4 +591,37 @@ void packer::krc_file::clear()
 	header.clear();
 	data.clear();
 	data_stack_ptr = 0;
+}
+std::vector<unsigned char> packer::krc_file::get_file_bytes(const char *path)
+{
+	std::vector<unsigned char> data;
+
+	std::ifstream fs(path, std::ios::binary | std::ios::ate);
+	if (!fs.is_open())
+		return data;
+	size_t size = fs.tellg();
+	fs.close();
+
+	fs = std::ifstream(path, std::ios::binary);
+	unsigned char *in = new unsigned char[size]{0};
+	fs.read((char *)in, size);
+	fs.close();
+	for (size_t i = 0; i < size; ++i)
+		data.push_back(in[i]);
+	if (size > 0)
+		DEL_ARR_PTR(in);
+	return data;
+}
+void packer::krc_file::add_string(const char *name, const char *str)
+{
+	std::vector<unsigned char> data;
+	uint64_t ctr = -1;
+	char c;
+	while ((c = str[++ctr]) != '\0')
+		data.push_back((unsigned char)c);
+	std::vector<unsigned char> vdata;
+	add_uint64_t(ctr, vdata);
+	while (vdata.size() < BLOB_VDATA_LEN)
+		vdata.push_back(0);
+	add_resource(name, krc::TEXT, data, &vdata[0]);
 }

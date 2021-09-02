@@ -114,14 +114,16 @@ namespace kvasir
 		{
 			MESH3D = 'M',
 			TEXTURE = 'T',
+			TTF_FONT = 'F',
+			TEXT = 'S',
 			UNKNOWN = 'U',
 		};
 		enum class krc_mesh3d_fmt : unsigned char
 		{
-			V,
-			VN,
-			VT,
-			VTN
+			V = 'V',
+			VN = 'N',
+			VT = 'T',
+			VTN = 'A',
 		};
 		struct KV_EXPORT krc_file
 		{
@@ -147,14 +149,16 @@ namespace kvasir
 			krc get_first_type();
 			std::string get_first_name();
 
-			void add_mesh3d(const char *name, std::vector<mesh3d::triangle> tris);
-			void add_mesh3d(const char *name, mesh3d::triangle *tris, size_t ntris);
-			void add_mesh3d_from_obj_data(const char *name, const char *obj_data);
-			void add_mesh3d_from_obj_stream(const char *name, std::basic_istream<char, std::char_traits<char>> *stream);
-			void add_mesh3d_from_obj_file(const char *name, const char *path);
+			void add_mesh3d(const char *name, std::vector<mesh3d::triangle> tris, krc_mesh3d_fmt mfmt = krc_mesh3d_fmt::VTN);
+			void add_mesh3d(const char *name, mesh3d::triangle *tris, size_t ntris, krc_mesh3d_fmt mfmt = krc_mesh3d_fmt::VTN);
+			void add_mesh3d_from_obj_data(const char *name, const char *obj_data, krc_mesh3d_fmt mfmt = krc_mesh3d_fmt::VTN);
+			void add_mesh3d_from_obj_stream(const char *name, std::basic_istream<char, std::char_traits<char>> *stream, krc_mesh3d_fmt mfmt = krc_mesh3d_fmt::VTN);
+			void add_mesh3d_from_obj_file(const char *name, const char *path, krc_mesh3d_fmt mfmt = krc_mesh3d_fmt::VTN);
 
 			void add_texture(const char *name, const char *png_path, bool decode_image = true);
 			void add_texture(const char *name, const texture_image &img, bool image_decoded = true);
+
+			void add_string(const char *name, const char *str);
 
 			void add_resource(const char *name, krc type, const std::vector<unsigned char> &data, unsigned char vdata[BLOB_VDATA_LEN]);
 
@@ -180,9 +184,10 @@ namespace kvasir
 			static std::vector<header_blob> get_blobs_in_file(const char *file);
 			static std::vector<unsigned char> get_resource_data_from_blob_file(const header_blob &blob, const char *file);
 			static std::vector<mesh3d::triangle> get_mesh3d_data_from_file(const char *name, const char *file);
-			static std::vector<mesh3d::triangle> get_mesh3d_data_from_bytes(std::vector<unsigned char> &bytes);
+			static std::vector<mesh3d::triangle> get_mesh3d_data_from_bytes(std::vector<unsigned char> &bytes, unsigned char vdata[BLOB_VDATA_LEN]);
 			static texture_image get_texture_from_file(const char *name, const char *file);
 			static texture_image get_texture_from_bytes(std::vector<unsigned char> &bytes, header_blob &blob);
+			static std::vector<unsigned char> get_file_bytes(const char *path);
 
 			template <typename T>
 			static void set_vdata_bytes(unsigned char vdata[BLOB_VDATA_LEN], size_t offset, T val)

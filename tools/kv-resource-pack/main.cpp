@@ -8,7 +8,8 @@
 
 using namespace kvasir;
 
-#define KRC_FILE_LOC RESOURCE("../../../res/test.krc")
+// #define KRC_FILE_LOC RESOURCE("../../../res/test.krc")
+#define KRC_FILE_LOC "D:/out.krc"
 
 COUNT_MEMORY
 
@@ -72,16 +73,23 @@ int main(int, char **)
 	try
 	{
 		{
-			// packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
-			// strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj());
-			// strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj());
-			// strt.add_texture("Heightmp", "D:\\Images\\Bark_Pine_height.png", false);
-			// strt.add_mesh3d_from_obj_file("Icos", "D:\\3D Models\\isont.obj");
-			// strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\uvsmoothnt.obj");
-			// strt.add_mesh3d_from_obj_file("Mando", "D:\\3D Models\\shipnt.obj");
-			// if (!strt.save(KRC_FILE_LOC))
-				// throw std::runtime_error("Could not save resource.");
-			// strt.clear();
+			packer::krc_file strt; // packer::obj_data_to_krc("Cube", data::objects3d::get_cube_obj());
+			{
+				using namespace packer;
+				strt.add_mesh3d_from_obj_data("Cube", data::objects3d::get_cube_obj(), krc_mesh3d_fmt::VTN);
+				strt.add_mesh3d_from_obj_data("Prism", data::objects3d::get_rect_prism_obj(), krc_mesh3d_fmt::VT);
+				strt.add_texture("Heightmp", "D:\\Images\\Bark_Pine_height.png", false);
+				strt.add_mesh3d_from_obj_file("Icos", "D:\\3D Models\\isont.obj", krc_mesh3d_fmt::VN);
+				strt.add_mesh3d_from_obj_file("Sphere", "D:\\3D Models\\uvsmoothnt.obj", krc_mesh3d_fmt::VT);
+				strt.add_mesh3d_from_obj_file("Mando", "D:\\3D Models\\shipnt.obj", krc_mesh3d_fmt::V);
+				strt.add_resource("VeraMono", krc::TTF_FONT, krc_file::get_file_bytes("D:/Coding/Cpp/kvasir/res/fonts/VeraMono.ttf"), nullptr);
+				strt.add_resource("JetBrainsMono", krc::TTF_FONT, krc_file::get_file_bytes("D:/Coding/Cpp/kvasir/res/fonts/JetBrainsMono.ttf"), nullptr);
+				strt.add_texture("MunkeyImg", "D:/Images/71OpO-3gUfL.png", false);
+				strt.add_string("SomeText", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.");
+			}
+			if (!strt.save(KRC_FILE_LOC))
+				throw std::runtime_error("Could not save resource.");
+			strt.clear();
 		}
 
 		kvasir_init();
