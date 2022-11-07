@@ -50,11 +50,11 @@ struct kvasir_demo : kvasir_engine
 			mesh3d *ms = new mesh3d();
 			if (!ms->load_from_obj_data(data::objects3d::get_cube_obj(), base->make_buffer()))
 				return user_result("Ground failed loading.");
-			ms->pos = vec3f((float)(i % 2), (float)i * 3.f + 2, (float)(i % 3));
 			ms->set_material(make_material(base, 0xffff00));
 			p3d->add_mesh_box_hitbox(*ms, vec3f(1, 1, 1), physics3d::dynamic_props(1));
 			mshs.push_back(ms);
 		}
+		reset_meshes();
 
 		shader = base->make_shader();
 		const char *s[2] GL_SHADER_ARR(diffuse3d);
@@ -62,6 +62,14 @@ struct kvasir_demo : kvasir_engine
 			return user_result("Shader failed compiling");
 
 		return user_result::ok();
+	}
+	void reset_meshes()
+	{
+		for (int i = 0; i < mshs.size(); ++i)
+		{
+			const auto v3 = vec3f((float)(i % 2), (float)i * 3.f + 2, (float)(i % 3)) + vec3f(0, 10, 29);
+			p3d->set_position(*mshs[i], v3);
+		}
 	}
 	void on_update()
 	{
@@ -71,6 +79,8 @@ struct kvasir_demo : kvasir_engine
 		if (base->key_pressed(Num1))
 			for (size_t i = 0; i < mshs.size(); ++i)
 				p3d->add_central_force(*mshs[i], (cam.pos - mshs[i]->pos).normalized());
+		if (base->key_pressed(Num2))
+			reset_meshes();
 
 		p3d->step(time.delta());
 

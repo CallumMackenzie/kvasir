@@ -7,6 +7,7 @@ include(CTest)
 enable_testing()
 
 set(BUILD_SHARED_LIBRARY OFF)
+set(BUILD_VULKAN OFF)
 
 add_subdirectory(
 	../../kvasir
